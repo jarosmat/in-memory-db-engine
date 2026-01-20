@@ -1,22 +1,24 @@
 #include "String.hpp"
 
-String::String(const string &val): val(val) {
+using namespace std;
+
+String::String(const string &val) : val(val) {
 }
 
-String::String(string &&val): val(std::move(val)) {
+String::String(string &&val) : val(std::move(val)) {
 }
 
 String String::Concatenate(const string &valLeft, const string &valRight) {
     string result = valLeft + valRight;
 
-    return {std::move(result)};
+    return String(std::move(result));
 }
 
 String String::Concatenate(string &&valLeft, string &&valRight) {
     string result(std::move(valLeft));
     result += valRight;
 
-    return {std::move(result)};
+    return String(std::move(result));
 }
 
 char String::operator[](const size_t i) const {
@@ -32,12 +34,27 @@ void String::RemovePrefix(const size_t n) {
 void String::RemoveSuffix(const size_t n) {
 }
 
-set<size_t> String::Find(const String &val) const {
-}
+set<size_t> String::Find(const String &valToFind) const {
+    set<size_t> result;
+    auto &thisVal = this->val;
+    const PrefixAut aut(valToFind);
+    const size_t findValSize = valToFind.Size();
+    size_t pos = 0;
 
-set<size_t> String::Find(String &&val) const {
+    for (size_t i = 0; i < thisVal.size(); i++) {
+        pos = aut.GetNewState(thisVal[i], pos);
+
+        if (aut.FoundPattern(pos)) {
+            result.insert(i - findValSize + 1);
+        }
+    }
+    return result;
 }
 
 bool String::operator==(const String &other) const {
     return this->val == other.val;
+}
+
+size_t String::Size() const {
+    return val.size();
 }
