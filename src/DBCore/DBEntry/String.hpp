@@ -24,7 +24,7 @@ public:
 
     set<size_t> Find(const String& val) const;
 
-    set<size_t> Find(string&& val) const ;
+    set<size_t> Find(String&& val) const ;
 
     bool operator==(const String &other) const;
 };

@@ -35,7 +35,7 @@ void String::RemoveSuffix(const size_t n) {
 set<size_t> String::Find(const String &val) const {
 }
 
-set<size_t> String::Find(string &&val) const {
+set<size_t> String::Find(String &&val) const {
 }
 
 bool String::operator==(const String &other) const {
