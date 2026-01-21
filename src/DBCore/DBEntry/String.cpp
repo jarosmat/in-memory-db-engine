@@ -29,9 +29,21 @@ char String::operator[](const size_t i) const {
 }
 
 void String::RemovePrefix(const size_t n) {
+    if (n >= val.size()) {
+        val.clear();
+    }
+    else {
+        val.erase(val.begin(), val.begin() + n);
+    }
 }
 
 void String::RemoveSuffix(const size_t n) {
+    if (n >= val.size()) {
+        val.clear();
+    }
+    else {
+        val.erase(val.end() - n, val.end());
+    }
 }
 
 set<size_t> String::Find(const String &valToFind) const {
