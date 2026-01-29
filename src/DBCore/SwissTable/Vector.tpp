@@ -1,6 +1,7 @@
-#include "Vector.hpp"
+#ifndef VECTOR_TPP
+#define VECTOR_TPP
+#include "VectorClass.hpp"
 
-using namespace std;
 
 template<typename T>
 bool Vector<T>::Full() const {
@@ -15,16 +16,31 @@ void Vector<T>::EnsureNotEmpty() {
 }
 
 template<typename T>
-Vector<T>::Vector(): size(initialSize), data(std::make_unique<T[initialSize]>()), count(0) {
+void Vector<T>::Expand() {
+    const size_t newSize = size * resizeCoef;
+    std::unique_ptr<T[]> newData = std::make_unique<T[]>(newSize);
+    auto newDataVal = newData.get();
+    auto dataVal = data.get();
+
+    for (size_t i = 0; i < count; i++) {
+        newDataVal[i] = std::move(dataVal[i]);
+    }
+
+    data.swap(newData);
+    size = newSize;
+}
+
+template<typename T>
+Vector<T>::Vector(): size(initialSize), data(std::make_unique<T[]>(this->size)), count(0) {
 }
 
 
 template<typename T>
-Vector<T>::Vector(const size_t size) : size(size), data(std::make_unique<T[size]>()), count(0) {
+Vector<T>::Vector(const size_t size) : size(size), data(std::make_unique<T[]>(this->size)), count(0) {
 }
 
 template<typename T>
-Vector<T>::Vector(const size_t size, T &initialVal): size(size * resizeCoef), data(std::make_unique<T[this->size]>()), count(size){
+Vector<T>::Vector(const size_t size, T &initialVal): size(size * resizeCoef), data(std::make_unique<T[]>(this->size)), count(size){
     for (size_t i = 0; i < size; i++) {
         data.get()[i] = initialVal;
     }
@@ -43,13 +59,22 @@ void Vector<T>::Append(T &&val) {
 }
 
 template<typename T>
+void Vector<T>::Remove(const size_t i) {
+    count--;
+    auto dataVal = data.get();
+    for (size_t j = i; j < count; j++) {
+       dataVal[j] = dataVal[j + 1];
+    }
+}
+
+template<typename T>
 const T & Vector<T>::CLastEntry() const {
-    return data.get()[size - 1];
+    return data.get()[count - 1];
 }
 
 template<typename T>
 T & Vector<T>::LastEntry() {
-    return data.get()[size - 1];
+    return data.get()[count - 1];
 }
 
 template<typename T>
@@ -72,3 +97,4 @@ template<typename T>
 size_t Vector<T>::Count() const {
     return count;
 }
+#endif // VECTOR_TPP
