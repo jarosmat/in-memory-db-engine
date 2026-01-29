@@ -27,7 +27,7 @@ TEST_CASE("Appending Values") {
         REQUIRE(val[i] == i + startVal);
     }
 
-    for (size_t i = val.Count(); 0 < i; i++) {
+    for (size_t i = val.Count() - 1; 0 < i; i--) {
         REQUIRE(val.CLastEntry() == startVal + i);
         val.Remove(i);
     }
