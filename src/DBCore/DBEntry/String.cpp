@@ -8,6 +8,9 @@ String::String(const string &val) : val(val) {
 String::String(string &&val) : val(std::move(val)) {
 }
 
+String::String(){
+}
+
 String String::Concatenate(const string &valLeft, const string &valRight) {
     string result = valLeft + valRight;
 
