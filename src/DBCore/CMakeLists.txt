@@ -10,7 +10,7 @@ add_executable(StringTest DBEntry/StringTest.cpp)
 target_link_libraries(StringTest Entries Catch2::Catch2WithMain)
 
 add_executable(VectorTest SwissTable/VectorTest.cpp)
-target_link_libraries(VectorTest SwissTable Entries Catch2::Catch2WithMain)
+target_link_libraries(VectorTest Entries Catch2::Catch2WithMain)
 
 include(Catch)
 catch_discover_tests(StringTest)
