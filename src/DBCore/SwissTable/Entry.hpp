@@ -1,0 +1,4 @@
+#ifndef PROJECT_ENTRY_HPP
+#define PROJECT_ENTRY_HPP
+
+#endif //PROJECT_ENTRY_HPP
