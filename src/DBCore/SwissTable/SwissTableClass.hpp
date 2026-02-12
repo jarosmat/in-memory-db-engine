@@ -12,16 +12,23 @@ class SwissTable {
     static constexpr size_t resizeCoef = 2;
     static constexpr size_t h1ShiftCoef = 7; // number of shifts to get upper 57 bits
     static constexpr size_t h2Mask = 0x7F; // Mask for getting 7 lowest bits
+    static constexpr size_t maxLoad = 75;
+    size_t dataCount;
     Vector<Group> metadata;
     Vector<D> data;
+    Vector<K> keys;
 
     void Rehash();
 
+    bool NeedRehash();
+
+    void EnsureNotMaxload();
+
     void Delete(size_t pos);
 
-    void SetValue(size_t pos, const D& val, size_t hash);
+    void SetValue(size_t pos, const D& val, size_t hash, K&& key);
 
-    void SetValue(size_t pos, D&& val, size_t hash);
+    void SetValue(size_t pos, D&& val, size_t hash, K&& key);
 
     D& GetValue(size_t pos);
 

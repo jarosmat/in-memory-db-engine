@@ -4,14 +4,55 @@
 #include "SwissTableClass.hpp"
 
 template<typename F, typename D, typename K>
+void SwissTable<F, D, K>::Rehash() {
+    auto oldKeys = std::move(keys);
+    auto oldData = std::move(data);
+    const auto oldMetadata = std::move(metadata);
+
+    keys = Vector<K>(oldKeys.Count() * resizeCoef);
+    data = Vector<D>(oldData.Count() * resizeCoef);
+    metadata = Vector<Group>(oldMetadata.Count() * resizeCoef);
+    for (size_t i = 0; i < metadata.Count(); i++) {
+        metadata[i] = Group(i * groupSize, (i + 1) * groupSize);
+    }
+
+    size_t dataIndex = 0;
+    for (size_t group = 0; group < oldMetadata.Count(); group++) {
+        for (size_t i = 0; i < groupSize; i++, dataIndex++) {
+            if (oldMetadata[group].Used(dataIndex)) {
+                auto res = LookUp(oldKeys[dataIndex]);
+                res.SetValue(oldData[dataIndex]);
+            }
+        }
+    }
+}
+
+template<typename F, typename D, typename K>
+bool SwissTable<F, D, K>::NeedRehash() {
+    return (dataCount * 100) / data.Count() >= resizeCoef;
+}
+
+template<typename F, typename D, typename K>
+void SwissTable<F, D, K>::EnsureNotMaxload() {
+    if (NeedRehash()) {
+        Rehash();
+    }
+}
+
+template<typename F, typename D, typename K>
 void SwissTable<F, D, K>::Delete(const size_t pos) {
     const auto group = pos / groupSize;
+
+    if (metadata[group].Used(pos)) {
+        dataCount--;
+    }
 
     metadata[group].Delete(pos);
 }
 
 template<typename F, typename D, typename K>
-void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash, K&& key) {
+void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash, K &&key) {
+    EnsureNotMaxload();
     const auto group = pos / groupSize;
 
     if (!metadata[group].Used(pos)) {
@@ -24,7 +65,8 @@ void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash, 
 }
 
 template<typename F, typename D, typename K>
-void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash, K&& key) {
+void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash, K &&key) {
+    EnsureNotMaxload();
     const auto group = pos / groupSize;
 
     if (!metadata[group].Used(pos)) {
@@ -37,14 +79,14 @@ void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash, K&& k
 }
 
 template<typename F, typename D, typename K>
-D & SwissTable<F, D, K>::GetValue(size_t pos) {
+D &SwissTable<F, D, K>::GetValue(size_t pos) {
     return data[pos];
 }
 
 template<typename F, typename D, typename K>
 size_t SwissTable<F, D, K>::GetNextGroup(const size_t group) const {
     const auto res = group + 1;
-    if (res < metadata.Count() ) {
+    if (res < metadata.Count()) {
         return res;
     }
     return 0;
@@ -63,6 +105,9 @@ std::pair<bool, size_t> SwissTable<F, D, K>::CheckExistence(const lookUpRes &arr
 
 template<typename F, typename D, typename K>
 SwissTable<F, D, K>::SwissTable() : dataCount(0), metadata(initialGroupCount), data(initialGroupCount * groupSize) {
+    for (size_t i = 0; i < metadata.Count(); i++) {
+        metadata[i] = Group(i * groupSize, (i + 1) * groupSize);
+    }
 }
 
 template<typename F, typename D, typename K>
