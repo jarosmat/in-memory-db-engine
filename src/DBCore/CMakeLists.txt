@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_library(Entries DBEntry/String.hpp DBEntry/String.cpp DBEntry/PrefixAut.hpp DBEntry/PrefixAut.cpp)
 add_library(SwissTable SwissTable/VectorClass.hpp SwissTable/Vector.hpp SwissTable/Vector.tpp SwissTable/Group.cpp
-        SwissTable/Group.hpp SwissTable/Entry.hpp SwissTable/Entry.cpp SwissTable/SwissTable.hpp SwissTable/SwissTableClass.hpp
+        SwissTable/Group.hpp SwissTable/Entry.hpp SwissTable/EntryClass.hpp SwissTable/Entry.tpp SwissTable/SwissTable.hpp SwissTable/SwissTableClass.hpp
         SwissTable/SwissTable.tpp)
 
 add_executable(StringTest DBEntry/StringTest.cpp)
