@@ -21,7 +21,7 @@ lookUpRes Group::LookUp(const hash2Type hash2) const {
     // if no empty spaces are found it just returns FULL
     posArr result;
     posArr resultEmpty;
-    LookupVals lookUpResult = FULL;
+    LookupRes lookUpResult = FULL;
     const size_t size = end - start;
 
     for (size_t i = 0; i < size; i++) {
@@ -40,7 +40,7 @@ lookUpRes Group::LookUp(const hash2Type hash2) const {
     }
 
     if (!resultEmpty.empty()) {
-        lookUpResult = LookupVals::EMPTY;
+        lookUpResult = LookupRes::EMPTY;
     }
     return {lookUpResult, resultEmpty};
 }

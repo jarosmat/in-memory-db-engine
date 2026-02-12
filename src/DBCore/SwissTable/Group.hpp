@@ -3,7 +3,7 @@
 #include "Vector.hpp"
 #include <vector>
 
-enum LookupVals {
+enum LookupRes {
     USED,
     EMPTY,
     NOT_FOUND,
@@ -12,7 +12,7 @@ enum LookupVals {
 
 using pos = size_t;
 using posArr = std::vector<pos>;
-using lookUpRes = std::pair<LookupVals, posArr>;
+using lookUpRes = std::pair<LookupRes, posArr>;
 using hash2Type = uint8_t;
 using controlWord = std::vector<hash2Type>;
 

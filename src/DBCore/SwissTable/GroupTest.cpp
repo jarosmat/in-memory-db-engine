@@ -13,7 +13,7 @@ TEST_CASE("Initial state is empty") {
 
     auto [status, positions] = g.LookUp(0x12);
 
-    CHECK(status == LookupVals::EMPTY);
+    CHECK(status == LookupRes::EMPTY);
     CHECK(positions.size() == size);
 
     for (size_t i = 0; i < size; ++i) {
@@ -36,13 +36,13 @@ TEST_CASE("Adding and finding values") {
 
     SECTION("LookUp finds single entry") {
         auto [status, positions] = g.LookUp(h2);
-        CHECK(status == LookupVals::USED);
+        CHECK(status == LookupRes::USED);
         CHECK(positions == posArr{1});
     }
 
     SECTION("LookUp finds multiple entries for same hash") {
         auto [status, positions] = g.LookUp(h1);
-        CHECK(status == LookupVals::USED);
+        CHECK(status == LookupRes::USED);
         CHECK(positions.size() == 2);
         CHECK(find(positions.begin(), positions.end(), 0) != positions.end());
         CHECK(find(positions.begin(), positions.end(), 2) != positions.end());
@@ -50,7 +50,7 @@ TEST_CASE("Adding and finding values") {
 
     SECTION("LookUp returns EMPTY slots when hash is not present") {
         auto [status, positions] = g.LookUp(0x7F);
-        CHECK(status == LookupVals::EMPTY);
+        CHECK(status == LookupRes::EMPTY);
 
         CHECK(positions.size() == 5);
         for (size_t i = 3; i < size; i++) {
@@ -72,7 +72,7 @@ TEST_CASE("Deletion and Tombstones") {
 
     SECTION("Find the value") {
         auto [status, positions] = g.LookUp(h1);
-        CHECK(status == LookupVals::USED);
+        CHECK(status == LookupRes::USED);
         CHECK(positions.size() == 1);
         CHECK(positions[0] == testPos);
     }
@@ -81,7 +81,7 @@ TEST_CASE("Deletion and Tombstones") {
 
     SECTION("Deleted slots are not returned as USED") {
         auto [status, positions] = g.LookUp(h1);
-        CHECK(status == LookupVals::EMPTY);
+        CHECK(status == LookupRes::EMPTY);
         CHECK(positions.size() == size - 1);
         for (unsigned long i: positions) {
             CHECK(i != testPos);
@@ -102,7 +102,7 @@ TEST_CASE("Full Group behavior") {
 
     SECTION("LookUp returns FULL when no match and no EMPTY slots") {
         auto [status, positions] = g.LookUp(0x7F);
-        CHECK(status == LookupVals::FULL);
+        CHECK(status == LookupRes::FULL);
         CHECK(positions.empty());
     }
 }
