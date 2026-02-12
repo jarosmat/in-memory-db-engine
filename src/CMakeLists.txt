@@ -16,3 +16,6 @@ FetchContent_MakeAvailable(Catch2)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/CLI")
 add_subdirectory("${PROJECT_SOURCE_DIR}/DBCore")
+
+add_executable(main main.cpp)
+target_link_libraries(main Entries SwissTable)
