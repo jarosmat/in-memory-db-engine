@@ -19,9 +19,9 @@ class SwissTable {
 
     void Delete(size_t pos);
 
-    void SetValue(size_t pos, const D& data);
+    void SetValue(size_t pos, const D& val, size_t hash);
 
-    void SetValue(size_t pos, D&& data);
+    void SetValue(size_t pos, D&& val, size_t hash);
 
     D& GetValue(size_t pos);
 

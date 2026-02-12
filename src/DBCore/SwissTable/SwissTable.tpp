@@ -4,6 +4,29 @@
 #include "SwissTableClass.hpp"
 
 template<typename F, typename D, typename K>
+void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, size_t hash) {
+    const auto group = pos / groupSize;
+    const auto groupPos = pos - group * groupSize;
+
+    data[pos] = val;
+    metadata[group].SetVal(hash, groupPos);
+}
+
+template<typename F, typename D, typename K>
+void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash) {
+    const auto group = pos / groupSize;
+    const auto groupPos = pos - group * groupSize;
+
+    data[pos] = std::move(val);
+    metadata[group].SetVal(hash, groupPos);
+}
+
+template<typename F, typename D, typename K>
+D & SwissTable<F, D, K>::GetValue(size_t pos) {
+    return data[pos];
+}
+
+template<typename F, typename D, typename K>
 size_t SwissTable<F, D, K>::GetNextGroup(const size_t group) const {
     const auto res = group + 1;
     if (res < metadata.Count() ) {
