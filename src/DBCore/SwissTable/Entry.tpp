@@ -8,7 +8,13 @@ SwissTable<F, D, K>::Entry::Entry(const SwissTable<F, D, K> &table, const Lookup
 }
 
 template<typename F, typename D, typename K>
-LookupRes SwissTable<F, D, K>::Entry::GetResult() {
+LookupRes SwissTable<F, D, K>::Entry::GetResult() const {
+    return result;
+}
+
+template<typename F, typename D, typename K>
+void SwissTable<F, D, K>::Entry::DeleteEntry() {
+
 }
 
 #endif // ENTRY_TPP

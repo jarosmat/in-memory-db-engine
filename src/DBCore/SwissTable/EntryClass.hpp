@@ -9,7 +9,7 @@ class SwissTable<F,D,K>::Entry {
 public:
     Entry(const SwissTable<F,D,K>& table, LookupRes res);
 
-    LookupRes GetResult();
+    LookupRes GetResult() const;
 
     void DeleteEntry();
 
