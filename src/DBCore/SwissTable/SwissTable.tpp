@@ -4,29 +4,26 @@
 #include "SwissTableClass.hpp"
 
 template<typename F, typename D, typename K>
-void SwissTable<F, D, K>::Delete(size_t pos) {
+void SwissTable<F, D, K>::Delete(const size_t pos) {
     const auto group = pos / groupSize;
-    const auto groupPos = pos - group * groupSize;
 
-    metadata[group].Delete(groupPos);
+    metadata[group].Delete(pos);
 }
 
 template<typename F, typename D, typename K>
-void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, size_t hash) {
+void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash) {
     const auto group = pos / groupSize;
-    const auto groupPos = pos - group * groupSize;
 
     data[pos] = val;
-    metadata[group].SetVal(hash, groupPos);
+    metadata[group].SetVal(hash, pos);
 }
 
 template<typename F, typename D, typename K>
 void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash) {
     const auto group = pos / groupSize;
-    const auto groupPos = pos - group * groupSize;
 
     data[pos] = std::move(val);
-    metadata[group].SetVal(hash, groupPos);
+    metadata[group].SetVal(hash, pos);
 }
 
 template<typename F, typename D, typename K>
@@ -46,7 +43,7 @@ size_t SwissTable<F, D, K>::GetNextGroup(const size_t group) const {
 template<typename F, typename D, typename K>
 std::pair<bool, size_t> SwissTable<F, D, K>::CheckExistence(const lookUpRes &arr, K &key, const size_t group) {
     for (auto &&a: arr.second) {
-        if (data[group * groupSize + a] == key) {
+        if (data[a] == key) {
             return {true, a};
         }
     }
@@ -55,7 +52,7 @@ std::pair<bool, size_t> SwissTable<F, D, K>::CheckExistence(const lookUpRes &arr
 }
 
 template<typename F, typename D, typename K>
-SwissTable<F, D, K>::SwissTable() : metadata(initialGroupCount), data(initialGroupCount * groupSize) {
+SwissTable<F, D, K>::SwissTable() : dataCount(0), metadata(initialGroupCount), data(initialGroupCount * groupSize) {
 }
 
 template<typename F, typename D, typename K>
