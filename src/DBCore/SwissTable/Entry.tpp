@@ -4,13 +4,13 @@
 #include "EntryClass.hpp"
 
 template<typename F, typename D, typename K>
-SwissTable<F, D, K>::Entry::Entry(const SwissTable<F, D, K> &table, const LookupRes res,
+SwissTable<F, D, K>::Entry::Entry(SwissTable<F, D, K> &table, const LookupRes res,
                                   const size_t pos, const K &key, const size_t hash) : table(table), result(res),
     pos(pos), key(key), hash(hash) {
 }
 
 template<typename F, typename D, typename K>
-SwissTable<F, D, K>::Entry::Entry(const SwissTable<F, D, K> &table, const LookupRes res, const size_t pos, K &&key,
+SwissTable<F, D, K>::Entry::Entry(SwissTable<F, D, K> &table, const LookupRes res, const size_t pos, K &&key,
                                   const size_t hash) : table(table), result(res), pos(pos), key(key), hash(hash) {
 }
 

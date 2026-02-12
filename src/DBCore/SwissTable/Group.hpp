@@ -29,6 +29,8 @@ class Group {
     static bool isValidHash2(hash2Type hash);
 
 public:
+    Group();
+
     Group(size_t start, size_t end, controlWord&& metadata);
 
     Group(size_t start, size_t end);

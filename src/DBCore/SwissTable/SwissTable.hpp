@@ -2,6 +2,7 @@
 #define PROJECT_SWISSTABLE_HPP
 #include "SwissTableClass.hpp"
 #include "SwissTable.tpp"
+#include "Entry.hpp"
 
 
 

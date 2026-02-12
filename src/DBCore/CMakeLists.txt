@@ -17,7 +17,7 @@ target_link_libraries(VectorTest Entries Catch2::Catch2WithMain)
 add_executable(GroupTest SwissTable/GroupTest.cpp)
 target_link_libraries(GroupTest Entries SwissTable Catch2::Catch2WithMain)
 
-add_executable(SwissTableTest SwissTable/SwissTableTest.cpp)
+add_executable(SwissTableTest SwissTable/SwissTableTest.cpp SwissTable/SwissTable.hpp)
 target_link_libraries(SwissTableTest Entries SwissTable Catch2::Catch2WithMain)
 
 include(Catch)

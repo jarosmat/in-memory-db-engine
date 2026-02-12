@@ -112,19 +112,19 @@ SwissTable<F, D, K>::SwissTable() : dataCount(0), metadata(initialGroupCount), d
 
 template<typename F, typename D, typename K>
 SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
-    const hash hKey = F(key);
+    const hash hKey = hashFunc(key);
     const hash h1 = hKey >> h1ShiftCoef;
     const hash h2 = hKey & h2Mask;
 
     const size_t groupCount = metadata.Count();
-    const size_t lookUpGroup = h1 % groupCount;
+    size_t lookUpGroup = h1 % groupCount;
 
 
     auto lookUpRes = metadata[lookUpGroup].LookUp(h2);
     while (lookUpRes.first != EMPTY) {
         if (lookUpRes.first == USED) {
             if (auto checkRes = CheckExistence(lookUpRes, key, lookUpGroup); checkRes.first) {
-                return Entry(this, lookUpRes.first, checkRes.second, h2, key);
+                return Entry(*this, lookUpRes.first, checkRes.second, key, h2);
             }
         }
 
@@ -132,7 +132,7 @@ SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
         lookUpRes = metadata[lookUpGroup].LookUp(h2);
     }
 
-    return Entry(this, lookUpRes.first, lookUpRes.second[0], h2, key);
+    return Entry(*this, lookUpRes.first, lookUpRes.second[0], key, h2);
 }
 
 #endif //PROJECT_SWISSTABLE_TPP

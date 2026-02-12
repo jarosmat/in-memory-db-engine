@@ -6,6 +6,9 @@ bool Group::isValidHash2(const hash2Type hash) {
     return hash <= USED_MASK;
 }
 
+Group::Group(): start(0), end(0) {
+}
+
 Group::Group(const size_t start, const size_t end, controlWord &&metadata) : start(start), end(end),
                                                                              metadata(std::move(metadata)) {
 }
