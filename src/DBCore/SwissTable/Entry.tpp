@@ -4,7 +4,8 @@
 #include "EntryClass.hpp"
 
 template<typename F, typename D, typename K>
-SwissTable<F, D, K>::Entry::Entry(const SwissTable<F, D, K> &table, const LookupRes res, const size_t pos): table(table), result(res), pos(pos)  {
+SwissTable<F, D, K>::Entry::Entry(const SwissTable<F, D, K> &table, const LookupRes res, const size_t group,
+                                  const size_t pos) : table(table), result(res), group(group), pos(pos) {
 }
 
 template<typename F, typename D, typename K>
@@ -28,7 +29,7 @@ void SwissTable<F, D, K>::Entry::SetValue(D &&val) {
 }
 
 template<typename F, typename D, typename K>
-D & SwissTable<F, D, K>::Entry::GetValue() const {
+D &SwissTable<F, D, K>::Entry::GetValue() const {
     return table.GetValue(pos);
 }
 
