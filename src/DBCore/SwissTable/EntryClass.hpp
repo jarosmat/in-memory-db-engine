@@ -6,18 +6,19 @@ template<typename F, typename D, typename K>
 class SwissTable<F,D,K>::Entry {
     const SwissTable<F,D,K>& table;
     const LookupRes result;
+    const size_t pos;
 public:
-    Entry(const SwissTable<F,D,K>& table, LookupRes res);
+    Entry(const SwissTable<F, D, K> &table, LookupRes res, size_t pos);
 
-    LookupRes GetResult() const;
+    [[nodiscard]] LookupRes GetResult() const;
 
     void DeleteEntry();
 
-    void SetValue(const D& data);
+    void SetValue(const D& val);
 
-    void SetValue(D&& data);
+    void SetValue(D&& val);
 
-    D& GetValue();
+    D& GetValue() const;
 
 };
 
