@@ -60,6 +60,45 @@ TEST_CASE("Adding and finding values") {
 }
 
 
+TEST_CASE("Adding and finding values second group") {
+    constexpr size_t start = 8;
+    constexpr size_t end = 16;
+    constexpr size_t size = end - start;
+    Group g(start, end);
+
+    hash2Type h1 = 0x01;
+    hash2Type h2 = 0x02;
+
+    g.SetVal(h1, 8);
+    g.SetVal(h2, 9);
+    g.SetVal(h1, 10);
+
+    SECTION("LookUp finds single entry") {
+        auto [status, positions] = g.LookUp(h2);
+        CHECK(status == LookupRes::USED);
+        CHECK(positions == posArr{9});
+    }
+
+    SECTION("LookUp finds multiple entries for same hash") {
+        auto [status, positions] = g.LookUp(h1);
+        CHECK(status == LookupRes::USED);
+        CHECK(positions.size() == 2);
+        CHECK(find(positions.begin(), positions.end(), 8) != positions.end());
+        CHECK(find(positions.begin(), positions.end(), 10) != positions.end());
+    }
+
+    SECTION("LookUp returns EMPTY slots when hash is not present") {
+        auto [status, positions] = g.LookUp(0x7F);
+        CHECK(status == LookupRes::EMPTY);
+
+        CHECK(positions.size() == 5);
+        for (size_t i = 3 + 8; i < size + 8; i++) {
+            CHECK(find(positions.begin(), positions.end(), i) != positions.end());
+        }
+    }
+}
+
+
 TEST_CASE("Deletion and Tombstones") {
     constexpr size_t start = 0;
     constexpr size_t end = 8;

@@ -6,11 +6,11 @@ bool Group::isValidHash2(const hash2Type hash) {
     return hash <= USED_MASK;
 }
 
-Group::Group(const size_t start, const size_t end, controlWord&& metadata) : start(start), end(end),
+Group::Group(const size_t start, const size_t end, controlWord &&metadata) : start(start), end(end),
                                                                              metadata(std::move(metadata)) {
 }
 
-Group::Group(const size_t start, const size_t end): start(start), end(end), metadata(controlWord(end - start, EMPTY)) {
+Group::Group(const size_t start, const size_t end) : start(start), end(end), metadata(controlWord(end - start, EMPTY)) {
 }
 
 lookUpRes Group::LookUp(const hash2Type hash2) const {
@@ -27,11 +27,10 @@ lookUpRes Group::LookUp(const hash2Type hash2) const {
     for (size_t i = 0; i < size; i++) {
         const auto currMetadata = metadata[i];
         if (hash2 == currMetadata) {
-            result.push_back(i);
+            result.push_back(i + start);
             lookUpResult = USED;
-        }
-        else if (currMetadata == EMPTY) {
-            resultEmpty.push_back(i);
+        } else if (currMetadata == EMPTY) {
+            resultEmpty.push_back(i + start);
         }
     }
 
@@ -46,8 +45,7 @@ lookUpRes Group::LookUp(const hash2Type hash2) const {
 }
 
 void Group::SetVal(const hash2Type hash, const pos pos) {
-    const size_t size = end - start;
-    if (pos >= size) {
+    if (pos < start || pos >= end) {
         throw outOfBoundsError;
     }
 
@@ -55,15 +53,23 @@ void Group::SetVal(const hash2Type hash, const pos pos) {
         throw invalidHashError;
     }
 
-    metadata[pos] = hash;
+    metadata[pos - start] = hash;
 }
 
 void Group::Delete(const pos pos) {
-    const size_t size = end - start;
-    if (pos >= size) {
+    if (pos < start || pos >= end) {
         auto exception = outOfBoundsError;
         throw exception;
     }
 
-    metadata[pos] = DELETED;
+    metadata[pos - start] = DELETED;
+}
+
+bool Group::Used(const pos pos) const {
+    if (pos < start || pos >= end) {
+        auto exception = outOfBoundsError;
+        throw exception;
+    }
+
+    return metadata[pos - start] != EMPTY && metadata[pos] != DELETED;
 }

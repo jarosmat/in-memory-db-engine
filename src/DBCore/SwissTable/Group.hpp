@@ -38,6 +38,8 @@ public:
     void SetVal(hash2Type hash, pos pos);
 
     void Delete(pos pos);
+
+    bool Used(pos pos) const;
 };
 // EMPTY   1 0 0 0 0 0 0 0
 // USED    0 x
