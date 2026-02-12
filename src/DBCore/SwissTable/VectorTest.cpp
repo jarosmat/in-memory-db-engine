@@ -1,6 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include "Vector.hpp"
-#include "Entries.hpp"
+#include "../DBEntry/String.hpp"
 
 using namespace std;
 TEST_CASE("Accessing Value") {
