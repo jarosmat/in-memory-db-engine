@@ -4,6 +4,14 @@
 #include "SwissTableClass.hpp"
 
 template<typename F, typename D, typename K>
+void SwissTable<F, D, K>::Delete(size_t pos) {
+    const auto group = pos / groupSize;
+    const auto groupPos = pos - group * groupSize;
+
+    metadata[group].Delete(groupPos);
+}
+
+template<typename F, typename D, typename K>
 void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, size_t hash) {
     const auto group = pos / groupSize;
     const auto groupPos = pos - group * groupSize;
