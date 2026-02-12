@@ -37,6 +37,8 @@ class SwissTable {
 
     std::pair<bool, size_t> CheckExistence(const lookUpRes& arr, K& key, size_t group);
 
+    void InitializeFields(size_t groupCount = initialGroupCount);
+
 public:
     class Entry;
 

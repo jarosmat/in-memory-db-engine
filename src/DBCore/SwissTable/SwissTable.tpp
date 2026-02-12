@@ -12,9 +12,9 @@ void SwissTable<F, D, K>::Rehash() {
     keys = Vector<K>(oldKeys.Count() * resizeCoef);
     data = Vector<D>(oldData.Count() * resizeCoef);
     metadata = Vector<Group>(oldMetadata.Count() * resizeCoef);
-    for (size_t i = 0; i < metadata.Count(); i++) {
-        metadata[i] = Group(i * groupSize, (i + 1) * groupSize);
-    }
+    dataCount = 0;
+    InitializeFields(oldMetadata.Count() * resizeCoef);
+
 
     size_t dataIndex = 0;
     for (size_t group = 0; group < oldMetadata.Count(); group++) {
@@ -29,7 +29,10 @@ void SwissTable<F, D, K>::Rehash() {
 
 template<typename F, typename D, typename K>
 bool SwissTable<F, D, K>::NeedRehash() {
-    return (dataCount * 100) / data.Count() >= resizeCoef;
+    if (data.Count() == 0) {
+        return false;
+    }
+    return (dataCount * 100) / data.Count() >= maxLoad;
 }
 
 template<typename F, typename D, typename K>
@@ -95,7 +98,7 @@ size_t SwissTable<F, D, K>::GetNextGroup(const size_t group) const {
 template<typename F, typename D, typename K>
 std::pair<bool, size_t> SwissTable<F, D, K>::CheckExistence(const lookUpRes &arr, K &key, const size_t group) {
     for (auto &&a: arr.second) {
-        if (data[a] == key) {
+        if (keys[a] == key) {
             return {true, a};
         }
     }
@@ -104,10 +107,22 @@ std::pair<bool, size_t> SwissTable<F, D, K>::CheckExistence(const lookUpRes &arr
 }
 
 template<typename F, typename D, typename K>
-SwissTable<F, D, K>::SwissTable() : dataCount(0), metadata(initialGroupCount), data(initialGroupCount * groupSize) {
-    for (size_t i = 0; i < metadata.Count(); i++) {
-        metadata[i] = Group(i * groupSize, (i + 1) * groupSize);
+void SwissTable<F, D, K>::InitializeFields(const size_t groupCount) {
+    for (size_t i = 0; i < groupCount; i++) {
+        metadata.Append(Group(i * groupSize, (i + 1) * groupSize));
     }
+
+    const size_t dataSize = groupCount * groupSize;
+    for (size_t i = 0; i < dataSize; i++) {
+        data.Append(D());
+        keys.Append(K());
+    }
+}
+
+template<typename F, typename D, typename K>
+SwissTable<F, D, K>::SwissTable() : dataCount(0), metadata(initialGroupCount), data(initialGroupCount * groupSize),
+                                    keys(initialGroupCount * groupSize) {
+   InitializeFields();
 }
 
 template<typename F, typename D, typename K>
