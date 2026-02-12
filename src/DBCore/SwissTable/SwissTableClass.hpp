@@ -25,7 +25,7 @@ class SwissTable {
 
     D& GetValue(size_t pos);
 
-    size_t GetNextGroup(size_t);
+    [[nodiscard]] size_t GetNextGroup(size_t group) const;
 
     std::pair<bool, size_t> CheckExistence(const lookUpRes& arr, K& key, size_t group);
 

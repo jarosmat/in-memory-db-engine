@@ -4,6 +4,15 @@
 #include "SwissTableClass.hpp"
 
 template<typename F, typename D, typename K>
+size_t SwissTable<F, D, K>::GetNextGroup(const size_t group) const {
+    const auto res = group + 1;
+    if (res < metadata.Count() ) {
+        return res;
+    }
+    return 0;
+}
+
+template<typename F, typename D, typename K>
 std::pair<bool, size_t> SwissTable<F, D, K>::CheckExistence(const lookUpRes &arr, K &key, const size_t group) {
     for (auto &&a: arr.second) {
         if (data[group * groupSize + a] == key) {
