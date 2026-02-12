@@ -5,7 +5,13 @@
 
 template<typename F, typename D, typename K>
 SwissTable<F, D, K>::Entry::Entry(const SwissTable<F, D, K> &table, const LookupRes res,
-                                  const size_t pos) : table(table), result(res), pos(pos) {
+                                  const size_t pos, const K &key, const size_t hash) : table(table), result(res),
+    pos(pos), key(key), hash(hash) {
+}
+
+template<typename F, typename D, typename K>
+SwissTable<F, D, K>::Entry::Entry(const SwissTable<F, D, K> &table, const LookupRes res, const size_t pos, K &&key,
+                                  const size_t hash) : table(table), result(res), pos(pos), key(key), hash(hash) {
 }
 
 template<typename F, typename D, typename K>
@@ -20,12 +26,12 @@ void SwissTable<F, D, K>::Entry::DeleteEntry() {
 
 template<typename F, typename D, typename K>
 void SwissTable<F, D, K>::Entry::SetValue(const D &val) {
-    table.SetValue(pos, val);
+    table.SetValue(pos, val, hash, std::move(key));
 }
 
 template<typename F, typename D, typename K>
 void SwissTable<F, D, K>::Entry::SetValue(D &&val) {
-    table.SetValue(pos, std::move(val));
+    table.SetValue(pos, std::move(val), hash, std::move(key));
 }
 
 template<typename F, typename D, typename K>

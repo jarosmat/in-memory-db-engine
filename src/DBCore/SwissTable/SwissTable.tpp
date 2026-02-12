@@ -11,17 +11,27 @@ void SwissTable<F, D, K>::Delete(const size_t pos) {
 }
 
 template<typename F, typename D, typename K>
-void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash) {
+void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash, K&& key) {
     const auto group = pos / groupSize;
 
+    if (!metadata[group].Used(pos)) {
+        dataCount++;
+    }
+
+    keys[pos] = std::move(key);
     data[pos] = val;
     metadata[group].SetVal(hash, pos);
 }
 
 template<typename F, typename D, typename K>
-void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash) {
+void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash, K&& key) {
     const auto group = pos / groupSize;
 
+    if (!metadata[group].Used(pos)) {
+        dataCount++;
+    }
+
+    keys[pos] = std::move(key);
     data[pos] = std::move(val);
     metadata[group].SetVal(hash, pos);
 }
@@ -68,8 +78,8 @@ SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
     auto lookUpRes = metadata[lookUpGroup].LookUp(h2);
     while (lookUpRes.first != EMPTY) {
         if (lookUpRes.first == USED) {
-            if (auto checkRes = CheckExistence(lookUpRes, lookUpGroup); checkRes.first) {
-                return Entry(this, lookUpRes.first, lookUpGroup, checkRes.second);
+            if (auto checkRes = CheckExistence(lookUpRes, key, lookUpGroup); checkRes.first) {
+                return Entry(this, lookUpRes.first, checkRes.second, h2, key);
             }
         }
 
@@ -77,7 +87,7 @@ SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
         lookUpRes = metadata[lookUpGroup].LookUp(h2);
     }
 
-    return Entry(this, lookUpRes.first, lookUpGroup, lookUpRes.second[0]);
+    return Entry(this, lookUpRes.first, lookUpRes.second[0], h2, key);
 }
 
 #endif //PROJECT_SWISSTABLE_TPP
