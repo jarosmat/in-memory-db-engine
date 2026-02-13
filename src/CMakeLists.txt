@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 4.0)
 project(project)
 
 set(CMAKE_CXX_STANDARD 23)
+set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/IncludeDirectory")
+
+include_directories(PUBLIC "${INCLUDE_DIR}")
 
 include(FetchContent)
 FetchContent_Declare(
@@ -13,3 +16,6 @@ FetchContent_MakeAvailable(Catch2)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/CLI")
 add_subdirectory("${PROJECT_SOURCE_DIR}/DBCore")
+
+add_executable(main main.cpp)
+target_link_libraries(main Entries SwissTable)
