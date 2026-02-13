@@ -7,7 +7,7 @@
 using namespace std;
 
 int main() {
-    SwissTable<std::hash<string>, string, string> table;
+    SwissTable<std::hash<string>, String, string> table;
 
     string line;
     const string insert = "INSERT";
@@ -42,7 +42,7 @@ int main() {
             }
         } else if (action == insert) {
             auto &value = words[2];
-            entry.SetValue(value);
+            entry.SetValue(String(value));
         } else if (action == del) {
             entry.DeleteEntry();
         } else {
