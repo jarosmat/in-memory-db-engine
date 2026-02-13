@@ -46,10 +46,6 @@ template<typename F, typename D, typename K>
 void SwissTable<F, D, K>::Delete(const size_t pos) {
     const auto group = pos / groupSize;
 
-    if (metadata[group].Used(pos)) {
-        dataCount--;
-    }
-
     metadata[group].Delete(pos);
 }
 
