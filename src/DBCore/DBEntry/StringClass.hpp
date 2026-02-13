@@ -30,6 +30,10 @@ public:
     bool operator==(const String &other) const;
 
     [[nodiscard]] size_t Size() const;
+
+    friend std::ostream& operator<<(std::ostream& out, const String& value) {
+        return (out << value.val);
+    }
 };
 
 #endif // STRINGCLASS_HPP
