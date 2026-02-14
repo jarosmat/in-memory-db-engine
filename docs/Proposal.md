@@ -72,3 +72,9 @@ specified and then if time to live for new entry won't be specified the default 
 
 Every database operation will be made using the database CLI. The CLI will have commands and options for all the operations
 specified above
+
+## External libraries
+
+Project will use following external libraries:
+
+- Catch2 as a library for writing tests.
