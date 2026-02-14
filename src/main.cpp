@@ -1,7 +1,7 @@
 #include <iostream>
 #include <ranges>
 
-#include "DBCore/DBEntry/String.hpp"
+#include "DBCore/DBEntry/String/String.hpp"
 #include "DBCore/SwissTable/SwissTable.hpp"
 
 using namespace std;
