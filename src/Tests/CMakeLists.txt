@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 4.0)
+project(project)
+
+set(CMAKE_CXX_STANDARD 23)
+
+include(CTest)
+
+
+add_executable(StringTest StringTest.cpp)
+target_link_libraries(StringTest Entries Catch2::Catch2WithMain)
+add_test(NAME StringTest COMMAND StringTest)
+
+add_executable(VectorTest VectorTest.cpp)
+target_link_libraries(VectorTest Entries SwissTable Catch2::Catch2WithMain)
+add_test(NAME VectorTest COMMAND VectorTest)
+
+add_executable(GroupTest GroupTest.cpp)
+target_link_libraries(GroupTest Entries SwissTable Catch2::Catch2WithMain)
+add_test(NAME GroupTest COMMAND GroupTest)
+
+add_executable(SwissTableTest SwissTableTest.cpp)
+target_link_libraries(SwissTableTest Entries SwissTable Catch2::Catch2WithMain)
+add_test(NAME SwissTableTest COMMAND SwissTableTest)
+
+include(Catch)
+catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest)

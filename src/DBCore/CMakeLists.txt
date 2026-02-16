@@ -14,19 +14,3 @@ target_include_directories(Entries PUBLIC "${STRING_DIR}")
 
 add_library(SwissTable SwissTable/Group/Group.cpp)
 target_include_directories(SwissTable PUBLIC "${VECTOR_DIR}" "${GROUP_DIR}" "${ENTRY_DIR}" "${SWISS_TABLE_DIR}")
-
-add_executable(StringTest DBEntry/StringTest.cpp)
-target_link_libraries(StringTest Entries Catch2::Catch2WithMain)
-
-add_executable(VectorTest SwissTable/VectorTest.cpp)
-target_link_libraries(VectorTest Entries Catch2::Catch2WithMain)
-target_include_directories(VectorTest PUBLIC "${VECTOR_DIR}")
-
-add_executable(GroupTest SwissTable/GroupTest.cpp)
-target_link_libraries(GroupTest Entries SwissTable Catch2::Catch2WithMain)
-
-add_executable(SwissTableTest SwissTable/SwissTableTest.cpp SwissTable/SwissTable.hpp)
-target_link_libraries(SwissTableTest Entries SwissTable Catch2::Catch2WithMain)
-
-include(Catch)
-catch_discover_tests(StringTest)

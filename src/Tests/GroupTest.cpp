@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_all.hpp>
-#include "Group/Group.hpp"
+#include "Group.hpp"
 #include <algorithm>
 
 using namespace std;
