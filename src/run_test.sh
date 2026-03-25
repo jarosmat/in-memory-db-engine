@@ -1,8 +1,6 @@
 #!/bin/sh
 
 
-echo "Running Tests"
-
-cd Tests || exit
+cd build/Tests || exit
 
 ctest --output-on-failure
