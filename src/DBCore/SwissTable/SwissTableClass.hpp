@@ -17,7 +17,7 @@ class SwissTable {
     Vector<Group> metadata;
     Vector<D> data;
     Vector<K> keys;
-    inline static F hashFunc;
+    F hashFunc;
 
     void Rehash();
 
@@ -42,7 +42,7 @@ class SwissTable {
 public:
     class Entry;
 
-    SwissTable();
+    SwissTable(F hash_func = F());
 
     Entry LookUp(K key);
 
