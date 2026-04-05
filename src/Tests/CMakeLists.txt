@@ -22,5 +22,9 @@ add_executable(SwissTableTest SwissTableTest.cpp)
 target_link_libraries(SwissTableTest Entries SwissTable Catch2::Catch2WithMain)
 add_test(NAME SwissTableTest COMMAND SwissTableTest)
 
+add_executable(ObjectTest ObjectTest.cpp)
+target_link_libraries(ObjectTest Entries Catch2::Catch2WithMain)
+add_test(NAME ObjectTest COMMAND ObjectTest)
+
 include(Catch)
 catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest)
