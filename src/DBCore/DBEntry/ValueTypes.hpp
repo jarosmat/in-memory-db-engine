@@ -1,7 +1,7 @@
 #include <variant>
 
-#include "String.hpp"
-#include "Object.hpp"
+#include "String/String.hpp"
+#include "Object/Object.hpp"
 
 using String = String;
 using Integer = std::size_t;
