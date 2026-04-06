@@ -11,7 +11,7 @@ set(HASH_FUNCTION_DIR "${PROJECT_SOURCE_DIR}/HashFunction")
 set(OBJECT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Object")
 
 add_library(Entries "${STRING_DIR}/String.cpp" "${STRING_DIR}/PrefixAut.cpp" "${OBJECT_DIR}/Object.cpp")
-target_include_directories(Entries PUBLIC "${STRING_DIR}" "${PROJECT_SOURCE_DIR}/DBEntry" "${OBJECT_DIR}")
+target_include_directories(Entries PUBLIC "${STRING_DIR}" "${PROJECT_SOURCE_DIR}/DBEntry" "${OBJECT_DIR}" "${VECTOR_DIR}")
 
 add_library(SwissTable "${GROUP_DIR}/Group.cpp")
 target_include_directories(SwissTable PUBLIC "${VECTOR_DIR}" "${GROUP_DIR}" "${ENTRY_DIR}" "${SWISS_TABLE_DIR}")
