@@ -1,16 +1,26 @@
-#include <complex.h>
 #include <catch2/catch_all.hpp>
 #include "ValueTypes.hpp"
 #include "Object.hpp"
 #include <vector>
 
 auto GetInitData() {
-    Value val1{};
-    val1 = static_cast<Integer>(42);
-    Value val2{};
-    val2 = 1.75;
-    Value val3(String("Alice"));
-    return TypeForConstruct{{"age", val1}, {"height", val2}, {"name", val3}};
+    constexpr std::size_t initValCount = 5;
+    constexpr Integer initIntVal = 10;
+    const auto initStringVal = String("init");
+    constexpr float initFloatVal = 22.8;
+    Value intVal{};
+    intVal = static_cast<Integer>(42);
+    Value floatVal{};
+    floatVal = 1.75;
+    Value stringVal(String("Alice"));
+    Value vectorIntVal(Vector<Integer>(initValCount, initIntVal));
+    Value vectorStringVal(Vector<String>(initValCount, initStringVal));
+    Value vectorFloatVal(Vector<Float>(initValCount, initFloatVal));
+    return TypeForConstruct{
+        {"age", intVal}, {"height", floatVal}, {"name", stringVal}, {"VectorInt", vectorIntVal},
+        {"VectorString", vectorStringVal},
+        {"VectorFloat", vectorFloatVal}
+    };
 }
 
 TEST_CASE("Object class tests", "[Object]") {
@@ -21,6 +31,9 @@ TEST_CASE("Object class tests", "[Object]") {
         REQUIRE(obj.has_member("age"));
         REQUIRE(obj.has_member("height"));
         REQUIRE(obj.has_member("name"));
+        REQUIRE(obj.has_member("VectorInt"));
+        REQUIRE(obj.has_member("VectorString"));
+        REQUIRE(obj.has_member("VectorFloat"));
     }
 
     SECTION("Get member by name") {

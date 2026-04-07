@@ -9,7 +9,7 @@ struct ValueType;
 
 template<typename... Ts>
 struct ValueType<std::tuple<Ts...> > {
-    using type = std::variant<Ts...>;
+    using type = std::variant<Ts..., Vector<Ts>...>;
 };
 
 using Value = ValueType<PrimitiveValuePack>::type;
