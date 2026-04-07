@@ -17,6 +17,16 @@ class Vector {
     void Expand();
 
 public:
+    ~Vector() = default;
+
+    Vector(const Vector &other);
+
+    Vector(Vector &&other) = default;
+
+    Vector &operator=(const Vector &other);
+
+    Vector &operator=(Vector &&other) noexcept = default;
+
     Vector();
 
     explicit Vector(std::size_t size);

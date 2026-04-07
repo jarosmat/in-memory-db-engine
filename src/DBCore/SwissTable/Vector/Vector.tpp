@@ -31,6 +31,24 @@ void Vector<T>::Expand() {
 }
 
 template<typename T>
+Vector<T>::Vector(const Vector &other) : size(other.size), data(std::make_unique<T[]>(size)), count(other.count) {
+    for (std::size_t i = 0; i < count; ++i) {
+        data.get()[i] = other.data.get()[i];
+    }
+}
+
+template<typename T>
+Vector<T> &Vector<T>::operator=(const Vector &other) {
+    size = other.size;
+    data = std::make_unique<T[]>(size);
+    count = other.count;
+    for (std::size_t i = 0; i < count; ++i) {
+        data.get()[i] = other.data.get()[i];
+    }
+    return *this;
+}
+
+template<typename T>
 Vector<T>::Vector() : size(initialSize), data(std::make_unique<T[]>(this->size)), count(0) {
 }
 
