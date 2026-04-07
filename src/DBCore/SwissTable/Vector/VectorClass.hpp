@@ -29,9 +29,9 @@ public:
 
     void Remove(size_t i);
 
-    const T& CLastEntry() const;
+    const T &CLastEntry() const;
 
-    T& LastEntry();
+    T &LastEntry();
 
     const T &operator[](std::size_t i) const;
 
