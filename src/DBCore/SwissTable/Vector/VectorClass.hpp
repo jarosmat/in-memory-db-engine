@@ -31,7 +31,7 @@ public:
 
     explicit Vector(std::size_t size);
 
-    Vector(std::size_t size, T &initialVal);
+    Vector(std::size_t size, const T &initialVal);
 
     void Append(const T &val);
 

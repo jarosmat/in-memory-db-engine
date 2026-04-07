@@ -58,8 +58,9 @@ Vector<T>::Vector(const size_t size) : size(size), data(std::make_unique<T[]>(th
 }
 
 template<typename T>
-Vector<T>::Vector(const size_t size, T &initialVal) : size(size * resizeCoef), data(std::make_unique<T[]>(this->size)),
-                                                      count(size) {
+Vector<T>::Vector(const size_t size, const T &initialVal) : size(size * resizeCoef),
+                                                            data(std::make_unique<T[]>(this->size)),
+                                                            count(size) {
     for (size_t i = 0; i < size; i++) {
         data.get()[i] = initialVal;
     }
