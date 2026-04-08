@@ -16,8 +16,8 @@ target_include_directories(Entries PUBLIC "${STRING_DIR}" "${PROJECT_SOURCE_DIR}
 add_library(SwissTable "${GROUP_DIR}/Group.cpp")
 target_include_directories(SwissTable PUBLIC "${VECTOR_DIR}" "${GROUP_DIR}" "${ENTRY_DIR}" "${SWISS_TABLE_DIR}")
 
-
 add_library(HashFunc "${HASH_FUNCTION_DIR}/SipHash.cpp")
 target_include_directories(HashFunc PUBLIC "${HASH_FUNCTION_DIR}")
 
-
+add_library(DBEntry "${PROJECT_SOURCE_DIR}/DBEntry/DBEntry.cpp")
+target_link_libraries(DBEntry Entries SwissTable)
