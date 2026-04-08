@@ -1,7 +1,17 @@
 #ifndef PROJECT_DBENTRY_HPP
 #define PROJECT_DBENTRY_HPP
 #include "ValueTypes.hpp"
+#include "SwissTable.hpp"
 
+enum DBTypes {
+    INTEGER,
+    FLOAT,
+    STRING,
+    OBJECT,
+    VECTOR_INT,
+    VECTOR_FLOAT,
+    VECTOR_STRING
+};
 
 template<typename E>
 class DBEntry {
