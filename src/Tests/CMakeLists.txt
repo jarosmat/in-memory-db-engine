@@ -26,5 +26,9 @@ add_executable(ObjectTest ObjectTest.cpp)
 target_link_libraries(ObjectTest Entries Catch2::Catch2WithMain)
 add_test(NAME ObjectTest COMMAND ObjectTest)
 
+add_executable(TimepointTest TimepointTest.cpp)
+target_link_libraries(TimepointTest Timepoint Catch2::Catch2WithMain)
+add_test(NAME TimepointTest COMMAND TimepointTest)
+
 include(Catch)
-catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest)
+catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest ObjectTest TimepointTest)
