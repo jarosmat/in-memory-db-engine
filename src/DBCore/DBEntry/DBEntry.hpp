@@ -40,7 +40,7 @@ public:
     }
 
     [[nodiscard]] auto Expired() const -> bool {
-        return timepoint_.Elapsed<T>(ttl);
+        return timepoint_.Elapsed(ttl);
     }
 };
 
