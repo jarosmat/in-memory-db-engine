@@ -52,3 +52,51 @@ TEST_CASE("ElapsedMinutes returns true after specified minutes", "[Timepoint]") 
     REQUIRE(tp.Elapsed<minutes>(minutes(testDur1)));
     REQUIRE_FALSE(tp.Elapsed<minutes>(minutes(testDur2)));
 }
+
+TEST_CASE("Timepoint: RemainingTime with std::chrono::milliseconds", "[timepoint][remaining][milliseconds]") {
+    SECTION("Time remaining (not expired)") {
+        const Timepoint tp;
+        auto remaining = tp.RemainingTime(100ms);
+        REQUIRE(remaining >= 95ms);
+        REQUIRE(remaining <= 100ms);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        const Timepoint tp;
+        std::this_thread::sleep_for(150ms);
+        auto remaining = tp.RemainingTime(100ms);
+        REQUIRE(remaining == 0ms);
+    }
+}
+
+TEST_CASE("Timepoint: RemainingTime with std::chrono::seconds", "[timepoint][remaining][seconds]") {
+    SECTION("Time remaining (not expired)") {
+        const Timepoint tp;
+        auto remaining = tp.RemainingTime(2s);
+        REQUIRE(remaining >= 1900ms);
+        REQUIRE(remaining <= 2000ms);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        const Timepoint tp;
+        std::this_thread::sleep_for(2100ms);
+        auto remaining = tp.RemainingTime(2s);
+        REQUIRE(remaining == 0s);
+    }
+}
+
+TEST_CASE("Timepoint: RemainingTime with std::chrono::minutes", "[timepoint][remaining][minutes]") {
+    SECTION("Time remaining (not expired)") {
+        const Timepoint tp;
+        auto remaining = tp.RemainingTime(1min);
+        REQUIRE(remaining >= 59s);
+        REQUIRE(remaining <= 60s);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        const Timepoint tp;
+        std::this_thread::sleep_for(61s);
+        auto remaining = tp.RemainingTime(1min);
+        REQUIRE(remaining == 0min);
+    }
+}
