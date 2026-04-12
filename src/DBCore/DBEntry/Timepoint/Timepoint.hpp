@@ -10,8 +10,8 @@ class Timepoint {
 
 public:
     template<typename T>
-    [[nodiscard]] auto Elapsed(T&& val) const -> bool {
-        return std::chrono::duration_cast<std::remove_reference_t<T>>(clock_type::now() - time) >= std::forward<T>(val);
+    [[nodiscard]] auto Elapsed(T &&val) const -> bool {
+        return std::chrono::duration_cast<std::decay_t<T> >(clock_type::now() - time) >= std::forward<T>(val);
     }
 
     explicit Timepoint();
