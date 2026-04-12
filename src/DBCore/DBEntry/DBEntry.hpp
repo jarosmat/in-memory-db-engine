@@ -107,4 +107,26 @@ public:
 private:
     std::unique_ptr<HolderBase> entry;
 };
+
+template<typename E>
+    requires (!std::is_reference_v<E>)
+class DBEntry_t_im {
+    E payload;
+
+public:
+    template<typename EC>
+        requires (std::is_convertible_v<std::remove_reference_t<EC>, E>)
+    explicit DBEntry_t_im(EC &&payload) : payload(std::forward<EC>(payload)) {
+    }
+
+    auto GetRef() -> E & {
+        return payload;
+    }
+
+    template<typename ES>
+        requires std::is_convertible_v<std::remove_reference_t<ES>, E>
+    auto SetVal(ES &&val) -> void {
+        payload = std::forward<ES>(val);
+    }
+};
 #endif //PROJECT_DBENTRY_HPP
