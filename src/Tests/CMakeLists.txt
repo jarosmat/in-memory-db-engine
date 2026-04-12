@@ -30,5 +30,9 @@ add_executable(TimepointTest TimepointTest.cpp)
 target_link_libraries(TimepointTest Timepoint Catch2::Catch2WithMain)
 add_test(NAME TimepointTest COMMAND TimepointTest)
 
+add_executable(DBEntryTest DBEntryTest.cpp)
+target_link_libraries(DBEntryTest DBEntry Catch2::Catch2WithMain)
+add_test(NAME DBEntryTest COMMAND DBEntryTest)
+
 include(Catch)
-catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest ObjectTest TimepointTest)
+catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest ObjectTest TimepointTest DBEntryTest)
