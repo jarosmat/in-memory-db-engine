@@ -1,5 +1,6 @@
 #define CATCH_CONFIG_MAIN
-#include  <catch2/catch_test_macros.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <thread>
 #include "DBEntry.hpp"
 
 
@@ -28,8 +29,6 @@ bool CompareVec(const Vector<Integer> &left, const Vector<Integer> &right) {
     }
     return true;
 }
-
-using namespace std::chrono;
 
 TEST_CASE("DBEntry_t: Basic Construction and Value Access with std::chrono::duration TTL", "[dbentry_t]") {
     SECTION("Construct with int payload and seconds TTL") {
@@ -145,5 +144,104 @@ TEST_CASE("DBEntry: Move Semantics with std::chrono::duration TTL", "[dbentry][m
         DBEntry_t<Vector<Integer>, seconds> entry_t(vec, GetTTL<seconds>(10));
         DBEntry<Vector<Integer> > entry(std::move(entry_t));
         REQUIRE(CompareVec(vec, entry.GetRef()));
+    }
+}
+
+TEST_CASE("DBEntry_t: RemainingTime with std::chrono::milliseconds", "[dbentry_t][remaining][milliseconds]") {
+    SECTION("Time remaining (not expired)") {
+        DBEntry_t<Integer, milliseconds> entry(42, 100ms);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining >= 95ms);
+        REQUIRE(remaining <= 100ms);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        DBEntry_t<Integer, milliseconds> entry(42, 100ms);
+        std::this_thread::sleep_for(150ms);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining == 0ms);
+    }
+}
+
+TEST_CASE("DBEntry_t: RemainingTime with std::chrono::seconds", "[dbentry_t][remaining][seconds]") {
+    SECTION("Time remaining (not expired)") {
+        DBEntry_t<Integer, seconds> entry(42, 2s);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining >= 1s);
+        REQUIRE(remaining <= 2s);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        DBEntry_t<Integer, seconds> entry(42, 2s);
+        std::this_thread::sleep_for(2100ms);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining == 0s);
+    }
+}
+
+TEST_CASE("DBEntry_t: RemainingTime with std::chrono::minutes", "[dbentry_t][remaining][minutes]") {
+    SECTION("Time remaining (not expired)") {
+        DBEntry_t<Integer, minutes> entry(42, 1min);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining >= 59s);
+        REQUIRE(remaining <= 60s);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        DBEntry_t<Integer, minutes> entry(42, 1min);
+        std::this_thread::sleep_for(61s);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining == 0min);
+    }
+}
+
+
+TEST_CASE("DBEntry: RemainingTime with std::chrono::milliseconds", "[dbentry][remaining][milliseconds]") {
+    SECTION("Time remaining (not expired)") {
+        const DBEntry_t<Integer, milliseconds> entry_t(42, 100ms);
+        DBEntry<Integer> entry(entry_t);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining >= 95ms);
+        REQUIRE(remaining <= 100ms);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        DBEntry_t<Integer, milliseconds> entry_t(42, 100ms);
+        DBEntry<Integer> entry(entry_t);
+        std::this_thread::sleep_for(150ms);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining == 0ms);
+    }
+}
+
+TEST_CASE("DBEntry: RemainingTime with std::chrono::seconds", "[dbentry][remaining][seconds]") {
+    SECTION("Time remaining (not expired)") {
+        DBEntry_t<Integer, seconds> entry(42, 2s);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining >= 1s);
+        REQUIRE(remaining <= 2s);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        DBEntry_t<Integer, seconds> entry(42, 2s);
+        std::this_thread::sleep_for(2100ms);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining == 0s);
+    }
+}
+
+TEST_CASE("DBEntry: RemainingTime with std::chrono::minutes", "[dbentry][remaining][minutes]") {
+    SECTION("Time remaining (not expired)") {
+        DBEntry_t<Integer, minutes> entry(42, 1min);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining >= 59s);
+        REQUIRE(remaining <= 60s);
+    }
+
+    SECTION("Expired (zero remaining)") {
+        DBEntry_t<Integer, minutes> entry(42, 1min);
+        std::this_thread::sleep_for(61s);
+        auto remaining = entry.RemainingTime();
+        REQUIRE(remaining == 0min);
     }
 }

@@ -42,6 +42,10 @@ public:
     [[nodiscard]] auto Expired() const -> bool {
         return timepoint_.Elapsed(ttl);
     }
+
+    T RemainingTime() {
+        return timepoint_.RemainingTime(ttl);
+    }
 };
 
 template<typename E>
@@ -57,6 +61,8 @@ public:
         virtual auto SetVal(const std::remove_reference_t<E> &val) -> void = 0;
 
         virtual bool Expired() = 0;
+
+        virtual auto RemainingTime() -> std::chrono::milliseconds = 0;
     };
 
     template<typename T>
@@ -75,6 +81,10 @@ public:
         auto SetVal(const std::remove_reference_t<E> &val) -> void override { obj.SetVal(val); }
 
         auto Expired() -> bool override { return obj.Expired(); }
+
+        auto RemainingTime() -> std::chrono::milliseconds override {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(obj.RemainingTime());
+        }
 
     private:
         DBEntry_t<std::remove_reference_t<E>, std::remove_reference_t<T> > obj;
@@ -104,6 +114,11 @@ public:
     bool Expired() {
         return entry->Expired();
     }
+
+    std::chrono::milliseconds RemainingTime() {
+        return entry->RemainingTime();
+    }
+
 private:
     std::unique_ptr<HolderBase> entry;
 };
