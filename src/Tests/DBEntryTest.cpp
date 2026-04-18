@@ -245,3 +245,34 @@ TEST_CASE("DBEntry: RemainingTime with std::chrono::minutes", "[dbentry][remaini
         REQUIRE(remaining == 0min);
     }
 }
+
+TEST_CASE("Appending multiple types of DBEntry_t into one Vector") {
+    Vector<DBEntry<Integer> > vec;
+    const DBEntry_t<Integer, seconds> entry_t(0, GetTTL<seconds>(10));
+    DBEntry<Integer> entry(entry_t);
+
+    DBEntry_t<Integer, milliseconds> entry_milliseconds_t(0, GetTTL<seconds>(10));
+    DBEntry<Integer> entry_milliseconds(entry_t);
+
+    const DBEntry_t<Integer, ImmortalSentinel> entry_imm_t(0);
+    DBEntry<Integer> entry_immortal(entry_imm_t);
+
+    vec.Append(std::move(entry));
+    vec.Append(std::move(entry_milliseconds));
+    vec.Append(std::move(entry_immortal));
+
+    REQUIRE(vec[0].GetRef() == 0);
+    REQUIRE(vec[1].GetRef() == 0);
+    REQUIRE(vec[2].GetRef() == 0);
+}
+
+TEST_CASE("Test immortal entry") {
+    const DBEntry_t<Integer, ImmortalSentinel> entry_imm_t(0);
+    DBEntry<Integer> entry_immortal(entry_imm_t);
+
+    REQUIRE_FALSE(entry_immortal.Expired());
+    REQUIRE(entry_immortal.RemainingTime() > 0ms);
+    std::this_thread::sleep_for(1000ms);
+    REQUIRE_FALSE(entry_immortal.Expired());
+    REQUIRE(entry_immortal.RemainingTime() > 0ms);
+}

@@ -135,6 +135,8 @@ public:
         std::make_unique<Holder<T> >(std::move(val))) {
     }
 
+    DBEntry() = default;
+
     E &GetRef() {
         return entry->GetRef();
     }
