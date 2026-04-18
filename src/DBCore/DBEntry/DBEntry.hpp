@@ -14,6 +14,8 @@ enum DBTypes {
     VECTOR_STRING
 };
 
+class ImmortalSentinel {
+};
 
 template<typename E, typename T>
     requires (!std::is_reference_v<E> && !std::is_reference_v<T>)
@@ -45,6 +47,40 @@ public:
 
     T RemainingTime() {
         return timepoint_.RemainingTime(ttl);
+    }
+};
+
+template<typename E>
+class DBEntry_t<E, ImmortalSentinel> {
+    E payload;
+
+public:
+    template<typename EC, typename TC>
+        requires (std::is_convertible_v<std::remove_reference_t<EC>, E>)
+    explicit DBEntry_t(EC &&payload, TC) : payload(std::forward<EC>(payload)) {
+    }
+
+    template<typename EC>
+        requires (std::is_convertible_v<std::remove_reference_t<EC>, E>)
+    explicit DBEntry_t(EC &&payload) : payload(std::forward<EC>(payload)) {
+    }
+
+    auto GetRef() -> E & {
+        return payload;
+    }
+
+    template<typename ES>
+        requires std::is_convertible_v<std::remove_reference_t<ES>, E>
+    auto SetVal(ES &&val) -> void {
+        payload = std::forward<ES>(val);
+    }
+
+    [[nodiscard]] auto Expired() const -> bool {
+        return false;
+    }
+
+    std::chrono::milliseconds RemainingTime() {
+        return std::chrono::milliseconds::max();
     }
 };
 
