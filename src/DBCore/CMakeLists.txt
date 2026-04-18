@@ -23,9 +23,6 @@ target_include_directories(SwissTable PUBLIC "${VECTOR_DIR}" "${GROUP_DIR}" "${E
 add_library(HashFunc "${HASH_FUNCTION_DIR}/SipHash.cpp")
 target_include_directories(HashFunc PUBLIC "${HASH_FUNCTION_DIR}")
 
-add_library(DBEntry "${PROJECT_SOURCE_DIR}/DBEntry/DBEntry.cpp")
-target_link_libraries(DBEntry Entries SwissTable)
-
 add_library(DBEntry INTERFACE "${PROJECT_SOURCE_DIR}/DBEntry/DBEntry.hpp")
 target_include_directories(DBEntry INTERFACE "${TIMEPOINT_DIR}" "${SWISS_TABLE_DIR}")
 target_link_libraries(DBEntry INTERFACE Entries SwissTable Timepoint)
