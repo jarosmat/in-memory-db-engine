@@ -10,6 +10,7 @@ set(SWISS_TABLE_DIR "${PROJECT_SOURCE_DIR}/SwissTable")
 set(HASH_FUNCTION_DIR "${PROJECT_SOURCE_DIR}/HashFunction")
 set(OBJECT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Object")
 set(TIMEPOINT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Timepoint")
+set(DBENTRY_DIR "${PROJECT_SOURCE_DIR}/DBEntry")
 
 add_library(Timepoint "${TIMEPOINT_DIR}/Timepoint.cpp")
 target_include_directories(Timepoint PUBLIC "${TIMEPOINT_DIR}")
@@ -23,6 +24,6 @@ target_include_directories(SwissTable PUBLIC "${VECTOR_DIR}" "${GROUP_DIR}" "${E
 add_library(HashFunc "${HASH_FUNCTION_DIR}/SipHash.cpp")
 target_include_directories(HashFunc PUBLIC "${HASH_FUNCTION_DIR}")
 
-add_library(DBEntry INTERFACE "${PROJECT_SOURCE_DIR}/DBEntry/DBEntry.hpp")
+add_library(DBEntry INTERFACE "${DBENTRY_DIR}/DBEntry.hpp")
 target_include_directories(DBEntry INTERFACE "${TIMEPOINT_DIR}" "${SWISS_TABLE_DIR}")
 target_link_libraries(DBEntry INTERFACE Entries SwissTable Timepoint)
