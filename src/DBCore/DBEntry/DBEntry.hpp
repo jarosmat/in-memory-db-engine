@@ -4,15 +4,7 @@
 #include "SwissTable.hpp"
 #include "Timepoint.hpp"
 
-enum DBTypes {
-    INTEGER,
-    FLOAT,
-    STRING,
-    OBJECT,
-    VECTOR_INT,
-    VECTOR_FLOAT,
-    VECTOR_STRING
-};
+
 
 class ImmortalSentinel {
 };

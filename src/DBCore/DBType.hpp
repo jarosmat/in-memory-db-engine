@@ -1,4 +1,14 @@
 #ifndef PROJECT_DBTYPE_HPP
 #define PROJECT_DBTYPE_HPP
 
+enum DBTypes {
+    INTEGER,
+    FLOAT,
+    STRING,
+    OBJECT,
+    VECTOR_INT,
+    VECTOR_FLOAT,
+    VECTOR_STRING
+};
+
 #endif //PROJECT_DBTYPE_HPP
