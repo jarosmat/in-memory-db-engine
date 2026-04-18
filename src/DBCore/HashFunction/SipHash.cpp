@@ -8,16 +8,13 @@ return_val RotateLeft(const return_val val, const std::size_t count) {
 return_val Get64bitLE(std::vector<uint8_t>::iterator &data) {
     return_val res = 0;
     for (std::ptrdiff_t i = 0; i < 8; ++i) {
-        res = res | (*data << (i * 8));
+        const return_val dataT = *data;
+        res = res | (dataT << (i * 8));
         ++data;
     }
     return res;
 }
 
-internalState::internalState(const return_val v0, const return_val v1, const return_val v2,
-                             const return_val v3) : v0(v0), v1(v1), v2(v2),
-                                                    v3(v3) {
-}
 
 void internalState::SipRound() {
     v0 += v1;
@@ -37,22 +34,22 @@ void internalState::SipRound() {
     v3 = v3 ^ v0;
 }
 
-void internalState::ApplySipRounds(std::size_t c) {
-    for (std::size_t i = 0; i < c; ++i) {
+void internalState::ApplySipRounds(const std::size_t count) {
+    for (std::size_t i = 0; i < count; ++i) {
         SipRound();
     }
 }
 
-void internalState::Compress(const std::size_t c, std::vector<uint8_t> data) {
+void internalState::Compress(const std::size_t c, std::vector<uint8_t> &&data) {
     const std::size_t data_size = data.size();
-    const std::size_t mod = (data_size + 1) % 8;
+    const std::size_t mod = (data_size + 1) & 7;
     if (mod == 0) {
-        data.push_back(data_size % 256);
+        data.push_back(data_size & 255);
     } else {
         for (std::size_t i = mod; i < 8; ++i) {
             data.push_back(0);
         }
-        data.push_back(data_size % 256);
+        data.push_back(data_size & 255);
     }
 
     const std::size_t nSize = data.size();
@@ -72,6 +69,23 @@ void internalState::Finalize(std::size_t d) {
     ApplySipRounds(d);
 }
 
-internalState initVals(const std::uint64_t k0, const std::uint64_t k1) {
-    return {k0 ^ initConst1, k1 ^ initConst2, k0 ^ initConst3, k0 ^ initConst4};
+return_val internalState::GetValue() const {
+    return v0 ^ v1 ^ v2 ^ v3;
+}
+
+SipHash::SipHash(const std::size_t k0, const std::size_t k1, const std::size_t c,
+                 const std::size_t d) : c(c), d(d), k0(k0), k1(k1) {
+}
+
+return_val SipHash::operator()(std::vector<uint8_t> &&data) const {
+    auto state = internalState(k0, k1);
+    state.Compress(c, std::move(data));
+    state.Finalize(d);
+
+    return state.GetValue();
+}
+
+internalState::internalState(const std::uint64_t k0, const std::uint64_t k1) : v0(k0 ^ initConst1), v1(k1 ^ initConst2),
+                                                                               v2(k0 ^ initConst3),
+                                                                               v3(k1 ^ initConst4) {
 }
