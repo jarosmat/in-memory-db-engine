@@ -26,6 +26,8 @@ struct internalState {
     void ApplySipRounds(std::size_t c);
 
     void Compress(std::size_t c, std::vector<uint8_t> data);
+
+    void Finalize(std::size_t d);
 };
 
 //k0 are the least significant bytes

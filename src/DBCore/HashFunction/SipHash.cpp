@@ -66,6 +66,12 @@ void internalState::Compress(const std::size_t c, std::vector<uint8_t> data) {
     }
 }
 
+void internalState::Finalize(std::size_t d) {
+    v2 = v2 ^ 0xff;
+
+    ApplySipRounds(d);
+}
+
 internalState initVals(const std::uint64_t k0, const std::uint64_t k1) {
     return {k0 ^ initConst1, k1 ^ initConst2, k0 ^ initConst3, k0 ^ initConst4};
 }
