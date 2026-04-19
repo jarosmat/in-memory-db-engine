@@ -1,5 +1,7 @@
 #ifndef PROJECT_OPERATIONTYPE_HPP
 #define PROJECT_OPERATIONTYPE_HPP
+#include <ranges>
+#include <vector>
 
 enum class OPType {
     INSERT,
@@ -24,6 +26,11 @@ enum class OPType {
     SIZE,
     INVALID
 };
+
+using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
+
+OPType GetOPType(view_t &args);
+
 
 
 #endif //PROJECT_OPERATIONTYPE_HPP
