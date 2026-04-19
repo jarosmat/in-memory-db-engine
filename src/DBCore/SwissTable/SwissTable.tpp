@@ -116,8 +116,8 @@ void SwissTable<F, D, K>::InitializeFields(const size_t groupCount) {
 }
 
 template<typename F, typename D, typename K>
-SwissTable<F, D, K>::SwissTable() : dataCount(0), metadata(initialGroupCount), data(initialGroupCount * groupSize),
-                                    keys(initialGroupCount * groupSize) {
+SwissTable<F, D, K>::SwissTable(F hash_func) : dataCount(0), metadata(initialGroupCount), data(initialGroupCount * groupSize),
+                                    keys(initialGroupCount * groupSize), hashFunc(hash_func) {
    InitializeFields();
 }
 

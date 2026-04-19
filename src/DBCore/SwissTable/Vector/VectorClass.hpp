@@ -17,11 +17,21 @@ class Vector {
     void Expand();
 
 public:
+    ~Vector() = default;
+
+    Vector(const Vector &other);
+
+    Vector(Vector &&other) = default;
+
+    Vector &operator=(const Vector &other);
+
+    Vector &operator=(Vector &&other) noexcept = default;
+
     Vector();
 
     explicit Vector(std::size_t size);
 
-    Vector(std::size_t size, T &initialVal);
+    Vector(std::size_t size, const T &initialVal);
 
     void Append(const T &val);
 
@@ -29,9 +39,9 @@ public:
 
     void Remove(size_t i);
 
-    const T& CLastEntry() const;
+    const T &CLastEntry() const;
 
-    T& LastEntry();
+    T &LastEntry();
 
     const T &operator[](std::size_t i) const;
 

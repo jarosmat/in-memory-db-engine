@@ -34,10 +34,6 @@ TEST_CASE("Appending Values") {
 }
 
 
-
-
-
-
 TEST_CASE("Vector Initialization") {
     SECTION("Default constructor starts with size 0") {
         Vector<int> v;
@@ -54,7 +50,7 @@ TEST_CASE("Vector Initialization") {
         constexpr size_t size = 5;
         Vector<int> v(size, val);
         REQUIRE(v.Count() == 5);
-        for (size_t i = 0; i < size; i++ ) {
+        for (size_t i = 0; i < size; i++) {
             REQUIRE(v[i] == val);
         }
     }
@@ -95,7 +91,7 @@ TEST_CASE("Resizing Logic") {
             v.Append(i);
         }
         REQUIRE(v.Count() == 10);
-        for (size_t i = 0; i <count;i++) {
+        for (size_t i = 0; i < count; i++) {
             REQUIRE(v[i] == i);
         }
     }
@@ -125,7 +121,7 @@ TEST_CASE("Const Correctness", "[Vector]") {
     Vector<int> v;
     v.Append(100);
 
-    const Vector<int>& const_v = v;
+    const Vector<int> &const_v = v;
 
     SECTION("Const access via operator[]") {
         REQUIRE(const_v[0] == 100);
@@ -133,5 +129,47 @@ TEST_CASE("Const Correctness", "[Vector]") {
 
     SECTION("Const access via CLastEntry") {
         REQUIRE(const_v.CLastEntry() == 100);
+    }
+}
+
+TEST_CASE("Copy assignment correctness") {
+    constexpr size_t count = 10000;
+    Vector<int> v;
+
+    for (int i = 0; i < count; ++i) {
+        v.Append(i);
+    }
+
+    const Vector<int> v2 = v;
+
+    REQUIRE(v.Count() == count);
+    for (int i = 0; i < v.Count(); ++i) {
+        REQUIRE(v[i] == i);
+    }
+
+    REQUIRE(v2.Count() == count);
+    for (int i = 0; i < v2.Count(); ++i) {
+        REQUIRE(v2[i] == i);
+    }
+}
+
+TEST_CASE("Copy constructor correctness") {
+    constexpr size_t count = 10000;
+    Vector<int> v;
+
+    for (int i = 0; i < count; ++i) {
+        v.Append(i);
+    }
+
+    const auto v2(v);
+
+    REQUIRE(v.Count() == count);
+    for (int i = 0; i < v.Count(); ++i) {
+        REQUIRE(v[i] == i);
+    }
+
+    REQUIRE(v2.Count() == count);
+    for (int i = 0; i < v2.Count(); ++i) {
+        REQUIRE(v2[i] == i);
     }
 }

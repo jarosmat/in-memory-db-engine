@@ -8,16 +8,27 @@ set(GROUP_DIR "${PROJECT_SOURCE_DIR}/SwissTable/Group")
 set(VECTOR_DIR "${PROJECT_SOURCE_DIR}/SwissTable/Vector")
 set(SWISS_TABLE_DIR "${PROJECT_SOURCE_DIR}/SwissTable")
 set(HASH_FUNCTION_DIR "${PROJECT_SOURCE_DIR}/HashFunction")
+set(OBJECT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Object")
+set(TIMEPOINT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Timepoint")
+set(DBENTRY_DIR "${PROJECT_SOURCE_DIR}/DBEntry")
+set(DBTYPE_DIR "${PROJECT_SOURCE_DIR}")
 
-add_library(Entries "${STRING_DIR}/String.cpp"  "${STRING_DIR}/PrefixAut.cpp")
-target_include_directories(Entries PUBLIC "${STRING_DIR}")
+add_library(Timepoint "${TIMEPOINT_DIR}/Timepoint.cpp")
+target_include_directories(Timepoint PUBLIC "${TIMEPOINT_DIR}")
 
+add_library(Entries "${STRING_DIR}/String.cpp" "${STRING_DIR}/PrefixAut.cpp" "${OBJECT_DIR}/Object.cpp")
+target_include_directories(Entries PUBLIC "${STRING_DIR}" "${PROJECT_SOURCE_DIR}/DBEntry" "${OBJECT_DIR}" "${VECTOR_DIR}")
 
-add_library(SwissTable SwissTable/Group/Group.cpp)
+add_library(SwissTable "${GROUP_DIR}/Group.cpp")
 target_include_directories(SwissTable PUBLIC "${VECTOR_DIR}" "${GROUP_DIR}" "${ENTRY_DIR}" "${SWISS_TABLE_DIR}")
-
 
 add_library(HashFunc "${HASH_FUNCTION_DIR}/SipHash.cpp")
 target_include_directories(HashFunc PUBLIC "${HASH_FUNCTION_DIR}")
 
+add_library(DBEntry INTERFACE "${DBENTRY_DIR}/DBEntry.hpp")
+target_include_directories(DBEntry INTERFACE "${TIMEPOINT_DIR}" "${SWISS_TABLE_DIR}")
+target_link_libraries(DBEntry INTERFACE Entries SwissTable Timepoint)
 
+add_library(DBType "${DBTYPE_DIR}/DBType.cpp")
+target_include_directories(DBType PUBLIC "${SWISS_TABLE_DIR}" "${HASH_FUNCTION_DIR}" "${DBENTRY_DIR}" "${TIMEPOINT_DIR}")
+target_link_libraries(DBEntry INTERFACE DBEntry SwissTable HashFunc Timepoint)

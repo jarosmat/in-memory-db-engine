@@ -31,7 +31,25 @@ void Vector<T>::Expand() {
 }
 
 template<typename T>
-Vector<T>::Vector(): size(initialSize), data(std::make_unique<T[]>(this->size)), count(0) {
+Vector<T>::Vector(const Vector &other) : size(other.size), data(std::make_unique<T[]>(size)), count(other.count) {
+    for (std::size_t i = 0; i < count; ++i) {
+        data.get()[i] = other.data.get()[i];
+    }
+}
+
+template<typename T>
+Vector<T> &Vector<T>::operator=(const Vector &other) {
+    size = other.size;
+    data = std::make_unique<T[]>(size);
+    count = other.count;
+    for (std::size_t i = 0; i < count; ++i) {
+        data.get()[i] = other.data.get()[i];
+    }
+    return *this;
+}
+
+template<typename T>
+Vector<T>::Vector() : size(initialSize), data(std::make_unique<T[]>(this->size)), count(0) {
 }
 
 
@@ -40,14 +58,16 @@ Vector<T>::Vector(const size_t size) : size(size), data(std::make_unique<T[]>(th
 }
 
 template<typename T>
-Vector<T>::Vector(const size_t size, T &initialVal): size(size * resizeCoef), data(std::make_unique<T[]>(this->size)), count(size){
+Vector<T>::Vector(const size_t size, const T &initialVal) : size(size * resizeCoef),
+                                                            data(std::make_unique<T[]>(this->size)),
+                                                            count(size) {
     for (size_t i = 0; i < size; i++) {
         data.get()[i] = initialVal;
     }
 }
 
 template<typename T>
-void Vector<T>::Append(const T& val) {
+void Vector<T>::Append(const T &val) {
     EnsureNotEmpty();
     data.get()[count++] = val;
 }
@@ -63,22 +83,22 @@ void Vector<T>::Remove(const size_t i) {
     count--;
     auto dataVal = data.get();
     for (size_t j = i; j < count; j++) {
-       dataVal[j] = dataVal[j + 1];
+        dataVal[j] = dataVal[j + 1];
     }
 }
 
 template<typename T>
-const T & Vector<T>::CLastEntry() const {
+const T &Vector<T>::CLastEntry() const {
     return data.get()[count - 1];
 }
 
 template<typename T>
-T & Vector<T>::LastEntry() {
+T &Vector<T>::LastEntry() {
     return data.get()[count - 1];
 }
 
 template<typename T>
-const T & Vector<T>::operator[](const size_t i) const {
+const T &Vector<T>::operator[](const size_t i) const {
     if (i < count) {
         return data.get()[i];
     }
@@ -86,7 +106,7 @@ const T & Vector<T>::operator[](const size_t i) const {
 }
 
 template<typename T>
-T & Vector<T>::operator[](const size_t i) {
+T &Vector<T>::operator[](const size_t i) {
     if (i < count) {
         return data.get()[i];
     }
