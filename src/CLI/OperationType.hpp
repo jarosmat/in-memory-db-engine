@@ -1,7 +1,29 @@
 #ifndef PROJECT_OPERATIONTYPE_HPP
 #define PROJECT_OPERATIONTYPE_HPP
 
-
+enum class OPType {
+    INSERT,
+    GET,
+    DELETE,
+    TERMINATE,
+    ADD,
+    SUBTRACT,
+    DIVIDE,
+    MULTIPLY,
+    CONCAT,
+    SUFFIX,
+    PREFIX,
+    AT,
+    FIND,
+    APPEND,
+    POP,
+    VINSERT,
+    REMOVE,
+    SET,
+    VGET,
+    SIZE,
+    INVALID
+};
 
 
 #endif //PROJECT_OPERATIONTYPE_HPP
