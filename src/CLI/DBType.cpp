@@ -61,6 +61,36 @@ auto ParseSignedTTL(std::string &val) -> ttl_t {
     return {variant_t{}, TTLTypes::INVALID};
 }
 
+auto GetOptionToken(view_t &args) -> StartupTokens {
+    const auto val = args.front();
+    args.advance(1);
+    if (val == "--value") {
+        return StartupTokens::VALUE;
+    }
+    if (val == "--ttl") {
+        return StartupTokens::TTL;
+    }
+
+    return StartupTokens::INVALID;
+}
+
+auto GetDBType(view_t &args) -> std::pair<DBTypes, ttl_t> {
+   std::pair<DBTypes, ttl_t> res = {DBTypes::INVALID, ttl_t(ImmortalSentinel(), TTLTypes::IMMORTAL)};
+
+   while (!args.empty()) {
+        const StartupTokens val = GetOptionToken(args);
+        if (val == StartupTokens::INVALID) {
+            return {DBTypes::INVALID, ttl_t{}};
+        }
+        if (val == StartupTokens::VALUE) {
+            res.first = GetType(args);
+        }
+        if (val == StartupTokens::TTL) {
+            res.second = GetTTL(args);
+        }
+    }
+}
+
 auto GetTTL(view_t &args) -> ttl_t {
     if (args.empty()) {
         return {variant_t{}, TTLTypes::INVALID};

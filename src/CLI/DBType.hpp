@@ -1,6 +1,7 @@
 #ifndef PROJECT_DBTYPE_HPP
 #define PROJECT_DBTYPE_HPP
 #include <chrono>
+#include "DBEntry.hpp"
 
 enum class DBTypes {
     INTEGER,
@@ -15,20 +16,24 @@ enum class DBTypes {
 
 enum class StartupTokens {
     VALUE,
-    TTL
+    TTL,
+    INVALID
 };
 
 enum class TTLTypes {
     MILLISECONDS,
     SECONDS,
     MINUTES,
+    IMMORTAL,
     INVALID
 };
 
 using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
-using variant_t = std::variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes>;
+using variant_t = std::variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, ImmortalSentinel>;
 using ttl_t = std::pair<variant_t, TTLTypes>;
+
+auto GetOptionToken(view_t &args) -> StartupTokens;
 
 auto GetDBType(view_t &args) -> std::pair<DBTypes, ttl_t>;
 
