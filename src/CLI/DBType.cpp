@@ -66,7 +66,7 @@ auto GetTTL(view_t &args) -> ttl_t {
         return {variant_t{}, TTLTypes::INVALID};
     }
 
-    auto val = args.front();
+    std::string val = args.front();
     args.advance(1);
     const auto size = val.size();
 
