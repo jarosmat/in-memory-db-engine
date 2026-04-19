@@ -45,6 +45,26 @@ is used as a key to get value from database to use as an operand.
 
 This notation is used also when specifying key under which to store a value.
 
+## Operations on numbers
+
+- `ADD [SUMMAND1] [SUMMAND2]`
+  - computes sum of `[SUMMAND1]` and `[SUMMAND2]`
+  - resulting value type is based on type of operands, if at least one is floating point number, result is floating point
+    number, else the result is integer
+- `SUBTRACT [MINUEND] [SUBTRAHEND]`
+  - computes the difference between `[MINUEND]` and `[SUBTRAHEND]`
+  - resulting value type is based on type of operands, if at least one is floating point number, result is floating point
+    number, else the result is integer
+- `DIVIDE [DIVIDEND] [DIVISOR]`
+  - divides `[DIVIDEND]` by `[DIVISOR]`
+  - resulting value type is based on type of operands, if at least one is floating point number, result is floating point
+    number, else the result is integer, for integers the resulting value is rounded
+  - result of division on integer numbers rounds towards zero
+- `MULTIPLY [FACTOR1] [FACTOR2]`
+  - computes the product of the two factors
+  - resulting value type is based on type of operands, if at least one is floating point number, result is floating point
+    number, else the result is integer
+
 ## Operations on String values 
 
 - `CONCAT [LEFT] [RIGHT]`
