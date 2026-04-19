@@ -103,7 +103,7 @@ If the value is prepended by `@` file under that value is used as a key.
 - `POP [VECT]`
   - removes last value from `[VECT]`
   - operation does not return anything, but modifies an existing value
-- `INSERT [VECT] [I] [VALUE]`
+- `VINSERT [VECT] [I] [VALUE]`
   - inserts `[VALUE]` to position `[I]` in `[VECT]`
   - operation does not return anything, but modifies an existing value
 - `REMOVE [VECT] [I]`
@@ -112,7 +112,7 @@ If the value is prepended by `@` file under that value is used as a key.
 - `SET [VECT] [I] [VALUE]`
   - sets value at position `[I]` to `[VALUE]` in `[VECT]`
   - operation does not return anything, but modifies an existing value`
-- `GET [VECT] [I]`
+- `VGET [VECT] [I]`
   - returns value at position `[I]` in `[VECT]`
   - operation returns value corresponding to type of vector
 - `SIZE [VECT]`
