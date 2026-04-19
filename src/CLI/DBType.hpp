@@ -1,8 +1,8 @@
 #ifndef PROJECT_DBTYPE_HPP
 #define PROJECT_DBTYPE_HPP
-#include <string>
+#include <chrono>
 
-enum DBTypes {
+enum class DBTypes {
     INTEGER,
     FLOAT,
     STRING,
@@ -13,9 +13,20 @@ enum DBTypes {
     INVALID
 };
 
-DBTypes GetType(std::string& type);
+enum class StartupTokens {
+    VALUE,
+    TTL
+};
 
+using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
+using ttl_t = std::variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes>;
+
+auto GetDBType(view_t &args) -> std::pair<DBTypes, ttl_t>;
+
+auto GetTTL(view_t &args) -> ttl_t;
+
+auto GetType(view_t &view) -> DBTypes;
 
 
 #endif //PROJECT_DBTYPE_HPP
