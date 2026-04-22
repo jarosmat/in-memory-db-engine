@@ -15,15 +15,12 @@ public:
     virtual String Execute() = 0;
 };
 
-class IntegerNode : public Node {
+template<typename T>
+class NumberNode : public Node {
 public:
-    virtual Integer Execute() = 0;
+    virtual T Execute() = 0;
 };
 
-class FloatNode : public Node {
-public:
-    virtual Float Execute() = 0;
-};
 
 class ObjectNode : public Node {
 public:
@@ -82,7 +79,7 @@ public:
 
 class SuffixNode : public StringNode {
     std::unique_ptr<StringNode> val;
-    std::unique_ptr<IntegerNode> n;
+    std::unique_ptr<NumberNode<Integer>> n;
 
 public:
     String Execute() override;
@@ -94,7 +91,7 @@ public:
 
 class PrefixNode : public StringNode {
     std::unique_ptr<StringNode> val;
-    std::unique_ptr<IntegerNode> n;
+    std::unique_ptr<NumberNode<Integer>> n;
 
 public:
     String Execute() override;
@@ -106,7 +103,7 @@ public:
 
 class AtNode : public StringNode {
     std::unique_ptr<StringNode> val;
-    std::unique_ptr<IntegerNode> i;
+    std::unique_ptr<NumberNode<Integer>> i;
 
 public:
     String Execute() override;;
