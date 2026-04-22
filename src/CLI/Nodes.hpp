@@ -135,9 +135,15 @@ class AppendNode : public VectNode<T> {
     std::unique_ptr<Node<T> > what;
 
 public:
-    void Execute() override;
+    Vector<T> Execute() override {
+        auto val = vect->Execute();
+        val.Append(std::move(what->Execute()));
+        return val;
+    }
 
-    AppendNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what);
+    AppendNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what) : vect(std::move(vect)),
+        what(std::move(what)) {
+    }
 };
 
 template<typename T>
