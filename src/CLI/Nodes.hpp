@@ -15,6 +15,77 @@ public:
     virtual String Execute() = 0;
 };
 
+class StringFromDB : public StringNode {
+    SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db;
+    std::vector<uint8_t> key;
+
+public:
+    String Execute() override;
+
+    StringFromDB(SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db, std::vector<uint8_t> &&key);
+};
+
+class StringConstant : public StringNode {
+    String val;
+
+public:
+    String Execute() override;
+
+    explicit StringConstant(String &&val);
+};
+
+class ConcatStrings : public StringNode {
+    String left;
+    String right;
+
+public:
+    String Execute() override;
+
+    ConcatStrings(const String &left, const String &right);
+
+    ConcatStrings(const String &left, String &&right);
+
+    ConcatStrings(String &&left, const String &right);
+
+    ConcatStrings(String &&left, String &&right);
+};
+
+class SuffixNode : public StringNode {
+    String val;
+    std::size_t n;
+
+public:
+    String Execute() override;
+
+    SuffixNode(String &&val, std::size_t n);
+
+    SuffixNode(const String &val, std::size_t n);
+};
+
+class PrefixNode : public StringNode {
+    String val;
+    std::size_t n;
+
+public:
+    String Execute() override;
+
+    PrefixNode(String &&val, std::size_t n);
+
+    PrefixNode(const String &val, std::size_t n);
+};
+
+class AtNode : public StringNode {
+    String val;
+    std::size_t i;
+
+public:
+    String Execute() override;;
+
+    AtNode(String &&val, std::size_t i);
+
+    AtNode(const String &val, std::size_t i);
+};
+
 class IntegerNode : public Node {
 public:
     virtual Integer Execute() = 0;
