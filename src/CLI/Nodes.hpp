@@ -34,9 +34,12 @@ class StringConstant : public StringNode {
     String val;
 
 public:
-    String Execute() override;
+    String Execute() override {
+        return val;
+    }
 
-    explicit StringConstant(String &&val);
+    explicit StringConstant(String &&val) : val(std::move(val)) {
+    }
 };
 
 class ConcatStrings : public StringNode {
