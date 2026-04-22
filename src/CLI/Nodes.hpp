@@ -182,10 +182,13 @@ class SetNode : public VectNode<T> {
     std::unique_ptr<NumberNode<Integer> > i;
 
 public:
-    void Execute() override;
+    void Execute() override {
+        vect->Execute()[i->Execute()] = what->Execute();
+    }
 
     SetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
-               std::unique_ptr<NumberNode<Integer> > i);
+            std::unique_ptr<NumberNode<Integer> > i) : vect(std::move(vect)), what(std::move(what)), i(std::move(i)) {
+    }
 };
 
 template<typename T>
