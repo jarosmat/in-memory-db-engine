@@ -19,15 +19,18 @@ using NumberNode = Node<T>;
 template<typename T>
 using VectNode = Node<Vector<T> >;
 
-
-class StringFromDB : public StringNode {
-    SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db;
+template<typename T>
+class FromDB : public Node<T> {
+    SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> > &db;
     std::vector<uint8_t> key;
 
 public:
-    String Execute() override;
+    T Execute() override {
+        auto entry = db.LookUp(std::move(key));
+        return entry.GetValue().GetRef();
+    }
 
-    StringFromDB(SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db, std::vector<uint8_t> &&key);
+    FromDB(SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db, std::vector<uint8_t> &&key);
 };
 
 class StringConstant : public StringNode {
