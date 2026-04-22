@@ -45,6 +45,9 @@ is used as a key to get value from database to use as an operand.
 
 This notation is used also when specifying key under which to store a value.
 
+If you want to use any of these characters at the start of the operand, prefix the value by `\`, this value will always be
+ignored at the start of a operand (when the key starts with \, just put \\ at the start)
+
 ## Operations on numbers
 
 - `ADD [SUMMAND1] [SUMMAND2]`
