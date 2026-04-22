@@ -151,7 +151,8 @@ public:
         return val;
     }
 
-    explicit PopNode(std::unique_ptr<VectNode<T> > &&vect): vect(std::move(vect)){}
+    explicit PopNode(std::unique_ptr<VectNode<T> > &&vect) : vect(std::move(vect)) {
+    }
 };
 
 template<typename T>
@@ -161,8 +162,10 @@ class VInsertNode : public VectNode<T> {
     std::unique_ptr<NumberNode<Integer> > i;
 
 public:
-    void Execute() override {
-        vect->Execute().Insert(i->Execute(), std::move(what->Execute()));
+    Vector<T> Execute() override {
+        auto val = vect->Execute();
+        val.Insert(i->Execute(), std::move(what->Execute()));
+        return val;
     }
 
     VinsertNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
@@ -178,8 +181,10 @@ class RemoveNode : public VectNode<T> {
     std::unique_ptr<NumberNode<Integer> > i;
 
 public:
-    void Execute() override {
-        vect->Execute().Remove(i->Execute());
+    Vector<T> Execute() override {
+        auto val = vect->Execute();
+        val.Remove(i->Execute());
+        return val;
     }
 
     RemoveNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > i) : vect(std::move(vect)),
@@ -194,8 +199,10 @@ class SetNode : public VectNode<T> {
     std::unique_ptr<NumberNode<Integer> > i;
 
 public:
-    void Execute() override {
-        vect->Execute()[i->Execute()] = what->Execute();
+    Vector<T> Execute() override {
+        auto val = vect->Execute();
+        val[i->Execute()] = std::move(what->Execute());
+        return val;
     }
 
     SetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
