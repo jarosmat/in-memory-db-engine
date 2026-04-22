@@ -194,9 +194,13 @@ class VgetNode : public VectNode<T> {
     std::unique_ptr<NumberNode<Integer> > i;
 
 public:
-    void Execute() override;
+    T Execute() override {
+        return vect->Execute()[i];
+    }
 
-    VgetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > i);
+    VgetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > &&i) : vect(std::move(vect)),
+        i(std::move(i)) {
+    }
 };
 
 template<typename T>
@@ -205,10 +209,10 @@ class SizeNode : public VectNode<T> {
 
 public:
     Integer Execute() override {
-       return vect->Execute().Count();
+        return vect->Execute().Count();
     }
 
-    explicit SizeNode(std::unique_ptr<VectNode<T> > &&vect): vect(std::move(vect)) {
+    explicit SizeNode(std::unique_ptr<VectNode<T> > &&vect) : vect(std::move(vect)) {
     }
 };
 
