@@ -5,33 +5,20 @@
 #include "DBEntry.hpp"
 #include "SipHash.hpp"
 
+template<typename T>
 class Node {
 public:
     virtual ~Node() = default;
-};
 
-class StringNode : public Node {
-public:
-    virtual String Execute() = 0;
-};
-
-template<typename T>
-class NumberNode : public Node {
-public:
     virtual T Execute() = 0;
 };
 
-
-class ObjectNode : public Node {
-public:
-    virtual Object Execute() = 0;
-};
-
+using StringNode = Node<String>;
 template<typename T>
-class VectNode : public Node {
-public:
-    virtual Vector<T> Execute() = 0;
-};
+using NumberNode = Node<T>;
+template<typename T>
+using VectNode = Node<Vector<T> >;
+
 
 class StringFromDB : public StringNode {
     SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db;
@@ -140,6 +127,85 @@ struct MultiplyOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override;
+};
+
+template<typename T>
+class AppendNode : public VectNode<T> {
+    std::unique_ptr<VectNode<T> > vect;
+    std::unique_ptr<Node<T> > what;
+
+public:
+    void Execute() override;
+
+    AppendNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what);
+};
+
+template<typename T>
+class PopNode : public VectNode<T> {
+    std::unique_ptr<VectNode<T> > vect;
+
+public:
+    void Execute() override;
+
+    PopNode(std::unique_ptr<VectNode<T> > &&vect);
+};
+
+template<typename T>
+class VInsertNode : public VectNode<T> {
+    std::unique_ptr<VectNode<T> > vect;
+    std::unique_ptr<Node<T> > what;
+    std::unique_ptr<NumberNode<Integer> > i;
+
+public:
+    void Execute() override;
+
+    VinsertNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
+               std::unique_ptr<NumberNode<Integer> > i);
+};
+
+
+template<typename T>
+class RemoveNode : public VectNode<T> {
+    std::unique_ptr<VectNode<T> > vect;
+    std::unique_ptr<NumberNode<Integer> > i;
+
+public:
+    void Execute() override;
+
+    RemoveNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > i);
+};
+
+template<typename T>
+class SetNode : public VectNode<T> {
+    std::unique_ptr<VectNode<T> > vect;
+    std::unique_ptr<Node<T> > what;
+    std::unique_ptr<NumberNode<Integer> > i;
+
+public:
+    void Execute() override;
+
+    SetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
+               std::unique_ptr<NumberNode<Integer> > i);
+};
+
+template<typename T>
+class VgetNode : public VectNode<T> {
+    std::unique_ptr<VectNode<T> > vect;
+    std::unique_ptr<NumberNode<Integer> > i;
+
+public:
+    void Execute() override;
+
+    VgetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > i);
+};
+
+template<typename T>
+class SizeNode : public VectNode<T> {
+    std::unique_ptr<VectNode<T> > vect;
+public:
+    Integer Execute() override;
+
+    SizeNode(std::unique_ptr<VectNode<T> > &&vect);
 };
 
 #endif //PROJECT_NODES_HPP
