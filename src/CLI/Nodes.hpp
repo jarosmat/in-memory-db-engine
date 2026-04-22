@@ -170,9 +170,13 @@ class RemoveNode : public VectNode<T> {
     std::unique_ptr<NumberNode<Integer> > i;
 
 public:
-    void Execute() override;
+    void Execute() override {
+        vect->Execute().Remove(i->Execute());
+    }
 
-    RemoveNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > i);
+    RemoveNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > i) : vect(std::move(vect)),
+        i(std::move(i)) {
+    }
 };
 
 template<typename T>
