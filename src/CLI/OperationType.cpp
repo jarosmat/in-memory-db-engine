@@ -6,6 +6,7 @@ OPType GetOPType(view_t &args) {
     }
 
     auto val = args[0];
+    args.advance(1);
 
     if (val == "INSERT") {
         return OPType::INSERT;
@@ -69,4 +70,8 @@ OPType GetOPType(view_t &args) {
     }
 
     return OPType::INVALID;
+}
+
+args_parsed ParseArg(view_t &args) {
+
 }
