@@ -44,15 +44,13 @@ class ConcatStrings : public StringNode {
     std::unique_ptr<StringNode> right;
 
 public:
-    String Execute() override;
+    String Execute() override {
+        return String::Concatenate(std::move(left->Execute()), std::move(right->Execute()));
+    }
 
-    ConcatStrings(const String &left, const String &right);
-
-    ConcatStrings(const String &left, String &&right);
-
-    ConcatStrings(String &&left, const String &right);
-
-    ConcatStrings(String &&left, String &&right);
+    ConcatStrings(std::unique_ptr<StringNode> left, std::unique_ptr<StringNode> right) : left(std::move(left)),
+        right(std::move(right)) {
+    }
 };
 
 class SuffixNode : public StringNode {
