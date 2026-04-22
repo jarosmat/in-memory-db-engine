@@ -145,9 +145,13 @@ class PopNode : public VectNode<T> {
     std::unique_ptr<VectNode<T> > vect;
 
 public:
-    void Execute() override;
+    Vector<T> Execute() override {
+        auto val = vect->Execute();
+        val.Remove();
+        return val;
+    }
 
-    PopNode(std::unique_ptr<VectNode<T> > &&vect);
+    explicit PopNode(std::unique_ptr<VectNode<T> > &&vect): vect(std::move(vect)){}
 };
 
 template<typename T>
