@@ -60,11 +60,16 @@ class SuffixNode : public StringNode {
     std::unique_ptr<NumberNode<Integer> > n;
 
 public:
-    String Execute() override;
+    String Execute() override {
+        auto res = val->Execute();
+        const auto c = n->Execute();
+        res.RemovePrefix(res.Size() - c);
+        return res;
+    }
 
-    SuffixNode(String &&val, std::size_t n);
-
-    SuffixNode(const String &val, std::size_t n);
+    SuffixNode(std::unique_ptr<StringNode> &&val, std::unique_ptr<NumberNode<Integer> > &&n) : val(std::move(val)),
+        n(std::move(n)) {
+    }
 };
 
 class PrefixNode : public StringNode {
