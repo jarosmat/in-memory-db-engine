@@ -30,7 +30,9 @@ public:
         return entry.GetValue().GetRef();
     }
 
-    FromDB(SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db, std::vector<uint8_t> &&key);
+    FromDB(SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db,
+           std::vector<uint8_t> &&key) : db(db), key(std::move(key)) {
+    }
 };
 
 class StringConstant : public StringNode {
@@ -111,11 +113,14 @@ public:
 
 template<typename T>
 class BinaryOp : public NumberNode<T> {
+protected:
     std::unique_ptr<NumberNode<T> > left;
     std::unique_ptr<NumberNode<T> > right;
 
 public:
-    BinaryOp(std::unique_ptr<NumberNode<T> > &&left, std::unique_ptr<NumberNode<T> > &&right);
+    BinaryOp(std::unique_ptr<NumberNode<T> > &&left, std::unique_ptr<NumberNode<T> > &&right) : left(std::move(left)),
+        right(std::move(right)) {
+    }
 };
 
 template<typename T>
@@ -123,7 +128,7 @@ struct AddOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override {
-        return left->execute() + right->execute();
+        return this->left.get()->Execute() + this->right.get()->Execute();
     }
 };
 
@@ -132,7 +137,7 @@ struct SubtractOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override {
-        return left->execute() - right->execute();
+        return this->left.get()->Execute() - this->right.get()->Execute();
     }
 };
 
@@ -141,7 +146,7 @@ struct DivideOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override {
-        return left->Execute() / right->Execute();
+        return this->left.get()->Execute() / this->right.get()->Execute();
     }
 };
 
@@ -150,7 +155,7 @@ struct MultiplyOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override {
-        return left->Execute() * right->Execute();
+        return this->left.get()->Execute() * this->right.get()->Execute();
     }
 };
 
@@ -199,7 +204,7 @@ public:
         return val;
     }
 
-    VinsertNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
+    VInsertNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
                 std::unique_ptr<NumberNode<Integer> > i) : vect(std::move(vect)), what(std::move(what)),
                                                            i(std::move(i)) {
     }

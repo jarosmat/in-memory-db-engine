@@ -11,7 +11,8 @@ add_library(DBType "${DBTYPE_DIR}/DBType.cpp" "${DBTYPE_DIR}/DBType.hpp")
 target_include_directories(DBType PUBLIC "${SWISS_TABLE_DIR}" "${HASH_FUNCTION_DIR}" "${DBENTRY_DIR}" "${TIMEPOINT_DIR}")
 target_link_libraries(DBType PUBLIC DBEntry SwissTable HashFunc Timepoint)
 
-add_library(Nodes StringNodes.cpp Nodes.hpp)
+add_library(Nodes Nodes.cpp)
+target_include_directories(Nodes PUBLIC "${SWISS_TABLE_DIR}" "${STRING_DIR}" "${HASH_FUNCTION_DIR}")
 target_link_libraries(Nodes PUBLIC Entries DBEntry HashFunc)
 
 add_library(Parser "${PARSER_DIR}/OperationType.cpp")
