@@ -27,19 +27,10 @@ public:
     virtual Object Execute() = 0;
 };
 
-class VectIntNode : public Node {
+template<typename T>
+class VectNode : public Node {
 public:
-    virtual Vector<Integer> Execute() = 0;
-};
-
-class VectFloatNode : public Node {
-public:
-    virtual Vector<Float> Execute() = 0;
-};
-
-class VectStringNode : public Node {
-public:
-    virtual Vector<String> Execute() = 0;
+    virtual Vector<T> Execute() = 0;
 };
 
 class StringFromDB : public StringNode {
