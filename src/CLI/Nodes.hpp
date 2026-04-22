@@ -202,10 +202,15 @@ public:
 template<typename T>
 class SizeNode : public VectNode<T> {
     std::unique_ptr<VectNode<T> > vect;
-public:
-    Integer Execute() override;
 
-    SizeNode(std::unique_ptr<VectNode<T> > &&vect);
+public:
+    Integer Execute() override {
+       return vect->Execute().Count();
+    }
+
+    explicit SizeNode(std::unique_ptr<VectNode<T> > &&vect): vect(std::move(vect)) {
+    }
 };
+
 
 #endif //PROJECT_NODES_HPP
