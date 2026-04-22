@@ -105,28 +105,36 @@ template<typename T>
 struct AddOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
-    T Execute() override;
+    T Execute() override {
+        return left->execute() + right->execute();
+    }
 };
 
 template<typename T>
 struct SubtractOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
-    T Execute() override;
+    T Execute() override {
+        return left->execute() - right->execute();
+    }
 };
 
 template<typename T>
 struct DivideOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
-    T Execute() override;
+    T Execute() override {
+        return left->Execute() / right->Execute();
+    }
 };
 
 template<typename T>
 struct MultiplyOp : public BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
-    T Execute() override;
+    T Execute() override {
+        return left->Execute() * right->Execute();
+    }
 };
 
 template<typename T>
