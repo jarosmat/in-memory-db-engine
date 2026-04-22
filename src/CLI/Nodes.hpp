@@ -105,16 +105,41 @@ public:
 };
 
 
-template<typename T, typename F>
+template<typename T>
 class BinaryOp : public NumberNode<T> {
     std::unique_ptr<NumberNode<T> > left;
     std::unique_ptr<NumberNode<T> > right;
-    F func;
 
 public:
-    T Execute() override;
+    BinaryOp(std::unique_ptr<NumberNode<T> > &&left, std::unique_ptr<NumberNode<T> > &&right);
+};
 
-    BinaryOp(std::unique_ptr<NumberNode<T> > &&left, std::unique_ptr<NumberNode<T> > &&right, F func = F());
+template<typename T>
+struct AddOp : public BinaryOp<T> {
+    using BinaryOp<T>::BinaryOp;
+
+    T Execute() override;
+};
+
+template<typename T>
+struct SubtractOp : public BinaryOp<T> {
+    using BinaryOp<T>::BinaryOp;
+
+    T Execute() override;
+};
+
+template<typename T>
+struct DivideOp : public BinaryOp<T> {
+    using BinaryOp<T>::BinaryOp;
+
+    T Execute() override;
+};
+
+template<typename T>
+struct MultiplyOp : public BinaryOp<T> {
+    using BinaryOp<T>::BinaryOp;
+
+    T Execute() override;
 };
 
 #endif //PROJECT_NODES_HPP
