@@ -13,6 +13,8 @@ public:
 
     explicit String(std::string &&val);
 
+    explicit String(char ch);
+
     String();
 
     static String Concatenate(const std::string &valLeft, const std::string &valRight);

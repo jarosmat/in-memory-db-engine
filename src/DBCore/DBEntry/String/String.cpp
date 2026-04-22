@@ -8,7 +8,11 @@ String::String(const string &val) : val(val) {
 String::String(string &&val) : val(std::move(val)) {
 }
 
-String::String(){
+String::String(const char ch) {
+    val.push_back(ch);
+}
+
+String::String() {
 }
 
 String String::Concatenate(const string &valLeft, const string &valRight) {
@@ -34,8 +38,7 @@ char String::operator[](const size_t i) const {
 void String::RemovePrefix(const size_t n) {
     if (n >= val.size()) {
         val.clear();
-    }
-    else {
+    } else {
         val.erase(val.begin(), val.begin() + n);
     }
 }
@@ -43,8 +46,7 @@ void String::RemovePrefix(const size_t n) {
 void String::RemoveSuffix(const size_t n) {
     if (n >= val.size()) {
         val.clear();
-    }
-    else {
+    } else {
         val.erase(val.end() - n, val.end());
     }
 }
