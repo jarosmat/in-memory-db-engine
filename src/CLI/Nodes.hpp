@@ -84,11 +84,14 @@ class AtNode : public StringNode {
     std::unique_ptr<NumberNode<Integer> > i;
 
 public:
-    String Execute() override;;
+    String Execute() override {
+        const auto vala = val->Execute()[i->Execute()];
+        return String(vala);
+    }
 
-    AtNode(String &&val, std::size_t i);
-
-    AtNode(const String &val, std::size_t i);
+    AtNode(std::unique_ptr<StringNode> &&val, std::unique_ptr<NumberNode<Integer> > &&i) : val(std::move(val)),
+        i(std::move(i)) {
+    }
 };
 
 
