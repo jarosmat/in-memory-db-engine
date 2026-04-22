@@ -79,7 +79,7 @@ public:
 
 class SuffixNode : public StringNode {
     std::unique_ptr<StringNode> val;
-    std::unique_ptr<NumberNode<Integer>> n;
+    std::unique_ptr<NumberNode<Integer> > n;
 
 public:
     String Execute() override;
@@ -91,7 +91,7 @@ public:
 
 class PrefixNode : public StringNode {
     std::unique_ptr<StringNode> val;
-    std::unique_ptr<NumberNode<Integer>> n;
+    std::unique_ptr<NumberNode<Integer> > n;
 
 public:
     String Execute() override;
@@ -103,7 +103,7 @@ public:
 
 class AtNode : public StringNode {
     std::unique_ptr<StringNode> val;
-    std::unique_ptr<NumberNode<Integer>> i;
+    std::unique_ptr<NumberNode<Integer> > i;
 
 public:
     String Execute() override;;
