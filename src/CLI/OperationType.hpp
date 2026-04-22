@@ -27,9 +27,20 @@ enum class OPType {
     INVALID
 };
 
+enum class ArgsType {
+    CONSTANT,
+    KEY_FROM_FILE,
+    KEY_FROM_CONSTANT,
+    EMPTY
+};
+
 using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
 OPType GetOPType(view_t &args);
+
+using args_parsed = std::pair<ArgsType, std::string>;
+
+args_parsed ParseArg(view_t &args);
 
 
 

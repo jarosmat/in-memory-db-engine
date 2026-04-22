@@ -73,5 +73,27 @@ OPType GetOPType(view_t &args) {
 }
 
 args_parsed ParseArg(view_t &args) {
+    if (args.empty()) {
+        return {ArgsType::EMPTY, ""};
+    }
 
+    auto val = args[0];
+
+    if (val.empty()) {
+        return {ArgsType::CONSTANT, ""};
+    }
+
+    if (val[0] == '\\') {
+        return {ArgsType::CONSTANT, std::string(val.begin() + 1, val.end())};
+    }
+
+    if (val[0] == '$') {
+        return {ArgsType::KEY_FROM_CONSTANT, std::string(val.begin() + 1, val.end())};
+    }
+
+    if (val[0] == '@') {
+        return {ArgsType::KEY_FROM_FILE, std::string(val.begin() + 1, val.end())};
+    }
+
+    return {ArgsType::CONSTANT, std::move(val)};
 }
