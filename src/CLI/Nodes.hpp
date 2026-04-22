@@ -93,8 +93,8 @@ public:
 };
 
 class PrefixNode : public StringNode {
-    String val;
-    std::size_t n;
+    std::unique_ptr<StringNode> val;
+    std::unique_ptr<IntegerNode> n;
 
 public:
     String Execute() override;
@@ -105,8 +105,8 @@ public:
 };
 
 class AtNode : public StringNode {
-    String val;
-    std::size_t i;
+    std::unique_ptr<StringNode> val;
+    std::unique_ptr<IntegerNode> i;
 
 public:
     String Execute() override;;
@@ -115,6 +115,7 @@ public:
 
     AtNode(const String &val, std::size_t i);
 };
+
 
 
 
