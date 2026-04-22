@@ -72,11 +72,16 @@ class PrefixNode : public StringNode {
     std::unique_ptr<NumberNode<Integer> > n;
 
 public:
-    String Execute() override;
+    String Execute() override {
+        auto res = val->Execute();
+        const auto c = n->Execute();
+        res.RemoveSuffix(res.Size() - c);
+        return res;
+    }
 
-    PrefixNode(String &&val, std::size_t n);
-
-    PrefixNode(const String &val, std::size_t n);
+    PrefixNode(std::unique_ptr<StringNode> &&val, std::unique_ptr<NumberNode<Integer> > &&n) : val(std::move(val)),
+        n(std::move(n)) {
+    }
 };
 
 class AtNode : public StringNode {
