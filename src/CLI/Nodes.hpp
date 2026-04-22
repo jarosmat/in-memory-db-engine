@@ -15,6 +15,36 @@ public:
     virtual String Execute() = 0;
 };
 
+class IntegerNode : public Node {
+public:
+    virtual Integer Execute() = 0;
+};
+
+class FloatNode : public Node {
+public:
+    virtual Float Execute() = 0;
+};
+
+class ObjectNode : public Node {
+public:
+    virtual Object Execute() = 0;
+};
+
+class VectIntNode : public Node {
+public:
+    virtual Vector<Integer> Execute() = 0;
+};
+
+class VectFloatNode : public Node {
+public:
+    virtual Vector<Float> Execute() = 0;
+};
+
+class VectStringNode : public Node {
+public:
+    virtual Vector<String> Execute() = 0;
+};
+
 class StringFromDB : public StringNode {
     SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db;
     std::vector<uint8_t> key;
@@ -35,8 +65,8 @@ public:
 };
 
 class ConcatStrings : public StringNode {
-    String left;
-    String right;
+    std::unique_ptr<StringNode> left;
+    std::unique_ptr<StringNode> right;
 
 public:
     String Execute() override;
@@ -51,8 +81,8 @@ public:
 };
 
 class SuffixNode : public StringNode {
-    String val;
-    std::size_t n;
+    std::unique_ptr<StringNode> val;
+    std::unique_ptr<IntegerNode> n;
 
 public:
     String Execute() override;
@@ -86,34 +116,6 @@ public:
     AtNode(const String &val, std::size_t i);
 };
 
-class IntegerNode : public Node {
-public:
-    virtual Integer Execute() = 0;
-};
 
-class FloatNode : public Node {
-public:
-    virtual Float Execute() = 0;
-};
-
-class ObjectNode : public Node {
-public:
-    virtual Object Execute() = 0;
-};
-
-class VectIntNode : public Node {
-public:
-    virtual Vector<Integer> Execute() = 0;
-};
-
-class VectFloatNode : public Node {
-public:
-    virtual Vector<Float> Execute() = 0;
-};
-
-class VectStringNode : public Node {
-public:
-    virtual Vector<String> Execute() = 0;
-};
 
 #endif //PROJECT_NODES_HPP
