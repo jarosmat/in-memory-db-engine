@@ -32,7 +32,7 @@ Use command `database` for starting the database. Following options are availabl
 - `<OPERATION> [TARGET] [OPERANDS]...` 
   - `<OPERATION>` is one of operations on db entries that are defined below
   - `[TARGET]` is where to store the result, by default target is key under which to store the value, for storing the
-    result into file add `-f` flag
+    result into file prefix it with `@`
 
 `INSERT` and `<OPERATION>` have also option `--ttl` that specifies the time to live for the value being stored. The option
 is used in similar fashion as is done at database startup, when this option is omitted, default value is used.
