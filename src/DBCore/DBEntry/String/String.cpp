@@ -28,6 +28,14 @@ String String::Concatenate(string &&valLeft, string &&valRight) {
     return String(std::move(result));
 }
 
+String String::Concatenate(String &&valLeft, String &&valRight) {
+    string result(std::move(valLeft.val));
+
+    result += valRight.val;
+
+    return String(std::move(result));
+}
+
 char String::operator[](const size_t i) const {
     if (i < val.size())
         return val[i];

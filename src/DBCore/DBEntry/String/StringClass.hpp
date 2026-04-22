@@ -21,6 +21,8 @@ public:
 
     static String Concatenate(std::string &&valLeft, std::string &&valRight);
 
+    static String Concatenate(String &&valLeft, String &&valRight);
+
     char operator[](size_t i) const;
 
     void RemovePrefix(size_t n);
@@ -33,7 +35,7 @@ public:
 
     [[nodiscard]] size_t Size() const;
 
-    friend std::ostream& operator<<(std::ostream& out, const String& value) {
+    friend std::ostream &operator<<(std::ostream &out, const String &value) {
         return (out << value.val);
     }
 };
