@@ -5,7 +5,7 @@
 #include "Vector.hpp"
 
 using String = String;
-using Integer = std::size_t;
+using Integer = std::int64_t;
 using Float = double;
 template<typename T>
 using VectorEntry = std::vector<T>;
