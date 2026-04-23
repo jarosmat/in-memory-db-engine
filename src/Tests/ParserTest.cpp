@@ -4,6 +4,33 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include "OperationType.hpp"
 
+TEST_CASE("String Parsing", "[int]") {
+    SECTION("Valid integers") {
+        auto [ok1, val1] = ParseString("\"123\"");
+        CHECK(ok1 == true);
+        CHECK(val1 == String("123"));
+
+        auto [ok2, val2] = ParseString(R"(""-456")");
+        CHECK(ok2 == true);
+        CHECK(val2 == String("\"-456"));
+
+        auto [ok3, val3] = ParseString(R"("-456"")");
+        CHECK(ok3 == true);
+        CHECK(val3 == String("-456\""));
+
+        auto [ok4, val4] = ParseString("\"\"");
+        CHECK(ok4 == true);
+        CHECK(val4 == String(""));
+    }
+
+    SECTION("Invalid integers") {
+        CHECK(ParseString("").first == false);
+        CHECK(ParseString("\"").first == false);
+        CHECK(ParseString("abs\"").first == false);
+        CHECK(ParseString("\"12 3").first == false);
+    }
+}
+
 TEST_CASE("Integer Parsing", "[int]") {
     SECTION("Valid integers") {
         auto [ok1, val1] = ParseInt("123");

@@ -100,7 +100,14 @@ args_parsed ParseArg(view_t &args) {
 }
 
 parse_res<String> ParseString(const std::string_view input) {
-    std::string res(input.begin(), input.end());
+    if (input.length() < 2) {
+        return {false, String()};
+    }
+    if (input.front() != '\"' || input.back() != '\"') {
+        return {false, String()};
+    }
+
+    std::string res(input.begin() + 1, input.end() - 1);
     return {true, String(std::move(res))};
 }
 
