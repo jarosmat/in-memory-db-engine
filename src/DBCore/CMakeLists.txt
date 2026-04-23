@@ -11,6 +11,7 @@ set(HASH_FUNCTION_DIR "${PROJECT_SOURCE_DIR}/HashFunction")
 set(OBJECT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Object")
 set(TIMEPOINT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Timepoint")
 set(DBENTRY_DIR "${PROJECT_SOURCE_DIR}/DBEntry")
+set(VALUE_TYPES_DIR "${PROJECT_SOURCE_DIR}/DBEntry")
 
 add_library(Timepoint "${TIMEPOINT_DIR}/Timepoint.cpp")
 target_include_directories(Timepoint PUBLIC "${TIMEPOINT_DIR}")
