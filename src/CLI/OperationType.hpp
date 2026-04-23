@@ -47,6 +47,15 @@ using args_parsed = std::pair<ArgsType, std::string>;
 
 args_parsed ParseArg(view_t &args);
 
+template<typename T>
+using parse_res = std::pair<bool, T>;
+
+parse_res<String> ParseString(std::string_view input);
+
+parse_res<Integer> ParseInt(std::string_view input);
+
+parse_res<Float> ParseFloat(std::string_view input);
+
 enum class VectorParsingRes {
     VALID,
     INVALID_VECT,
