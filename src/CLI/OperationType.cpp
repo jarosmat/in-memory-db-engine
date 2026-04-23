@@ -97,3 +97,8 @@ args_parsed ParseArg(view_t &args) {
 
     return {ArgsType::CONSTANT, std::move(val)};
 }
+
+parse_res<String> ParseString(const std::string_view input) {
+    std::string res(input.begin(), input.end());
+    return {true, String(std::move(res))};
+}
