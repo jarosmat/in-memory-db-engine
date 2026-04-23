@@ -74,7 +74,7 @@ vector_parse_t<T> ParseVect(std::string_view input, std::function<std::pair<bool
     auto it = input.begin() + 1;
     const auto end_boundary = input.end() - 1;
 
-    std::vector<T> result;
+    Vector<T> result;
 
     while (it < end_boundary) {
         while (it < end_boundary && std::isspace(static_cast<unsigned char>(*it))) {
@@ -102,7 +102,7 @@ vector_parse_t<T> ParseVect(std::string_view input, std::function<std::pair<bool
             return {VectorParsingRes::INVALID_ITEM, Vector<T>()};
         }
 
-        result.push_back(value);
+        result.Append(value);
 
         it = token_end + 1;
         // if (it < end_boundary && *it == ',') {
