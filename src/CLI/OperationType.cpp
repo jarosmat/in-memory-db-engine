@@ -1,5 +1,6 @@
 #include "OperationType.hpp"
 
+
 OPType GetOPType(view_t &args) {
     if (args.empty()) {
         return OPType::INVALID;
@@ -101,4 +102,18 @@ args_parsed ParseArg(view_t &args) {
 parse_res<String> ParseString(const std::string_view input) {
     std::string res(input.begin(), input.end());
     return {true, String(std::move(res))};
+}
+
+parse_res<Integer> ParseInt(const std::string_view input) {
+    if (input.empty()) {
+        return {false, 0};
+    }
+
+    Integer result = 0;
+
+    auto [ptr, ec] = std::from_chars(input.data(), input.data() + input.size(), result);
+
+    bool success = (ec == std::errc{}) && (ptr == input.data() + input.size());
+
+    return {success, result};
 }
