@@ -35,17 +35,25 @@ public:
     }
 };
 
-class StringConstant : public StringNode {
-    String val;
+template<typename T>
+class ConstantNode : public Node<T> {
+    T val;
 
 public:
     String Execute() override {
         return val;
     }
 
-    explicit StringConstant(String &&val) : val(std::move(val)) {
+    explicit ConstantNode(T &&val) : val(std::move(val)) {
     }
 };
+
+using StringConstant = ConstantNode<String>;
+using IntegerConstant = ConstantNode<Integer>;
+using FloatConstant = ConstantNode<Float>;
+using ObjectConstant = ConstantNode<Object>;
+template<typename T>
+using VectorConstant = ConstantNode<Vector<T>>;
 
 class ConcatStrings : public StringNode {
     std::unique_ptr<StringNode> left;
