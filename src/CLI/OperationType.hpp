@@ -81,13 +81,20 @@ vector_parse_t<T> ParseVect(std::string_view input, std::function<std::pair<bool
             ++it;
         }
 
-        if (it == end_boundary) {
+        if (it == end_boundary && result.Count() == 0) {
             break;
+        }
+        if (it == end_boundary) {
+            return {VectorParsingRes::INVALID_VECT, Vector<T>()};
         }
 
         auto token_end = it;
         while (token_end < end_boundary && *token_end != ',') {
             ++token_end;
+        }
+
+        if (token_end == it) {
+            return {VectorParsingRes::INVALID_VECT, Vector<T>()};
         }
 
         auto actual_end = token_end;
@@ -105,9 +112,6 @@ vector_parse_t<T> ParseVect(std::string_view input, std::function<std::pair<bool
         result.Append(value);
 
         it = token_end + 1;
-        // if (it < end_boundary && *it == ',') {
-        //     ++it;
-        // }
     }
 
     return {VectorParsingRes::VALID, result};

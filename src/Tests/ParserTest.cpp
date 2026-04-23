@@ -1,0 +1,90 @@
+#include <complex.h>
+#include <iostream>
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include "OperationType.hpp"
+
+TEST_CASE("Integer Parsing", "[int]") {
+    SECTION("Valid integers") {
+        auto [ok1, val1] = ParseInt("123");
+        CHECK(ok1 == true);
+        CHECK(val1 == 123);
+
+        auto [ok2, val2] = ParseInt("-456");
+        CHECK(ok2 == true);
+        CHECK(val2 == -456);
+
+        auto [ok3, val3] = ParseInt("0");
+        CHECK(ok3 == true);
+        CHECK(val3 == 0);
+    }
+
+    SECTION("Invalid integers") {
+        CHECK(ParseInt("12a3").first == false);
+        CHECK(ParseInt("abc").first == false);
+        CHECK(ParseInt("").first == false);
+        CHECK(ParseInt("12 3").first == false);
+    }
+}
+
+TEST_CASE("Double Parsing", "[double]") {
+    SECTION("Valid doubles") {
+        auto [ok1, val1] = ParseFloat("3.1415");
+        CHECK(ok1 == true);
+        CHECK_THAT(val1, Catch::Matchers::WithinRel(3.1415));
+
+        auto [ok2, val2] = ParseFloat("-0.001");
+        CHECK(ok2 == true);
+        CHECK_THAT(val2, Catch::Matchers::WithinRel(-0.001));
+
+        auto [ok3, val3] = ParseFloat("2e3");
+        CHECK(ok3 == true);
+        CHECK(val3 == 2000.0);
+    }
+
+    SECTION("Invalid doubles") {
+        CHECK(ParseFloat("3.14.15").first == false);
+        CHECK(ParseFloat("nan-ish").first == false);
+    }
+}
+
+TEST_CASE("Vector Parsing Logic", "[vector]") {
+    SECTION("Successful integer vector parsing") {
+        std::string_view input = "{ 1, 2,  3 , 4 }";
+        auto [result, vect] = ParseVect<Integer>(input, ParseInt);
+
+        REQUIRE(result == VectorParsingRes::VALID);
+        CHECK(vect.Count() == 4);
+        CHECK(vect[0] == 1);
+        CHECK(vect[3] == 4);
+    }
+
+    SECTION("Successful double vector parsing") {
+        std::string_view input = "{1.1, 2.2, 3.3}";
+        auto [result , vect]= ParseVect<Float>(input, ParseFloat);
+
+        REQUIRE(result == VectorParsingRes::VALID);
+        CHECK(vect.Count() == 3);
+        CHECK_THAT(vect[1], Catch::Matchers::WithinRel(2.2));
+    }
+
+    SECTION("Empty and minimal vectors") {
+        CHECK(ParseVect<Integer>("{}", ParseInt).second.Count() == 0);
+        CHECK(ParseVect<Integer>("{   }", ParseInt).second.Count() == 0);
+
+        auto [result,vect] = ParseVect<Integer>("{42}", ParseInt);
+        REQUIRE(result == VectorParsingRes::VALID);
+        CHECK(vect[0] == 42);
+    }
+
+    SECTION("Malformed structures") {
+        CHECK(ParseVect<Integer>("1, 2, 3", ParseInt).first == VectorParsingRes::INVALID_VECT);
+        CHECK(ParseVect<Integer>("{1, abc, 3}", ParseInt).first == VectorParsingRes::INVALID_ITEM);
+        auto trailing = ParseVect<Integer>("{1, 2, }", ParseInt);
+        CHECK(trailing.first == VectorParsingRes::INVALID_VECT);
+        auto first = ParseVect<Integer>("{ , 2, 3 }", ParseInt);
+        CHECK(first.first == VectorParsingRes::INVALID_VECT);
+        auto middle = ParseVect<Integer>("{1, , 3}", ParseInt);
+        CHECK(middle.first == VectorParsingRes::INVALID_VECT);
+    }
+}

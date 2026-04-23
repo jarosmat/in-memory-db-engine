@@ -34,5 +34,10 @@ add_executable(DBEntryTest DBEntryTest.cpp)
 target_link_libraries(DBEntryTest DBEntry Catch2::Catch2WithMain)
 add_test(NAME DBEntryTest COMMAND DBEntryTest)
 
+add_executable(ParserTest ParserTest.cpp)
+target_link_libraries(ParserTest Parser Catch2::Catch2WithMain)
+add_test(NAME ParserTest COMMAND ParserTest)
+
+
 include(Catch)
-catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest ObjectTest TimepointTest DBEntryTest)
+catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest ObjectTest TimepointTest DBEntryTest ParserTest.cpp)
