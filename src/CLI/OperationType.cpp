@@ -117,3 +117,17 @@ parse_res<Integer> ParseInt(const std::string_view input) {
 
     return {success, result};
 }
+
+parse_res<Float> ParseFloat(std::string_view input) {
+    if (input.empty()) {
+        return {false, 0.0};
+    }
+
+    Float result = 0.0;
+
+    auto [ptr, ec] = std::from_chars(input.data(), input.data() + input.size(), result);
+
+    bool success = (ec == std::errc{}) && (ptr == input.data() + input.size());
+
+    return {success, result};
+}
