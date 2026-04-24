@@ -7,6 +7,8 @@
 #include "DBType.hpp"
 #include "Vector.hpp"
 #include "../DBCore/DBEntry/ValueTypes.hpp"
+#include <fstream>
+#include <filesystem>
 
 enum class OPType {
     INSERT,
@@ -38,6 +40,18 @@ enum class ArgsType {
     KEY_FROM_CONSTANT,
     EMPTY
 };
+
+enum class BytesFromFileRes {
+    VALID,
+    COULD_NOT_OPEN,
+    COULD_NOT_READ
+};
+
+using read_from_file_r = std::pair<BytesFromFileRes, std::vector<uint8_t>>;
+
+read_from_file_r readFileBytes(const std::string& filePath);
+
+std::vector<uint8_t> stringBytes(std::string &&str) ;
 
 using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 

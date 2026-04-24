@@ -1,6 +1,35 @@
 #include "OperationType.hpp"
 
 
+read_from_file_r readFileBytes(const std::string &filePath) {
+    std::ifstream file(filePath, std::ios::binary | std::ios::ate);
+
+    if (!file.is_open()) {
+        return {BytesFromFileRes::COULD_NOT_OPEN, {}};
+    }
+
+    std::streamsize size = file.tellg();
+
+    if (size <= 0) {
+        return {BytesFromFileRes::VALID, {}};
+    }
+
+    file.seekg(0, std::ios::beg);
+
+    std::vector<uint8_t> buffer(size);
+
+    if (file.read(reinterpret_cast<char *>(buffer.data()), size)) {
+        return {BytesFromFileRes::VALID, buffer};
+    }
+
+    return {BytesFromFileRes::COULD_NOT_READ, {}};
+}
+
+std::vector<uint8_t> stringBytes(std::string &&str) {
+    std::vector<uint8_t> vec(str.begin(), str.end());
+    return vec;
+}
+
 OPType GetOPType(view_t &args) {
     if (args.empty()) {
         return OPType::INVALID;

@@ -1,8 +1,9 @@
-#include <complex.h>
 #include <iostream>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include "OperationType.hpp"
+#include <fstream>
+#include <filesystem>
 
 TEST_CASE("String Parsing", "[int]") {
     SECTION("Valid integers") {
@@ -88,7 +89,7 @@ TEST_CASE("Vector Parsing Logic", "[vector]") {
 
     SECTION("Successful double vector parsing") {
         std::string_view input = "{1.1, 2.2, 3.3}";
-        auto [result , vect]= ParseVect<Float>(input, ParseFloat);
+        auto [result , vect] = ParseVect<Float>(input, ParseFloat);
 
         REQUIRE(result == VectorParsingRes::VALID);
         CHECK(vect.Count() == 3);
@@ -113,5 +114,64 @@ TEST_CASE("Vector Parsing Logic", "[vector]") {
         CHECK(first.first == VectorParsingRes::INVALID_VECT);
         auto middle = ParseVect<Integer>("{1, , 3}", ParseInt);
         CHECK(middle.first == VectorParsingRes::INVALID_VECT);
+    }
+}
+
+namespace fs = std::filesystem;
+
+void createTestFile(const std::string &path, const std::string &content) {
+    std::ofstream ofs(path, std::ios::binary);
+    ofs << content;
+    ofs.close();
+}
+
+TEST_CASE("stringToBytes converts string to byte vector", "[string]") {
+    SECTION("Standard string conversion") {
+        std::string input = "Hello";
+        auto result = stringBytes(std::move(input));
+
+        REQUIRE(result.size() == 5);
+        CHECK(result[0] == 'H');
+        CHECK(result[4] == 'o');
+    }
+
+    SECTION("Empty string conversion") {
+        std::string input = "";
+        auto result = stringBytes(std::move(input));
+        CHECK(result.empty());
+    }
+}
+
+
+TEST_CASE("readFileToBytes handles various file scenarios", "[file]") {
+    std::string testPath = "test_data.bin";
+
+    SECTION("Read an existing file correctly") {
+        std::string expectedContent = "BinaryData\0\1\2";
+        createTestFile(testPath, expectedContent);
+
+        auto [type, result] = readFileBytes(testPath);
+
+        REQUIRE(type == BytesFromFileRes::VALID);
+        REQUIRE(result.size() == expectedContent.size());
+        CHECK(std::memcmp(result.data(), expectedContent.data(), result.size()) == 0);
+
+        fs::remove(testPath);
+    }
+
+    SECTION("Handle non-existent file") {
+        auto [type,result] = readFileBytes("this_file_does_not_exist.xyz");
+        REQUIRE(type == BytesFromFileRes::COULD_NOT_OPEN);
+        CHECK(result.empty());
+    }
+
+    SECTION("Handle empty file") {
+        createTestFile(testPath, "");
+        auto [type, result] = readFileBytes(testPath);
+
+        REQUIRE(type == BytesFromFileRes::VALID);
+        CHECK(result.empty());
+
+        fs::remove(testPath);
     }
 }
