@@ -45,10 +45,14 @@ is used as a key to get value from database to use as an operand.
 
 This notation is used also when specifying key under which to store a value.
 
-If you want to use any of these characters at the start of the operand, prefix the value by `\`, this value will always be
-ignored at the start of a operand (when the key starts with \, just put \\ at the start)
+If you want to use any of these characters at the start of the operand, prefix the value by `\`. This value will always be
+ignored at the start of an operand (when the key starts with \, just put \\ at the start).
 
 ## Operations on numbers
+
+Numbers are integral or floating point. Integral numbers are specified in usual matter, without spaces between numerals,
+e.g.: `0`,`41`,`-4`. Floating point numbers are also specified in usual matter, without spaces between numerals and with
+whole part and decimal part divided by dot `.`, e.g.: `0.13`, `14,532`
 
 - `ADD [SUMMAND1] [SUMMAND2]`
   - computes sum of `[SUMMAND1]` and `[SUMMAND2]`
@@ -97,24 +101,25 @@ ignored at the start of a operand (when the key starts with \, just put \\ at th
 ## Operations on Vectors
 
 In all operation operand called `[VECT]` appears, this operand specifies vector on which the operation is to take place.
-The value specified is treated as key by default (without specifying `$`, if the values begins with `$`, it is omitted).
-If the value is prepended by `@` file under that value is used as a key.
+If you want to write a constant vector, it is in a format: `{item1, item2, item3}`. For vector of strings, items have to 
+be inside parenthesis "", all outside parenthesis are ignores. If you want the item to be `"somethin`, just write:
+`{..., ""somehing", ...}`
 
 - `APPEND [VECT] [WHAT]`
   - appends value `[WHAT]` to end of `[VECT]` 
-  - operation does not return anything, but modifies an existing value
+  - operation returns new vector 
 - `POP [VECT]`
   - removes last value from `[VECT]`
-  - operation does not return anything, but modifies an existing value
+  - operation returns new vector
 - `VINSERT [VECT] [I] [VALUE]`
   - inserts `[VALUE]` to position `[I]` in `[VECT]`
-  - operation does not return anything, but modifies an existing value
+  - operation returns new vector
 - `REMOVE [VECT] [I]`
   - removes value from position `[I]` in `[VECT]`
-  - operation does not return anything, but modifies an existing value`
+  - operation returns new vector
 - `SET [VECT] [I] [VALUE]`
   - sets value at position `[I]` to `[VALUE]` in `[VECT]`
-  - operation does not return anything, but modifies an existing value`
+  - operation returns new vector
 - `VGET [VECT] [I]`
   - returns value at position `[I]` in `[VECT]`
   - operation returns value corresponding to type of vector
