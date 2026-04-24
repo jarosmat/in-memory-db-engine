@@ -108,6 +108,7 @@ args_parsed ParseArg(view_t &args) {
     }
 
     auto val = args[0];
+    args.advance(1);
 
     if (val.empty()) {
         return {ArgsType::CONSTANT, ""};
