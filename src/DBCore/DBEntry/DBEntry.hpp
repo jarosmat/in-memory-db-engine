@@ -174,4 +174,10 @@ public:
         payload = std::forward<ES>(val);
     }
 };
+
+template<typename E, typename T>
+DBEntry<E> GetEntry(E && val, T&& ttl) {
+    DBEntry_t<E,T> entry_t(std::forward<E>(val), std::forward<T>(ttl));
+    return DBEntry<E>(std::move(entry_t));
+}
 #endif //PROJECT_DBENTRY_HPP

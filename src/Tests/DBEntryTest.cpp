@@ -198,8 +198,8 @@ TEST_CASE("DBEntry_t: RemainingTime with std::chrono::minutes", "[dbentry_t][rem
 
 TEST_CASE("DBEntry: RemainingTime with std::chrono::milliseconds", "[dbentry][remaining][milliseconds]") {
     SECTION("Time remaining (not expired)") {
-        const DBEntry_t<Integer, milliseconds> entry_t(42, 100ms);
-        DBEntry<Integer> entry(entry_t);
+        Integer val = 42;
+        DBEntry<Integer> entry = GetEntry<Integer, milliseconds>(std::move(val), 100ms);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining >= 95ms);
         REQUIRE(remaining <= 100ms);
