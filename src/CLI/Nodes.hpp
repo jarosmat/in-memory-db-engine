@@ -14,6 +14,7 @@ public:
 };
 
 using StringNode = Node<String>;
+using StringPtr = std::unique_ptr<StringNode>;
 template<typename T>
 using NumberNode = Node<T>;
 template<typename T>
