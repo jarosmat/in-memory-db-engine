@@ -21,6 +21,8 @@ template<typename T>
 using NumberPtr = std::unique_ptr<NumberNode<T>>;
 template<typename T>
 using VectNode = Node<Vector<T> >;
+template<typename T>
+using VectPtr = std::unique_ptr<VectNode<T>>;
 
 template<typename T>
 class FromDB : public Node<T> {

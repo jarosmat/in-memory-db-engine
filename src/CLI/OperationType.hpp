@@ -241,5 +241,66 @@ vector_parse_t<T> ParseVect(std::string_view input, std::function<std::pair<bool
     return {VectorParsingRes::VALID, result};
 }
 
+template<typename T>
+struct DBVectType {
+    static constexpr auto type = DBTypes::INVALID;
+};
+
+template<>
+struct DBVectType<String> {
+    static constexpr auto type = DBTypes::VECTOR_STRING;
+};
+
+template<>
+struct DBVectType<Integer> {
+    static constexpr auto type = DBTypes::VECTOR_INT;
+};
+
+template<>
+struct DBVectType<Float> {
+    static constexpr auto type = DBTypes::VECTOR_FLOAT;
+};
+
+template<typename T>
+using DBVectType_t = DBVectType<T>::type;
+
+template<typename T, typename DB>
+    requires (!std::is_reference_v<DB>)
+std::pair<GetArgsReturnTypes, NumberPtr<Float> > getVector(DBTypes dbType, DB &db, args_parsed &&args,
+                                                           std::function<std::pair<bool, T>(std::string_view)>
+                                                           converter) {
+    auto [type, val] = std::move(args);
+    if (type == ArgsType::EMPTY) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+    if (type == ArgsType::CONSTANT) {
+        auto [res, valVect] = ParseVect<T>(std::string_view(val.begin(), val.end()));
+        if (res == VectorParsingRes::VALID) {
+            auto resPtr = std::make_unique<ConstantNode<Vector<T> > >(std::move(valVect));
+            return {GetArgsReturnTypes::VALID, std::move(resPtr)};
+        }
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+    DBTypes expectedDb = DBVectType<T>::type;
+    if (dbType != expectedDb) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+
+    if (type == ArgsType::KEY_FROM_CONSTANT) {
+        auto key = stringBytes(std::move(val));
+        auto res = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
+    }
+
+    if (type == ArgsType::KEY_FROM_FILE) {
+        auto [res, key] = readFileBytes(val);
+        if (res == BytesFromFileRes::VALID) {
+            auto resPtr = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
+            return {GetArgsReturnTypes::VALID, std::move(resPtr)};
+        }
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+
+    return {GetArgsReturnTypes::INVALID, {}};
+}
 
 #endif //PROJECT_OPERATIONTYPE_HPP
