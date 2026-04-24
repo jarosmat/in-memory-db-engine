@@ -89,6 +89,7 @@ auto GetDBType(view_t &args) -> std::pair<DBTypes, ttl_t> {
             res.second = GetTTL(args);
         }
     }
+    return res;
 }
 
 auto GetTTL(view_t &args) -> ttl_t {
