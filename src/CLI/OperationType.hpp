@@ -47,11 +47,11 @@ enum class BytesFromFileRes {
     COULD_NOT_READ
 };
 
-using read_from_file_r = std::pair<BytesFromFileRes, std::vector<uint8_t>>;
+using read_from_file_r = std::pair<BytesFromFileRes, std::vector<uint8_t> >;
 
-read_from_file_r readFileBytes(const std::string& filePath);
+read_from_file_r readFileBytes(const std::string &filePath);
 
-std::vector<uint8_t> stringBytes(std::string &&str) ;
+std::vector<uint8_t> stringBytes(std::string &&str);
 
 using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
@@ -92,21 +92,56 @@ std::pair<GetArgsReturnTypes, StringPtr> getString(DBTypes dbType, DB &db, args_
     }
     if (type == ArgsType::KEY_FROM_CONSTANT) {
         auto key = stringBytes(std::move(val));
-        auto res = std::make_unique<FromDB<String>>(db, std::move(key));
+        auto res = std::make_unique<FromDB<String> >(db, std::move(key));
         return {GetArgsReturnTypes::VALID, std::move(res)};
     }
     if (type == ArgsType::KEY_FROM_FILE) {
         auto [res, key] = readFileBytes(val);
         if (res == BytesFromFileRes::VALID) {
-            auto resPtr = std::make_unique<FromDB<String>>(db, std::move(key));
+            auto resPtr = std::make_unique<FromDB<String> >(db, std::move(key));
             return {GetArgsReturnTypes::VALID, std::move(resPtr)};
         }
         return {GetArgsReturnTypes::INVALID, {}};
     }
-    return {GetArgsReturnTypes::VALID, {}};
+    return {GetArgsReturnTypes::INVALID, {}};
 }
 
 parse_res<Integer> ParseInt(std::string_view input);
+
+template<typename DB>
+    requires (!std::is_reference_v<DB>)
+std::pair<GetArgsReturnTypes, NumberPtr<Integer> > getInteger(DBTypes dbType, DB &db, args_parsed &&args) {
+    auto [type, val] = std::move(args);
+    if (type == ArgsType::EMPTY) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+    if (type == ArgsType::CONSTANT) {
+        auto [res, valNum] = ParseInt(std::string_view(val.begin(), val.end()));
+        if (res) {
+            auto resPtr = std::make_unique<ConstantNode<Integer> >(valNum);
+            return {GetArgsReturnTypes::VALID, std::move(resPtr)};
+        }
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+    if (dbType != DBTypes::INTEGER) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+    if (type == ArgsType::KEY_FROM_CONSTANT) {
+        auto key = stringBytes(std::move(val));
+        auto res = std::make_unique<FromDB<Integer> >(db, std::move(key));
+        return {GetArgsReturnTypes::VALID, std::move(res)};
+    }
+    if (type == ArgsType::KEY_FROM_FILE) {
+        auto [res, key] = readFileBytes(val);
+        if (res == BytesFromFileRes::VALID) {
+            auto resPtr = std::make_unique<FromDB<Integer> >(db, std::move(key));
+            return {GetArgsReturnTypes::VALID, std::move(resPtr)};
+        }
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+
+    return {GetArgsReturnTypes::INVALID, {}};
+}
 
 parse_res<Float> ParseFloat(std::string_view input);
 

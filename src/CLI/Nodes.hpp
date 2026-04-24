@@ -18,6 +18,8 @@ using StringPtr = std::unique_ptr<StringNode>;
 template<typename T>
 using NumberNode = Node<T>;
 template<typename T>
+using NumberPtr = std::unique_ptr<NumberNode<T>>;
+template<typename T>
 using VectNode = Node<Vector<T> >;
 
 template<typename T>
