@@ -5,11 +5,14 @@
 #include "DBEntry.hpp"
 #include "SipHash.hpp"
 
-template<typename T>
-class Node {
+class BaseNode {
 public:
-    virtual ~Node() = default;
+    virtual ~BaseNode() = default;
+};
 
+template<typename T>
+class Node : BaseNode {
+public:
     virtual T Execute() = 0;
 };
 
@@ -18,11 +21,11 @@ using StringPtr = std::unique_ptr<StringNode>;
 template<typename T>
 using NumberNode = Node<T>;
 template<typename T>
-using NumberPtr = std::unique_ptr<NumberNode<T>>;
+using NumberPtr = std::unique_ptr<NumberNode<T> >;
 template<typename T>
 using VectNode = Node<Vector<T> >;
 template<typename T>
-using VectPtr = std::unique_ptr<VectNode<T>>;
+using VectPtr = std::unique_ptr<VectNode<T> >;
 
 template<typename T>
 class FromDB : public Node<T> {
@@ -51,7 +54,8 @@ public:
 
     explicit ConstantNode(T &&val) : val(std::move(val)) {
     }
-    explicit ConstantNode(T& val) : val(val) {
+
+    explicit ConstantNode(T &val) : val(val) {
     }
 };
 
@@ -60,7 +64,7 @@ using IntegerConstant = ConstantNode<Integer>;
 using FloatConstant = ConstantNode<Float>;
 using ObjectConstant = ConstantNode<Object>;
 template<typename T>
-using VectorConstant = ConstantNode<Vector<T>>;
+using VectorConstant = ConstantNode<Vector<T> >;
 
 class ConcatStrings : public StringNode {
     std::unique_ptr<StringNode> left;
@@ -289,5 +293,56 @@ public:
     }
 };
 
+template<typename T>
+using DBType = SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> >;
+
+template<typename T>
+class DBopsNode : BaseNode {
+    DBType<T> &db;
+
+public:
+    virtual void Execute() = 0;
+
+    explicit DBopsNode(DBType<T> &dp) : db(db) {
+    }
+};
+
+template<typename T, typename TTL>
+class InsertNode : public DBopsNode<T> {
+    std::vector<uint8_t> key;
+    T value;
+    TTL ttl;
+
+public:
+    void Execute() override {
+        auto entry = this->db.LookUp(std::move(key));
+        DBEntry<T> toInsert = GetEntry<T, TTL>(std::move(value), std::move(ttl));
+        entry.SetValue(std::move(toInsert));
+    }
+
+    InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, T &&val, TTL &&ttl) : DBopsNode<T>(db), key(std::move(key)),
+        value(std::move(val)), ttl(ttl) {
+    }
+};
+
+template<typename T>
+class GetNode : public DBopsNode<T> {
+    std::ostream &stream;
+    std::vector<uint8_t> key;
+
+public:
+    void Execute() override {
+        auto entry = this->db.LookUp(std::move(key));
+        if (entry.GetResult() == USED) {
+            stream << "Value is: " << entry.GetValue() << std::endl;
+        } else {
+            stream << "Invalid key" << std::endl;
+        }
+    }
+
+    GetNode(DBType<T> &db, std::vector<uint8_t> &&key, std::ostream &stream) : DBopsNode<T>(db), stream(stream),
+                                                                               key(std::move(key)) {
+    }
+};
 
 #endif //PROJECT_NODES_HPP
