@@ -123,7 +123,7 @@ SwissTable<F, D, K>::SwissTable(F hash_func) : dataCount(0), metadata(initialGro
 
 template<typename F, typename D, typename K>
 SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
-    const hash hKey = hashFunc(key);
+    const hash hKey = hashFunc(std::move(key));
     const hash h1 = hKey >> h1ShiftCoef;
     const hash h2 = hKey & h2Mask;
 

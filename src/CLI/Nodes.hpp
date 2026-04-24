@@ -35,7 +35,7 @@ public:
         return entry.GetValue().GetRef();
     }
 
-    FromDB(SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> > &db,
+    FromDB(SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> > &db,
            std::vector<uint8_t> &&key) : db(db), key(std::move(key)) {
     }
 };

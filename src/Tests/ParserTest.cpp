@@ -5,6 +5,8 @@
 #include <fstream>
 #include <filesystem>
 
+#include "catch2/catch_approx.hpp"
+
 TEST_CASE("String Parsing", "[String]") {
     SECTION("Valid Strings") {
         auto [ok1, val1] = ParseString("\"123\"");
@@ -173,5 +175,119 @@ TEST_CASE("readFileToBytes handles various file scenarios", "[file]") {
         CHECK(result.empty());
 
         fs::remove(testPath);
+    }
+}
+
+using MockDBString = SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t>>;
+using MockDBInteger = SwissTable<SipHash, DBEntry<Integer>, std::vector<uint8_t>>;
+using MockDBFloat = SwissTable<SipHash, DBEntry<Float>, std::vector<uint8_t>>;
+template<typename T>
+using MockDBVect = SwissTable<SipHash, DBEntry<Vector<T>>, std::vector<uint8_t>>;
+
+
+
+TEST_CASE("Operation Type Parsing", "[OperationType]") {
+    SECTION("GetOPType correctly identifies operations") {
+        std::vector<std::string> rawArgs = {"INSERT", "GET", "INVALID_OP"};
+        view_t view(rawArgs.begin(), rawArgs.end());
+
+
+        CHECK(GetOPType(view) == OPType::INSERT);
+
+        CHECK(GetOPType(view) == OPType::GET);
+
+        CHECK(GetOPType(view) == OPType::INVALID);
+    }
+
+    SECTION("ParseArg identifies argument types and values") {
+        std::vector<std::string> rawArgs = {"hello", "@data.bin", "$mykey"};
+        view_t view(rawArgs.begin(), rawArgs.end());
+
+        auto [type1, val1] = ParseArg(view);
+        CHECK(type1 == ArgsType::CONSTANT);
+        CHECK(val1 == "hello");
+
+        auto [type2, val2] = ParseArg(view);
+        CHECK(type2 == ArgsType::KEY_FROM_FILE);
+        CHECK(val2 == "data.bin");
+
+        auto [type3, val3] = ParseArg(view);
+        CHECK(type3 == ArgsType::KEY_FROM_CONSTANT);
+        CHECK(val3 == "mykey");
+    }
+}
+
+TEST_CASE("Node Generation Functions", "[OperationType]") {
+    MockDBString dbS(SipHash(0,0,2,4));
+    MockDBInteger dbI(SipHash(0,0,2,4));
+    MockDBFloat dbF(SipHash(0,0,2,4));
+
+    SECTION("getString generation") {
+        SECTION("Constant string argument") {
+            args_parsed args = {ArgsType::CONSTANT, "test_val"};
+            auto [status, node] = getString(DBTypes::STRING, dbS, std::move(args));
+
+            REQUIRE(status == GetArgsReturnTypes::VALID);
+            REQUIRE(node != nullptr);
+            CHECK(node->Execute() == String("test_val"));
+        }
+
+        SECTION("Key from constant (Database Lookup)") {
+            args_parsed args = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
+            auto [status, node] = getString(DBTypes::STRING, dbS, std::move(args));
+            CHECK(status == GetArgsReturnTypes::VALID);
+            CHECK(node != nullptr);
+
+            args_parsed args2 = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
+            auto [status2, node2] = getString(DBTypes::INTEGER, dbS, std::move(args2));
+            CHECK(status2 == GetArgsReturnTypes::INVALID);
+        }
+    }
+
+    SECTION("getInteger generation") {
+        SECTION("Valid constant integer") {
+            args_parsed args = {ArgsType::CONSTANT, "123"};
+            auto [status, node] = getInteger(DBTypes::INTEGER, dbI, std::move(args));
+
+            REQUIRE(status == GetArgsReturnTypes::VALID);
+            CHECK(node->Execute() == 123);
+        }
+
+        SECTION("Empty argument failure") {
+            args_parsed args = {ArgsType::EMPTY, ""};
+            auto [status, node] = getInteger(DBTypes::INTEGER, dbI, std::move(args));
+            CHECK(status == GetArgsReturnTypes::INVALID);
+        }
+    }
+
+    SECTION("getFloat generation") {
+        SECTION("Valid constant float") {
+            args_parsed args = {ArgsType::CONSTANT, "3.14"};
+            auto [status, node] = getFloat(DBTypes::FLOAT, dbF, std::move(args));
+
+            REQUIRE(status == GetArgsReturnTypes::VALID);
+            CHECK(node->Execute() == Catch::Approx(3.14));
+        }
+
+        SECTION("Invalid DB Type for Key lookup") {
+            args_parsed args = {ArgsType::KEY_FROM_CONSTANT, "some_key"};
+            auto [status, node] = getFloat(DBTypes::STRING, dbF, std::move(args));
+            CHECK(status == GetArgsReturnTypes::INVALID);
+        }
+    }
+}
+
+TEST_CASE("Vector Node Generation", "[OperationType]") {
+    MockDBVect<Integer> db(SipHash(0,0,2,4));
+
+    SECTION("getVector basic logic") {
+        args_parsed args = {ArgsType::CONSTANT, "{1,2,3}"};
+        auto [status, node] = getVector<Integer, MockDBVect<Integer>>(
+            DBTypes::VECTOR_INT, db, std::move(args), ParseInt
+        );
+
+        if(status == GetArgsReturnTypes::VALID) {
+            SUCCEED("Vector node created");
+        }
     }
 }

@@ -266,7 +266,7 @@ using DBVectType_t = DBVectType<T>::type;
 
 template<typename T, typename DB>
     requires (!std::is_reference_v<DB>)
-std::pair<GetArgsReturnTypes, NumberPtr<Float> > getVector(DBTypes dbType, DB &db, args_parsed &&args,
+std::pair<GetArgsReturnTypes, VectPtr<T> > getVector(DBTypes dbType, DB &db, args_parsed &&args,
                                                            std::function<std::pair<bool, T>(std::string_view)>
                                                            converter) {
     auto [type, val] = std::move(args);
@@ -274,7 +274,7 @@ std::pair<GetArgsReturnTypes, NumberPtr<Float> > getVector(DBTypes dbType, DB &d
         return {GetArgsReturnTypes::INVALID, {}};
     }
     if (type == ArgsType::CONSTANT) {
-        auto [res, valVect] = ParseVect<T>(std::string_view(val.begin(), val.end()));
+        auto [res, valVect] = ParseVect<T>(std::string_view(val.begin(), val.end()), converter);
         if (res == VectorParsingRes::VALID) {
             auto resPtr = std::make_unique<ConstantNode<Vector<T> > >(std::move(valVect));
             return {GetArgsReturnTypes::VALID, std::move(resPtr)};
