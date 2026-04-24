@@ -5,8 +5,8 @@
 #include <fstream>
 #include <filesystem>
 
-TEST_CASE("String Parsing", "[int]") {
-    SECTION("Valid integers") {
+TEST_CASE("String Parsing", "[String]") {
+    SECTION("Valid Strings") {
         auto [ok1, val1] = ParseString("\"123\"");
         CHECK(ok1 == true);
         CHECK(val1 == String("123"));
@@ -24,7 +24,7 @@ TEST_CASE("String Parsing", "[int]") {
         CHECK(val4 == String(""));
     }
 
-    SECTION("Invalid integers") {
+    SECTION("Invalid strings") {
         CHECK(ParseString("").first == false);
         CHECK(ParseString("\"").first == false);
         CHECK(ParseString("abs\"").first == false);
@@ -32,7 +32,7 @@ TEST_CASE("String Parsing", "[int]") {
     }
 }
 
-TEST_CASE("Integer Parsing", "[int]") {
+TEST_CASE("Integer Parsing", "[Integer]") {
     SECTION("Valid integers") {
         auto [ok1, val1] = ParseInt("123");
         CHECK(ok1 == true);
@@ -55,8 +55,8 @@ TEST_CASE("Integer Parsing", "[int]") {
     }
 }
 
-TEST_CASE("Double Parsing", "[double]") {
-    SECTION("Valid doubles") {
+TEST_CASE("Double Parsing", "[Float]") {
+    SECTION("Valid floats") {
         auto [ok1, val1] = ParseFloat("3.1415");
         CHECK(ok1 == true);
         CHECK_THAT(val1, Catch::Matchers::WithinRel(3.1415));
@@ -70,7 +70,7 @@ TEST_CASE("Double Parsing", "[double]") {
         CHECK(val3 == 2000.0);
     }
 
-    SECTION("Invalid doubles") {
+    SECTION("Invalid floats") {
         CHECK(ParseFloat("3.14.15").first == false);
         CHECK(ParseFloat("nan-ish").first == false);
     }
@@ -136,7 +136,7 @@ TEST_CASE("stringToBytes converts string to byte vector", "[string]") {
     }
 
     SECTION("Empty string conversion") {
-        std::string input = "";
+        std::string input;
         auto result = stringBytes(std::move(input));
         CHECK(result.empty());
     }
