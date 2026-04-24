@@ -41,11 +41,13 @@ class ConstantNode : public Node<T> {
     T val;
 
 public:
-    String Execute() override {
+    T Execute() override {
         return val;
     }
 
     explicit ConstantNode(T &&val) : val(std::move(val)) {
+    }
+    explicit ConstantNode(T& val) : val(val) {
     }
 };
 
