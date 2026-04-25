@@ -267,8 +267,8 @@ using DBVectType_t = DBVectType<T>::type;
 template<typename T, typename DB>
     requires (!std::is_reference_v<DB>)
 std::pair<GetArgsReturnTypes, VectPtr<T> > getVector(DBTypes dbType, DB &db, args_parsed &&args,
-                                                           std::function<std::pair<bool, T>(std::string_view)>
-                                                           converter) {
+                                                     std::function<std::pair<bool, T>(std::string_view)>
+                                                     converter) {
     auto [type, val] = std::move(args);
     if (type == ArgsType::EMPTY) {
         return {GetArgsReturnTypes::INVALID, {}};
