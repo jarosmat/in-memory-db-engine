@@ -387,4 +387,94 @@ parse_op_r<N> ParseStringOpStringString(view_t &view, DBTypes dbType, DB &db) {
     return {ParseOperationRes::VALID, std::move(res)};
 }
 
+template<typename DB, typename OP, typename T>
+parse_op_r<OP> ParseVectOpVectVal(view_t &view, DBTypes dbType, DB &db,
+                                  std::function<std::pair<bool, T>(std::string_view)>
+                                  converter,
+                                  std::function<std::pair<GetArgsReturnTypes, Node<T> >(DBTypes, DB &, args_parsed &&)>
+                                  valParser) {
+    if (view.size() != 2) {
+        return {ParseOperationRes::INVALID_ARG_C, {}};
+    }
+
+    auto parse = ParseArg(view);
+    auto [type, ptr] = getVector(dbType, db, std::move(parse), converter);
+    auto parseVal = ParseArg(view);
+    auto [typeVal, ptrVal] = valParser(dbType, db, std::move(parseVal));
+
+    if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID) {
+        return {ParseOperationRes::INVALID_ARGS, {}};
+    }
+
+    auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrVal));
+    return {ParseOperationRes::VALID, std::move(res)};
+}
+
+template<typename DB, typename OP, typename T>
+parse_op_r<OP> ParseVectOpVect(view_t &view, DBTypes dbType, DB &db,
+                               std::function<std::pair<bool, T>(std::string_view)>
+                               converter) {
+    if (view.size() != 1) {
+        return {ParseOperationRes::INVALID_ARG_C, {}};
+    }
+
+    auto parse = ParseArg(view);
+    auto [type, ptr] = getVector(dbType, db, std::move(parse), converter);
+
+    if (type == GetArgsReturnTypes::INVALID) {
+        return {ParseOperationRes::INVALID_ARGS, {}};
+    }
+
+    auto res = std::make_unique<OP>(std::move(ptr));
+    return {ParseOperationRes::VALID, std::move(res)};
+}
+
+template<typename DB, typename OP, typename T>
+parse_op_r<OP> ParseVectOpVectNumVal(view_t &view, DBTypes dbType, DB &db,
+                                     std::function<std::pair<bool, T>(std::string_view)>
+                                     converter,
+                                     std::function<std::pair<GetArgsReturnTypes, Node<T> >(
+                                         DBTypes, DB &, args_parsed &&)>
+                                     valParser) {
+    if (view.size() != 3) {
+        return {ParseOperationRes::INVALID_ARG_C, {}};
+    }
+
+    auto parse = ParseArg(view);
+    auto [type, ptr] = getVector(dbType, db, std::move(parse), converter);
+    auto parseNum = ParseArg(view);
+    auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+    auto parseVal = ParseArg(view);
+    auto [typeVal, ptrVal] = valParser(dbType, db, std::move(parseVal));
+
+    if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID || typeNum ==
+        GetArgsReturnTypes::INVALID) {
+        return {ParseOperationRes::INVALID_ARGS, {}};
+    }
+
+    auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrNum), std::move(ptrVal));
+    return {ParseOperationRes::VALID, std::move(res)};
+}
+
+template<typename DB, typename OP, typename T>
+parse_op_r<OP> ParseVectOpVectNum(view_t &view, DBTypes dbType, DB &db,
+                                  std::function<std::pair<bool, T>(std::string_view)>
+                                  converter) {
+    if (view.size() != 2) {
+        return {ParseOperationRes::INVALID_ARG_C, {}};
+    }
+
+    auto parse = ParseArg(view);
+    auto [type, ptr] = getVector(dbType, db, std::move(parse), converter);
+    auto parseNum = ParseArg(view);
+    auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+
+    if (type == GetArgsReturnTypes::INVALID || typeNum == GetArgsReturnTypes::INVALID) {
+        return {ParseOperationRes::INVALID_ARGS, {}};
+    }
+
+    auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrNum));
+    return {ParseOperationRes::VALID, std::move(res)};
+}
+
 #endif //PROJECT_OPERATIONTYPE_HPP
