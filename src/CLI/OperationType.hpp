@@ -303,4 +303,50 @@ std::pair<GetArgsReturnTypes, VectPtr<T> > getVector(DBTypes dbType, DB &db, arg
     return {GetArgsReturnTypes::INVALID, {}};
 }
 
+enum class ParseOperationRes {
+    VALID,
+    INVALID_ARG_C,
+    INVALID_ARGS
+};
+
+
+template<typename N>
+using parse_op_r = std::pair<ParseOperationRes, std::unique_ptr<N> >;
+
+template<typename DB, typename N>
+parse_op_r<N> ParseIntNode(view_t &view, DBTypes dbType, DB &db) {
+    if (view.size() != 2) {
+        return {ParseOperationRes::INVALID_ARG_C, {}};
+    }
+    auto parse1 = ParseArg(view);
+    auto [type1, ptr1] = getInteger(dbType, db, std::move(parse1));
+    auto parse2 = ParseArg(view);
+    auto [type2, ptr2] = getInteger(dbType, db, std::move(parse2));
+
+
+    if (GetArgsReturnTypes::INVALID == type1 || GetArgsReturnTypes::INVALID == type2) {
+        return {ParseOperationRes::INVALID_ARGS, {}};
+    }
+    auto res = std::make_unique<N>(std::move(ptr1), std::move(ptr2));
+    return {ParseOperationRes::VALID, std::move(res)};
+}
+
+template<typename DB, typename N>
+parse_op_r<N> ParseFloatNode(view_t &view, DBTypes dbType, DB &db) {
+    if (view.size() != 2) {
+        return {ParseOperationRes::INVALID_ARG_C, {}};
+    }
+    auto parse1 = ParseArg(view);
+    auto [type1, ptr1] = getFloat(dbType, db, std::move(parse1));
+    auto parse2 = ParseArg(view);
+    auto [type2, ptr2] = getFloat(dbType, db, std::move(parse2));
+
+
+    if (GetArgsReturnTypes::INVALID == type1 || GetArgsReturnTypes::INVALID == type2) {
+        return {ParseOperationRes::INVALID_ARGS, {}};
+    }
+    auto res = std::make_unique<N>(std::move(ptr1), std::move(ptr2));
+    return {ParseOperationRes::VALID, std::move(res)};
+}
+
 #endif //PROJECT_OPERATIONTYPE_HPP
