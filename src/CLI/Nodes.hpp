@@ -10,6 +10,8 @@ public:
     virtual ~BaseNode() = default;
 };
 
+using BaseNodePtr = std::unique_ptr<BaseNode>;
+
 template<typename T>
 class Node : BaseNode {
 public:
