@@ -1,6 +1,22 @@
 #include "OperationType.hpp"
 
 
+err_t CouldNotOpenFileErr(const std::string &file) {
+    return {"Could not open file: ", file};
+}
+
+err_t CouldNotReadFileErr(const std::string &file) {
+    return {"Could not read file: ", file};
+}
+
+err_t InvalidArgs(const std::string &val) {
+    return {"Invalid arguments: ", val};
+}
+
+err_t InvalidArgsCount(const int expected, const int actual) {
+    return {"Invalid number of arguments, expected: ", std::to_string(expected), ", got: ", std::to_string(actual)};
+}
+
 read_from_file_r readFileBytes(const std::string &filePath) {
     std::ifstream file(filePath, std::ios::binary | std::ios::ate);
 

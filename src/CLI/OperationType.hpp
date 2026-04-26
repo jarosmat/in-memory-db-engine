@@ -51,6 +51,16 @@ enum class BytesFromFileRes {
     COULD_NOT_READ
 };
 
+using err_t = std::vector<std::string>;
+
+err_t CouldNotOpenFileErr(const std::string &file);
+
+err_t CouldNotReadFileErr(const std::string &file);
+
+err_t InvalidArgs(const std::string &val);
+
+err_t InvalidArgsCount(int expected, int actual);
+
 using read_from_file_r = std::pair<BytesFromFileRes, std::vector<uint8_t> >;
 
 read_from_file_r readFileBytes(const std::string &filePath);
