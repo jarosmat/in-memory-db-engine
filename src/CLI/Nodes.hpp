@@ -370,7 +370,7 @@ class ErrorNode : public DBopsNode<T> {
 
 public:
     void Execute() override {
-        for (auto && s :val) {
+        for (auto &&s: val) {
             stream << s;
         }
         stream << std::endl;
