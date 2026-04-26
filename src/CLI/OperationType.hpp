@@ -485,7 +485,7 @@ enum class KeyType {
 
 using key_parse = std::pair<KeyType, std::string>;
 
-key_parse ParseKey(view_t& view);
+key_parse ParseKey(view_t &view);
 
 enum class TargetType {
     INVALID,
@@ -495,7 +495,7 @@ enum class TargetType {
 
 using target_parse = std::pair<TargetType, std::string>;
 
-target_parse ParseTarget(view_t& view);
+target_parse ParseTarget(view_t &view);
 
 ttl_t ParseTTL(view_t &view, variant_t defaultTTL);
 #endif //PROJECT_OPERATIONTYPE_HPP
