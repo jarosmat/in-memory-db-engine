@@ -486,4 +486,14 @@ enum class KeyType {
 using key_parse = std::pair<KeyType, std::string>;
 
 key_parse ParseKey(view_t& view);
+
+enum class TargetType {
+    INVALID,
+    FILE,
+    KEY
+};
+
+using target_parse = std::pair<TargetType, std::string>;
+
+target_parse ParseTarget(view_t& view);
 #endif //PROJECT_OPERATIONTYPE_HPP

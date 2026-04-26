@@ -183,3 +183,18 @@ key_parse ParseKey(view_t &view) {
 
     return {KeyType::CONSTANT, std::move(val)};
 }
+
+target_parse ParseTarget(view_t &view) {
+    if (view.empty()) {
+        return {TargetType::INVALID, {}};
+    }
+
+    auto val = view.front();
+    view.advance(1);
+
+    if (!val.empty() && val[0] == '@') {
+        return {TargetType::FILE, std::string(val.begin() + 1, val.end())};
+    }
+
+    return {TargetType::KEY, std::move(val)};
+}
