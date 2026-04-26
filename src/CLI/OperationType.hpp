@@ -615,6 +615,38 @@ parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db, DBT
     return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
 }
 
+template<typename T>
+parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, DBTypes dbType) {
+    if constexpr (get_db_type<T>::value == DBTypes::FLOAT) {
+        return ParseInsertWithParser<T>(view, db, dbType, getFloat<DBType<T> >);
+    }
+    if constexpr (get_db_type<T>::value == DBTypes::INTEGER) {
+        return ParseInsertWithParser<T>(view, db, dbType, getInteger<DBType<T> >);
+    }
+    if constexpr (get_db_type<T>::value == DBTypes::STRING) {
+        return ParseInsertWithParser<T>(view, db, dbType, getString<DBType<T> >);
+    }
+    if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
+        return ParseInsertWithParser<T>(view, db, dbType, [](DBTypes Type, DBType<T> &dbRef, args_parsed &&args) {
+            return getVector<T, DBType<T> >(Type, dbRef, std::move(args), ParseFloat);
+        });
+    }
+    if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
+        return ParseInsertWithParser<T>(view, db, dbType, [](DBTypes Type, DBType<T> &dbRef, args_parsed &&args) {
+            return getVector<T, DBType<T> >(Type, dbRef, std::move(args), ParseInt);
+        });
+    }
+    if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
+        return ParseInsertWithParser<T>(view, db, dbType, [](DBTypes Type, DBType<T> &dbRef, args_parsed &&args) {
+            return getVector<T, DBType<T> >(Type, dbRef, std::move(args), ParseString);
+        });
+    }
+    else {
+        auto resNode = std::make_unique<ErrorNode<T>>(InvalidArgs());
+        return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+    }
+}
+
 std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
 
 
