@@ -524,7 +524,7 @@ parse_op_r<DBopsNode<T> > ParseOneKeyOP(view_t &view, std::ostream &stream, DBTy
     auto [type, val] = ParseKey(view);
 
     if (type == KeyType::INVALID) {
-        auto res = std::make_unique<ErrorNode<T>>(InvalidArgs());
+        auto res = std::make_unique<ErrorNode<T> >(InvalidArgs());
         return {ParseOperationRes::INVALID_ARGS, std::move(res)};
     }
 
