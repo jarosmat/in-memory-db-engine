@@ -1,5 +1,7 @@
 #ifndef PROJECT_NODES_HPP
 #define PROJECT_NODES_HPP
+#include <ranges>
+
 #include "String.hpp"
 #include "SwissTable.hpp"
 #include "DBEntry.hpp"
@@ -344,6 +346,27 @@ public:
 
     GetNode(DBType<T> &db, std::vector<uint8_t> &&key, std::ostream &stream) : DBopsNode<T>(db), stream(stream),
                                                                                key(std::move(key)) {
+    }
+};
+
+template<typename T>
+class ErrorNode : public DBopsNode<T> {
+    std::ostream &stream;
+    std::vector<std::string> val;
+
+public:
+    void Execute() override {
+        for (auto && s :val) {
+            stream << s;
+        }
+        stream << std::endl;
+    }
+
+    ErrorNode(std::ostream &stream, const std::vector<std::string> &val) : stream(stream), val(val) {
+    }
+
+
+    ErrorNode(std::ostream &stream, std::vector<std::string> &&val) : stream(stream), val(std::move(val)) {
     }
 };
 
