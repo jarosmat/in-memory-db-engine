@@ -205,7 +205,17 @@ std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
     return {dis(gen), dis(gen)};
 }
 
-ttl_t ParseTTL(view_t &view, ttl_t& defaultTTL) {
+void readThread(std::stop_token stoken, std::istream &stream, std::mutex& queueMutex, std::queue<std::string>& dataQueue) {
+    std::string line;
+    while (!stoken.stop_requested()) {
+        if (std::getline(stream, line)) {
+            std::lock_guard<std::mutex> lock(queueMutex);
+            dataQueue.push(line);
+        }
+    }
+}
+
+ttl_t ParseTTL(view_t &view, ttl_t &defaultTTL) {
     if (view.empty()) {
         return defaultTTL;
     }

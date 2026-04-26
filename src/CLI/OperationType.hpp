@@ -11,6 +11,8 @@
 #include <filesystem>
 #include <queue>
 #include <random>
+#include <stop_token>
+#include <thread>
 
 enum class OPType {
     INSERT,
@@ -533,6 +535,9 @@ struct CompareQueueEntry {
         return a_entry->RemainingTime() > b_entry->RemainingTime();
     }
 };
+
+
+void readThread(std::stop_token stoken, std::istream& stream, std::mutex& queueMutex, std::queue<std::string>& dataQueue);
 
 
 #endif //PROJECT_OPERATIONTYPE_HPP
