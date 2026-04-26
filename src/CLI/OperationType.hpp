@@ -9,6 +9,8 @@
 #include "../DBCore/DBEntry/ValueTypes.hpp"
 #include <fstream>
 #include <filesystem>
+#include <queue>
+#include <random>
 
 enum class OPType {
     INSERT,
@@ -498,4 +500,43 @@ using target_parse = std::pair<TargetType, std::string>;
 target_parse ParseTarget(view_t &view);
 
 ttl_t ParseTTL(view_t &view, variant_t defaultTTL);
+
+std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
+    std::mt19937_64 gen(seed);
+    std::uniform_int_distribution<uint64_t> dis;
+    return {dis(gen), dis(gen)};
+}
+
+
+struct QueueEntry {
+    Timepoint timepoint{};
+    std::chrono::milliseconds ttl;
+    std::vector<uint8_t> key;
+    bool invalid = false;
+
+
+    QueueEntry(const std::chrono::milliseconds ttl, const std::vector<uint8_t> &key) : ttl(ttl), key(key) {
+    }
+
+    [[nodiscard]] bool Expired() const {
+        return timepoint.Elapsed(ttl) || invalid;
+    }
+
+    [[nodiscard]] std::chrono::milliseconds RemainingTime() const {
+        return timepoint.RemainingTime(ttl);
+    }
+};
+
+struct CompareQueueEntry {
+    bool operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const {
+        const auto a_entry = a.get();
+        const auto b_entry = b.get();
+        if (!a_entry || !b_entry) {
+            return false;
+        }
+        return a_entry->RemainingTime() > b_entry->RemainingTime();
+    }
+};
+
+
 #endif //PROJECT_OPERATIONTYPE_HPP
