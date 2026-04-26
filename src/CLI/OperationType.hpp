@@ -646,9 +646,8 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, DBTypes dbTyp
         return ParseInsertWithParser<T>(view, db, dbType, [](DBTypes Type, DBType<T> &dbRef, args_parsed &&args) {
             return getVector<T, DBType<T> >(Type, dbRef, std::move(args), ParseString);
         });
-    }
-    else {
-        auto resNode = std::make_unique<ErrorNode<T>>(InvalidArgs());
+    } else {
+        auto resNode = std::make_unique<ErrorNode<T> >(InvalidArgs());
         return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
     }
 }
