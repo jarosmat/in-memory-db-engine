@@ -536,6 +536,13 @@ struct CompareQueueEntry {
     }
 };
 
+std::pair<bool, std::string> parseQuote(std::string_view &view);
+
+std::string parseUnquote(std::string_view &view);
+
+void SkipSpaces(std::string_view &view);
+
+std::pair<bool, std::vector<std::string> > parseLine(const std::string &line);
 
 void readThread(std::stop_token stoken, std::istream& stream, std::mutex& queueMutex, std::queue<std::string>& dataQueue);
 

@@ -205,6 +205,62 @@ std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
     return {dis(gen), dis(gen)};
 }
 
+std::pair<bool, std::string> parseQuote(std::string_view &view) {
+    std::string res;
+    while (!view.empty() && view.front() != '"') {
+        res.push_back(view.front());
+        view.remove_prefix(1);
+    }
+
+    if (view.empty()) {
+        return {false, {}};
+    }
+
+
+    view.remove_prefix(1);
+
+    return {true, std::move(res)};
+}
+
+std::string parseUnquote(std::string_view &view) {
+    std::string res;
+    while (!view.empty() && !std::isspace(view.front())) {
+        res.push_back(view.front());
+        view.remove_prefix(1);
+    }
+
+    return res;
+}
+
+void SkipSpaces(std::string_view &view) {
+    while (!view.empty() && std::isspace(view.front())) {
+        view.remove_prefix(1);
+    }
+}
+
+std::pair<bool, std::vector<std::string>> parseLine(const std::string &line) {
+    std::vector<std::string> tokens;
+    std::string_view view(line.begin(), line.end());
+
+    SkipSpaces(view);
+    while (!view.empty()) {
+        auto ch = view.front();
+        if (ch == '"') {
+            view.remove_prefix(1);
+            auto [res,val] = parseQuote(view);
+            if (!res) {
+                return {false, {}};
+            }
+            tokens.push_back(std::move(val));
+        } else {
+            tokens.push_back(std::move(parseUnquote(view)));
+        }
+        SkipSpaces(view);
+    }
+
+    return {true,tokens};
+}
+
 void readThread(std::stop_token stoken, std::istream &stream, std::mutex& queueMutex, std::queue<std::string>& dataQueue) {
     std::string line;
     while (!stoken.stop_requested()) {

@@ -291,3 +291,70 @@ TEST_CASE("Vector Node Generation", "[OperationType]") {
         }
     }
 }
+
+TEST_CASE("parseLine handles space-delimited words", "[parseLine]") {
+    SECTION("Simple space-delimited words") {
+        auto [hasUnclosedQuotes, tokens] = parseLine("hello world");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens == std::vector<std::string>{"hello", "world"});
+    }
+
+    SECTION("Multiple spaces between words") {
+        auto [hasUnclosedQuotes, tokens] = parseLine("hello   world");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens == std::vector<std::string>{"hello", "world"});
+    }
+}
+
+TEST_CASE("parseLine handles quoted phrases", "[parseLine]") {
+    SECTION("Single quoted phrase") {
+        auto [hasUnclosedQuotes, tokens] = parseLine("\"hello world\"");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens == std::vector<std::string>{"hello world"});
+    }
+
+    SECTION("Quoted phrase with surrounding words") {
+        auto [hasUnclosedQuotes, tokens] = parseLine("hello \"world of tests\" 123");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens == std::vector<std::string>{"hello", "world of tests", "123"});
+    }
+
+    SECTION("Multiple quoted phrases") {
+        auto [hasUnclosedQuotes, tokens] = parseLine(R"("hello world" "another test")");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens == std::vector<std::string>{"hello world", "another test"});
+    }
+}
+
+TEST_CASE("parseLine handles mixed input", "[parseLine]") {
+    SECTION("Mixed quoted and unquoted words") {
+        auto [hasUnclosedQuotes, tokens] = parseLine(R"(hello "world of tests" 123 "another one")");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens == std::vector<std::string>{"hello", "world of tests", "123", "another one"});
+    }
+}
+
+TEST_CASE("parseLine handles edge cases", "[parseLine]") {
+    SECTION("Empty string") {
+        auto [hasUnclosedQuotes, tokens] = parseLine("");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens.empty());
+    }
+
+    SECTION("Only spaces") {
+        auto [hasUnclosedQuotes, tokens] = parseLine("   ");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens.empty());
+    }
+
+    SECTION("Only quoted empty string") {
+        auto [hasUnclosedQuotes, tokens] = parseLine("\"\"");
+        REQUIRE(hasUnclosedQuotes);
+        REQUIRE(tokens == std::vector<std::string>{""});
+    }
+
+    SECTION("Unclosed quote") {
+        auto [hasUnclosedQuotes, tokens] = parseLine("\"hello world");
+        REQUIRE_FALSE(hasUnclosedQuotes);
+    }
+}
