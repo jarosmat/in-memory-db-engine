@@ -9,8 +9,8 @@ err_t CouldNotReadFileErr(const std::string &file) {
     return {"Could not read file: ", file};
 }
 
-err_t InvalidArgs(const std::string &val) {
-    return {"Invalid arguments: ", val};
+err_t InvalidArgs() {
+    return {"Invalid arguments: "};
 }
 
 err_t InvalidArgsCount(const int expected, const int actual) {

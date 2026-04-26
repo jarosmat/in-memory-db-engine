@@ -57,7 +57,7 @@ err_t CouldNotOpenFileErr(const std::string &file);
 
 err_t CouldNotReadFileErr(const std::string &file);
 
-err_t InvalidArgs(const std::string &val);
+err_t InvalidArgs();
 
 err_t InvalidArgsCount(int expected, int actual);
 
