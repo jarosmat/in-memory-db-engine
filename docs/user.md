@@ -26,8 +26,11 @@ Use command `database` for starting the database. Following options are availabl
 ## Operations
 
 - `INSERT [KEY] [VALUE]` - inserts key/value pair into database
+  - for getting key from file byte stream prefix the path to file with `@`
 - `GET [KEY]` - prints value associated with specified key, if such entry exists
+  - for getting key from file byte stream prefix the path to file with `@`
 - `DELETE [KEY]` - deletes entry associated with specified key, if such entry exists
+  - for getting key from file byte stream prefix the path to file with `@`
 - `TERMINATE` - stops the database
 - `<OPERATION> [TARGET] [OPERANDS]...` 
   - `<OPERATION>` is one of operations on db entries that are defined below
