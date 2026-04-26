@@ -314,18 +314,19 @@ public:
 template<typename T, typename TTL>
 class InsertNode : public DBopsNode<T> {
     std::vector<uint8_t> key;
-    T value;
+    std::unique_ptr<Node<T>> valNode;
     TTL ttl;
 
 public:
     void Execute() override {
         auto entry = this->db.LookUp(std::move(key));
+        auto value = valNode->Execute();
         DBEntry<T> toInsert = GetEntry<T, TTL>(std::move(value), std::move(ttl));
         entry.SetValue(std::move(toInsert));
     }
 
-    InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, T &&val, TTL &&ttl) : DBopsNode<T>(db), key(std::move(key)),
-        value(std::move(val)), ttl(ttl) {
+    InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, std::unique_ptr<Node<T>> &&valNode, TTL &&ttl) : DBopsNode<T>(db), key(std::move(key)),
+        valNode(std::move(valNode)), ttl(ttl) {
     }
 };
 
