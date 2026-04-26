@@ -546,10 +546,10 @@ parse_op_r<DBopsNode<T> > ParseOneKeyOP(view_t &view, std::ostream &stream, DBTy
 }
 
 template<typename T>
-parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, DBTypes dbType,
-                                      std::function<std::pair<bool, std::unique_ptr<Node<T> > >(
-                                          DBTypes, DBType<T> &, args_parsed)> parser,
-                                      ttl_t ttl) {
+parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db, DBTypes dbType,
+                                                std::function<std::pair<GetArgsReturnTypes, NodePtr<T> >(
+                                                    DBTypes, DBType<T> &, args_parsed)> parser,
+                                                ttl_t ttl) {
     if (view.size() != 2) {
         auto res = std::make_unique<ErrorNode<T> >(InvalidArgsCount(2, view.size()));
         return {ParseOperationRes::INVALID_ARG_C, std::move(res)};
@@ -565,7 +565,7 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, DBTypes dbTyp
     auto arg = ParseArg(view);
     auto [res, ptr] = parser(dbType, db, arg);
 
-    if (!res) {
+    if (res == GetArgsReturnTypes::INVALID) {
         auto resNode = std::make_unique<ErrorNode<T> >(InvalidArgs());
         return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
     }
