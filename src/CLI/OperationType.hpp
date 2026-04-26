@@ -61,6 +61,8 @@ err_t InvalidArgs();
 
 err_t InvalidArgsCount(int expected, int actual);
 
+err_t InvalidOperation();
+
 using read_from_file_r = std::pair<BytesFromFileRes, std::vector<uint8_t> >;
 
 read_from_file_r readFileBytes(const std::string &filePath);

@@ -17,6 +17,10 @@ err_t InvalidArgsCount(const int expected, const int actual) {
     return {"Invalid number of arguments, expected: ", std::to_string(expected), ", got: ", std::to_string(actual)};
 }
 
+err_t InvalidOperation() {
+    return {"Invalid operation"};
+}
+
 read_from_file_r readFileBytes(const std::string &filePath) {
     std::ifstream file(filePath, std::ios::binary | std::ios::ate);
 
