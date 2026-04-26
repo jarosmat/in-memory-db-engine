@@ -270,7 +270,7 @@ void SkipSpaces(std::string_view &view) {
     }
 }
 
-std::pair<bool, std::vector<std::string>> parseLine(const std::string &line) {
+std::pair<bool, std::vector<std::string> > parseLine(const std::string &line) {
     std::vector<std::string> tokens;
     std::string_view view(line.begin(), line.end());
 
@@ -290,10 +290,11 @@ std::pair<bool, std::vector<std::string>> parseLine(const std::string &line) {
         SkipSpaces(view);
     }
 
-    return {true,tokens};
+    return {true, tokens};
 }
 
-void readThread(std::stop_token stoken, std::istream &stream, std::mutex& queueMutex, std::queue<std::string>& dataQueue) {
+void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueMutex,
+                std::queue<std::string> &dataQueue) {
     std::string line;
     while (!stoken.stop_requested()) {
         if (std::getline(stream, line)) {
