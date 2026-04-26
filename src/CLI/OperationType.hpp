@@ -513,7 +513,38 @@ target_parse ParseTarget(view_t &view);
 
 ttl_t ParseTTL(view_t &view, ttl_t defaultTTL);
 
-std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed);
+template<typename T>
+parse_op_r<DBopsNode<T> > ParseGet(view_t &view, std::ostream &stream, DBType<T> &db) {
+    if (view.size() != 1) {
+        auto res = std::make_unique<ErrorNode<T> >(InvalidArgsCount(1, view.size()));
+        return {ParseOperationRes::INVALID_ARG_C, std::move(res)};
+    }
+
+
+    auto [type, val] = ParseKey(view);
+
+    if (type == KeyType::INVALID) {
+        return {ParseOperationRes::INVALID_ARGS, {}};
+    }
+
+    std::unique_ptr<DBopsNode<T> > res;
+    if (type == KeyType::CONSTANT) {
+        std::vector<uint8_t> bytes = stringBytes(std::move(val));
+        res = std::make_unique<GetNode<T> >(db, std::move(bytes), stream);
+    } else if (type == KeyType::FILE_PATH) {
+        auto [msg, bytes] = readFileBytes(val);
+        if (msg == BytesFromFileRes::COULD_NOT_OPEN) {
+            res = std::make_unique<ErrorNode<T> >(CouldNotOpenFileErr(val));
+        } else if (msg == BytesFromFileRes::COULD_NOT_READ) {
+            res = std::make_unique<ErrorNode<T> >(CouldNotReadFileErr(val));
+        } else {
+            res = std::make_unique<GetNode<T> >(db, std::move(bytes), stream);
+        }
+    }
+    return {ParseOperationRes::VALID, std::move(res)};
+}
+
+std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
 
 
 struct QueueEntry {
