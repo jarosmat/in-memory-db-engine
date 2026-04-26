@@ -77,6 +77,31 @@ using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
 OPType GetOPType(view_t &args);
 
+bool ValidateIntOp(const OPType op) {
+    return (op == OPType::ADD || op == OPType::SUBTRACT || op == OPType::DIVIDE || op == OPType::MULTIPLY);
+}
+bool ValidateFloatOp(const OPType op) {
+    return (op == OPType::FADD || op == OPType::FSUBTRACT || op == OPType::FDIVIDE || op == OPType::FMULTIPLY);
+}
+
+bool ValidateStringOp(const OPType op) {
+    return (op == OPType::CONCAT || op ==OPType::SUFFIX|| op ==OPType::PREFIX || op == OPType::AT);
+}
+
+
+bool ValidateOPType(const OPType op, const DBTypes dbType, const DBTypes vectorItemT = DBTypes::INVALID) {
+    if (dbType == DBTypes::INTEGER) {
+        return ValidateIntOp(op);
+    }
+    if (dbType == DBTypes::FLOAT) {
+        return ValidateFloatOp(op);
+    }
+    if (dbType == DBTypes::STRING) {
+        return ValidateStringOp(op);
+    }
+
+}
+
 using args_parsed = std::pair<ArgsType, std::string>;
 
 args_parsed ParseArg(view_t &args);
