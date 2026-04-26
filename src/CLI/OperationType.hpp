@@ -63,7 +63,7 @@ err_t CouldNotReadFileErr(const std::string &file);
 
 err_t InvalidArgs();
 
-err_t InvalidArgsCount(int expected, int actual);
+err_t InvalidArgsCount(std::size_t expected, std::size_t actual);
 
 err_t InvalidOperation();
 

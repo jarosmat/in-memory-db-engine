@@ -13,7 +13,7 @@ err_t InvalidArgs() {
     return {"Invalid arguments: "};
 }
 
-err_t InvalidArgsCount(const int expected, const int actual) {
+err_t InvalidArgsCount(const std::size_t expected, const std::size_t actual) {
     return {"Invalid number of arguments, expected: ", std::to_string(expected), ", got: ", std::to_string(actual)};
 }
 
