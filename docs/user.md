@@ -75,6 +75,8 @@ whole part and decimal part divided by dot `.`, e.g.: `0.13`, `14,532`
   - resulting value type is based on type of operands, if at least one is floating point number, result is floating point
     number, else the result is integer
 
+For operations on floating point numbers, add F in front of operation: e.g.: `FADD`, `FSUBTRACT`.
+
 ## Operations on String values 
 
 - `CONCAT [LEFT] [RIGHT]`

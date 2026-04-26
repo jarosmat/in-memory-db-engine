@@ -82,6 +82,18 @@ OPType GetOPType(view_t &args) {
     if (val == "MULTIPLY") {
         return OPType::MULTIPLY;
     }
+    if (val == "FADD") {
+        return OPType::FADD;
+    }
+    if (val == "FSUBTRACT") {
+        return OPType::FSUBTRACT;
+    }
+    if (val == "FDIVIDE") {
+        return OPType::FDIVIDE;
+    }
+    if (val == "FMULTIPLY") {
+        return OPType::FMULTIPLY;
+    }
     if (val == "CONCAT") {
         return OPType::CONCAT;
     }
