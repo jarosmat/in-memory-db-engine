@@ -198,3 +198,19 @@ target_parse ParseTarget(view_t &view) {
 
     return {TargetType::KEY, std::move(val)};
 }
+
+ttl_t ParseTTL(view_t &view, ttl_t& defaultTTL) {
+    if (view.empty()) {
+        return defaultTTL;
+    }
+
+    auto val = view.front();
+
+    if (val != "--ttl") {
+        return defaultTTL;
+    }
+
+    view.advance(1);
+
+    return GetTTL(view);
+}

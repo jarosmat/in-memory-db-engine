@@ -496,4 +496,6 @@ enum class TargetType {
 using target_parse = std::pair<TargetType, std::string>;
 
 target_parse ParseTarget(view_t& view);
+
+ttl_t ParseTTL(view_t &view, variant_t defaultTTL);
 #endif //PROJECT_OPERATIONTYPE_HPP
