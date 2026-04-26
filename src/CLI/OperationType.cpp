@@ -199,6 +199,12 @@ target_parse ParseTarget(view_t &view) {
     return {TargetType::KEY, std::move(val)};
 }
 
+std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
+    std::mt19937_64 gen(seed);
+    std::uniform_int_distribution<uint64_t> dis;
+    return {dis(gen), dis(gen)};
+}
+
 ttl_t ParseTTL(view_t &view, ttl_t& defaultTTL) {
     if (view.empty()) {
         return defaultTTL;

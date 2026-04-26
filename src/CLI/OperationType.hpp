@@ -501,11 +501,7 @@ target_parse ParseTarget(view_t &view);
 
 ttl_t ParseTTL(view_t &view, variant_t defaultTTL);
 
-std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
-    std::mt19937_64 gen(seed);
-    std::uniform_int_distribution<uint64_t> dis;
-    return {dis(gen), dis(gen)};
-}
+std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed);
 
 
 struct QueueEntry {
