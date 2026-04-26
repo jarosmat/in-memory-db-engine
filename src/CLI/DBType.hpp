@@ -14,6 +14,40 @@ enum class DBTypes {
     INVALID
 };
 
+template<typename T>
+struct get_db_type {
+    static constexpr auto value = DBTypes::INVALID;
+};
+
+template<>
+struct get_db_type<Integer> {
+    static constexpr auto value = DBTypes::INTEGER;
+};
+template<>
+struct get_db_type<Float> {
+    static constexpr auto value = DBTypes::FLOAT;
+};
+template<>
+struct get_db_type<String> {
+    static constexpr auto value = DBTypes::STRING;
+};
+template<>
+struct get_db_type<Object> {
+    static constexpr auto value = DBTypes::OBJECT;
+};
+template<>
+struct get_db_type<Vector<Integer>> {
+    static constexpr auto value = DBTypes::VECTOR_INT;
+};
+template<>
+struct get_db_type<Vector<Float>> {
+    static constexpr auto value = DBTypes::VECTOR_FLOAT;
+};
+template<>
+struct get_db_type<Vector<String>> {
+    static constexpr auto value = DBTypes::VECTOR_STRING;
+};
+
 enum class StartupTokens {
     VALUE,
     TTL,
