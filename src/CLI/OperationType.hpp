@@ -513,8 +513,8 @@ target_parse ParseTarget(view_t &view);
 
 ttl_t ParseTTL(view_t &view, ttl_t defaultTTL);
 
-template<typename T>
-parse_op_r<DBopsNode<T> > ParseGet(view_t &view, std::ostream &stream, DBType<T> &db) {
+template<typename T, typename N>
+parse_op_r<DBopsNode<T> > ParseOneKeyOP(view_t &view, std::ostream &stream, DBType<T> &db) {
     if (view.size() != 1) {
         auto res = std::make_unique<ErrorNode<T> >(InvalidArgsCount(1, view.size()));
         return {ParseOperationRes::INVALID_ARG_C, std::move(res)};
@@ -524,13 +524,14 @@ parse_op_r<DBopsNode<T> > ParseGet(view_t &view, std::ostream &stream, DBType<T>
     auto [type, val] = ParseKey(view);
 
     if (type == KeyType::INVALID) {
-        return {ParseOperationRes::INVALID_ARGS, {}};
+        auto res = std::make_unique<ErrorNode<T>>(InvalidArgs());
+        return {ParseOperationRes::INVALID_ARGS, std::move(res)};
     }
 
     std::unique_ptr<DBopsNode<T> > res;
     if (type == KeyType::CONSTANT) {
         std::vector<uint8_t> bytes = stringBytes(std::move(val));
-        res = std::make_unique<GetNode<T> >(db, std::move(bytes), stream);
+        res = std::make_unique<N>(db, std::move(bytes), stream);
     } else if (type == KeyType::FILE_PATH) {
         auto [msg, bytes] = readFileBytes(val);
         if (msg == BytesFromFileRes::COULD_NOT_OPEN) {
@@ -538,7 +539,7 @@ parse_op_r<DBopsNode<T> > ParseGet(view_t &view, std::ostream &stream, DBType<T>
         } else if (msg == BytesFromFileRes::COULD_NOT_READ) {
             res = std::make_unique<ErrorNode<T> >(CouldNotReadFileErr(val));
         } else {
-            res = std::make_unique<GetNode<T> >(db, std::move(bytes), stream);
+            res = std::make_unique<N>(db, std::move(bytes), stream);
         }
     }
     return {ParseOperationRes::VALID, std::move(res)};
