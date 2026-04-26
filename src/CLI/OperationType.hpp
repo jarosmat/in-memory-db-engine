@@ -544,7 +544,8 @@ void SkipSpaces(std::string_view &view);
 
 std::pair<bool, std::vector<std::string> > parseLine(const std::string &line);
 
-void readThread(std::stop_token stoken, std::istream& stream, std::mutex& queueMutex, std::queue<std::string>& dataQueue);
+void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueMutex,
+                std::queue<std::string> &dataQueue);
 
 
 #endif //PROJECT_OPERATIONTYPE_HPP
