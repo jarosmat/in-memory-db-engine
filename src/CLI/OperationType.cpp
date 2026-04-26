@@ -168,3 +168,18 @@ parse_res<Float> ParseFloat(std::string_view input) {
 
     return {success, result};
 }
+
+key_parse ParseKey(view_t &view) {
+    if (view.empty()) {
+        return {KeyType::INVALID, {}};
+    }
+
+    auto val = view.front();
+    view.advance(1);
+
+    if (!val.empty() && val[0] == '@') {
+        return {KeyType::FILE_PATH, std::string(val.begin() + 1, val.end())};
+    }
+
+    return {KeyType::CONSTANT, std::move(val)};
+}

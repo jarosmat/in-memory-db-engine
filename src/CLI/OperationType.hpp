@@ -477,4 +477,13 @@ parse_op_r<OP> ParseVectOpVectNum(view_t &view, DBTypes dbType, DB &db,
     return {ParseOperationRes::VALID, std::move(res)};
 }
 
+enum class KeyType {
+    INVALID,
+    CONSTANT,
+    FILE_PATH
+};
+
+using key_parse = std::pair<KeyType, std::string>;
+
+key_parse ParseKey(view_t& view);
 #endif //PROJECT_OPERATIONTYPE_HPP
