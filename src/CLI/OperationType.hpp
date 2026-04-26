@@ -545,6 +545,76 @@ parse_op_r<DBopsNode<T> > ParseOneKeyOP(view_t &view, std::ostream &stream, DBTy
     return {ParseOperationRes::VALID, std::move(res)};
 }
 
+template<typename T>
+parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, DBTypes dbType,
+                                      std::function<std::pair<bool, std::unique_ptr<Node<T> > >(
+                                          DBTypes, DBType<T> &, args_parsed)> parser,
+                                      ttl_t ttl) {
+    if (view.size() != 2) {
+        auto res = std::make_unique<ErrorNode<T> >(InvalidArgsCount(2, view.size()));
+        return {ParseOperationRes::INVALID_ARG_C, std::move(res)};
+    }
+
+    auto [keyType, key] = ParseKey(view);
+
+    if (keyType == KeyType::INVALID) {
+        auto resNode = std::make_unique<ErrorNode<T> >(InvalidArgs());
+        return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+    }
+
+    auto arg = ParseArg(view);
+    auto [res, ptr] = parser(dbType, db, arg);
+
+    if (!res) {
+        auto resNode = std::make_unique<ErrorNode<T> >(InvalidArgs());
+        return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+    }
+
+    std::vector<uint8_t> keyBytes;
+
+    if (keyType == KeyType::CONSTANT) {
+        keyBytes = stringBytes(std::move(key));
+    }
+
+    if (keyType == KeyType::FILE_PATH) {
+        auto [fileRead, value] = readFileBytes(key);
+        if (fileRead == BytesFromFileRes::COULD_NOT_READ) {
+            auto resNode = std::make_unique<ErrorNode<T> >(CouldNotReadFileErr(key));
+            return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+        }
+        if (fileRead == BytesFromFileRes::COULD_NOT_OPEN) {
+            auto resNode = std::make_unique<ErrorNode<T> >(CouldNotOpenFileErr(key));
+            return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+        }
+        keyBytes = std::move(value);
+    }
+
+
+    if (ttl.second == TTLTypes::IMMORTAL) {
+        auto resNode = std::make_unique<InsertNode<T, ImmortalSentinel> >(
+            db, std::move(keyBytes), std::move(ptr), std::move(ttl.first));
+        return {ParseOperationRes::VALID, std::move(resNode)};
+    }
+    if (ttl.second == TTLTypes::MILLISECONDS) {
+        auto resNode = std::make_unique<InsertNode<T, std::chrono::milliseconds> >(
+            db, std::move(keyBytes), std::move(ptr), std::move(ttl.first));
+        return {ParseOperationRes::VALID, std::move(resNode)};
+    }
+    if (ttl.second == TTLTypes::SECONDS) {
+        auto resNode = std::make_unique<InsertNode<T, std::chrono::seconds> >(
+            db, std::move(keyBytes), std::move(ptr), std::move(ttl.first));
+        return {ParseOperationRes::VALID, std::move(resNode)};
+    }
+    if (ttl.second == TTLTypes::MINUTES) {
+        auto resNode = std::make_unique<InsertNode<T, std::chrono::minutes> >(
+            db, std::move(keyBytes), std::move(ptr), std::move(ttl.first));
+        return {ParseOperationRes::VALID, std::move(resNode)};
+    }
+
+    auto resNode = std::make_unique<ErrorNode<T> >(InvalidArgs());
+    return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+}
+
 std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
 
 
