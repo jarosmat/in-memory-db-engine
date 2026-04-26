@@ -199,6 +199,22 @@ target_parse ParseTarget(view_t &view) {
     return {TargetType::KEY, std::move(val)};
 }
 
+ttl_t ParseTTL(view_t &view, ttl_t defaultTTL) {
+    if (view.empty()) {
+        return defaultTTL;
+    }
+
+    auto val = view.front();
+
+    if (val != "--ttl") {
+        return defaultTTL;
+    }
+
+    view.advance(1);
+
+    return GetTTL(view);
+}
+
 std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
     std::mt19937_64 gen(seed);
     std::uniform_int_distribution<uint64_t> dis;
@@ -269,20 +285,4 @@ void readThread(std::stop_token stoken, std::istream &stream, std::mutex& queueM
             dataQueue.push(line);
         }
     }
-}
-
-ttl_t ParseTTL(view_t &view, ttl_t &defaultTTL) {
-    if (view.empty()) {
-        return defaultTTL;
-    }
-
-    auto val = view.front();
-
-    if (val != "--ttl") {
-        return defaultTTL;
-    }
-
-    view.advance(1);
-
-    return GetTTL(view);
 }

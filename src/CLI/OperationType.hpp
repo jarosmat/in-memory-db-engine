@@ -501,7 +501,7 @@ using target_parse = std::pair<TargetType, std::string>;
 
 target_parse ParseTarget(view_t &view);
 
-ttl_t ParseTTL(view_t &view, variant_t defaultTTL);
+ttl_t ParseTTL(view_t &view, ttl_t defaultTTL);
 
 std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed);
 
