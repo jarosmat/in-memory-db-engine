@@ -9,28 +9,28 @@
 
 TEST_CASE("String Parsing", "[String]") {
     SECTION("Valid Strings") {
-        auto [ok1, val1] = ParseString("\"123\"");
+        auto [ok1, val1] = ParseString("\'123\'");
         CHECK(ok1 == true);
         CHECK(val1 == String("123"));
 
-        auto [ok2, val2] = ParseString(R"(""-456")");
+        auto [ok2, val2] = ParseString(R"(''-456')");
         CHECK(ok2 == true);
-        CHECK(val2 == String("\"-456"));
+        CHECK(val2 == String("\'-456"));
 
-        auto [ok3, val3] = ParseString(R"("-456"")");
+        auto [ok3, val3] = ParseString(R"('-456'')");
         CHECK(ok3 == true);
-        CHECK(val3 == String("-456\""));
+        CHECK(val3 == String("-456\'"));
 
-        auto [ok4, val4] = ParseString("\"\"");
+        auto [ok4, val4] = ParseString("\'\'");
         CHECK(ok4 == true);
         CHECK(val4 == String(""));
     }
 
     SECTION("Invalid strings") {
         CHECK(ParseString("").first == false);
-        CHECK(ParseString("\"").first == false);
-        CHECK(ParseString("abs\"").first == false);
-        CHECK(ParseString("\"12 3").first == false);
+        CHECK(ParseString("\'").first == false);
+        CHECK(ParseString("abs\'").first == false);
+        CHECK(ParseString("\'12 3").first == false);
     }
 }
 

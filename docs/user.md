@@ -105,8 +105,8 @@ whole part and decimal part divided by dot `.`, e.g.: `0.13`, `14,532`
 
 In all operation operand called `[VECT]` appears, this operand specifies vector on which the operation is to take place.
 If you want to write a constant vector, it is in a format: `{item1, item2, item3}`. For vector of strings, items have to 
-be inside parenthesis "", all outside parenthesis are ignores. If you want the item to be `"somethin`, just write:
-`{..., ""somehing", ...}`
+be inside apostrophes '', all outside apostrophes are ignores. If you want the item to be `'something`, just write:
+`{..., ''somehing', ...}`
 
 - `APPEND [VECT] [WHAT]`
   - appends value `[WHAT]` to end of `[VECT]` 

@@ -133,7 +133,7 @@ parse_res<String> ParseString(const std::string_view input) {
     if (input.length() < 2) {
         return {false, String()};
     }
-    if (input.front() != '\"' || input.back() != '\"') {
+    if (input.front() != '\'' || input.back() != '\'') {
         return {false, String()};
     }
 
