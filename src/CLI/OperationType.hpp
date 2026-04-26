@@ -523,6 +523,10 @@ struct QueueEntry {
     [[nodiscard]] std::chrono::milliseconds RemainingTime() const {
         return timepoint.RemainingTime(ttl);
     }
+
+    [[nodiscard]] bool Invalid() const {
+        return invalid;
+    }
 };
 
 struct CompareQueueEntry {
