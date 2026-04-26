@@ -350,6 +350,20 @@ public:
 };
 
 template<typename T>
+class DeleteNode : public DBopsNode<T> {
+    std::vector<uint8_t> key;
+
+public:
+    void Execute() override {
+        auto entry = this->db.LookUp(std::move(key));
+        entry.DeleteEntry();
+    }
+
+    DeleteNode(DBType<T> &db, std::vector<uint8_t> &&key) : DBopsNode<T>(db), key(std::move(key)) {
+    }
+};
+
+template<typename T>
 class ErrorNode : public DBopsNode<T> {
     std::ostream &stream;
     std::vector<std::string> val;
