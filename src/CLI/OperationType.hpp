@@ -526,7 +526,6 @@ parse_op_r<DBopsNode<T> > ParseOneKeyOP(view_t &view, std::ostream &stream, DBTy
         return {ParseOperationRes::INVALID_ARG_C, std::move(res)};
     }
 
-
     auto [type, val] = ParseKey(view);
 
     if (type == KeyType::INVALID) {
@@ -688,6 +687,19 @@ struct CompareQueueEntry {
         return a_entry->RemainingTime() > b_entry->RemainingTime();
     }
 };
+
+template<typename T>
+std::unique_ptr<ErrorNode<T> > GetError(ParseOperationRes res, std::size_t expected, std::size_t actual) {
+    if (res == ParseOperationRes::INVALID_ARG_C) {
+        auto node = std::make_unique<ErrorNode<T> >(std::move(InvalidArgsCount(expected, actual)));
+        return node;
+    }
+    if (res == ParseOperationRes::INVALID_ARGS) {
+        auto node = std::make_unique<ErrorNode<T> >(std::move(InvalidArgs()));
+        return node;
+    }
+    return {};
+}
 
 std::pair<bool, std::string> parseQuote(std::string_view &view);
 
