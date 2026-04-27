@@ -77,30 +77,17 @@ using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
 OPType GetOPType(view_t &args);
 
-bool ValidateIntOp(const OPType op) {
-    return (op == OPType::ADD || op == OPType::SUBTRACT || op == OPType::DIVIDE || op == OPType::MULTIPLY);
-}
-bool ValidateFloatOp(const OPType op) {
-    return (op == OPType::FADD || op == OPType::FSUBTRACT || op == OPType::FDIVIDE || op == OPType::FMULTIPLY);
-}
+bool ValidateIntOp(const OPType op);
 
-bool ValidateStringOp(const OPType op) {
-    return (op == OPType::CONCAT || op ==OPType::SUFFIX|| op ==OPType::PREFIX || op == OPType::AT);
-}
+bool ValidateFloatOp(const OPType op);
 
+bool ValidateStringOp(const OPType op);
 
-bool ValidateOPType(const OPType op, const DBTypes dbType, const DBTypes vectorItemT = DBTypes::INVALID) {
-    if (dbType == DBTypes::INTEGER) {
-        return ValidateIntOp(op);
-    }
-    if (dbType == DBTypes::FLOAT) {
-        return ValidateFloatOp(op);
-    }
-    if (dbType == DBTypes::STRING) {
-        return ValidateStringOp(op);
-    }
+bool ValidateVectorOP(const OPType op);
 
-}
+bool ValidateVectorIntOP(const OPType op);
+
+bool ValidateOPType(const OPType op, const DBTypes dbType);
 
 using args_parsed = std::pair<ArgsType, std::string>;
 
@@ -738,4 +725,171 @@ void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueM
                 std::queue<std::string> &dataQueue);
 
 
+template<typename T>
+void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostream &ostream) {
+    const auto seed = static_cast<uint64_t>(std::time(nullptr));
+    auto [k1,k2] = sampleKey(seed);
+    SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> > db(SipHash(k1, k2, 2, 4));
+    std::priority_queue<std::unique_ptr<QueueEntry>, std::vector<std::unique_ptr<QueueEntry> >, CompareQueueEntry>
+            ttlQueue;
+    std::queue<std::string> dataQueue;
+    std::mutex queueMutex;
+
+    std::jthread reader([&instream, &dataQueue, &queueMutex](const std::stop_token &stoken) {
+        readThread(stoken, instream, queueMutex, dataQueue);
+    });
+
+
+    bool run = true;
+
+
+    while (run) {
+        if (!ttlQueue.empty()) {
+            if (ttlQueue.top()->Invalid()) {
+                ttlQueue.pop();
+            }
+            if (ttlQueue.top()->Expired()) {
+                auto key = ttlQueue.top()->key;
+                auto entry = db.LookUp(std::move(key));
+                entry.DeleteEntry();
+            }
+        }
+
+        if (!dataQueue.empty()) {
+            std::lock_guard<std::mutex> lock(queueMutex);
+            if (dataQueue.empty()) {
+                continue;
+            }
+            std::string line = std::move(dataQueue.front());
+            auto [res, lineParsed] = parseLine(line);
+            if (!res) {
+                ostream << "Invalid input: " << line << std::endl;
+                continue;
+            }
+            view_t view(lineParsed.begin(), lineParsed.end());
+
+            OPType type = GetOPType(view);
+
+            if (type == OPType::TERMINATE) {
+                run = false;
+            }
+
+            auto ttl = ParseTTL(view, defaultTTL);
+
+            std::unique_ptr<DBopsNode<T> > toExecute;
+            if (type == OPType::GET) {
+                auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, ostream, db);
+                toExecute = std::move(ptr);
+            } else if (type == OPType::DELETE) {
+                auto [msg, ptr] = ParseOneKeyOP<T, DeleteNode<T> >(view, ostream, db);
+                toExecute = std::move(ptr);
+            } else if (type == OPType::INSERT) {
+                auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                toExecute = std::move(ptr);
+            } else if (type == OPType::ADD) {
+                auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Integer> >(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::SUBTRACT) {
+                auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Integer> >(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::MULTIPLY) {
+                auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Integer> >(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::DIVIDE) {
+                auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Integer> >(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::FADD) {
+                auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Float> >(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::FSUBTRACT) {
+                auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Float> >(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::FMULTIPLY) {
+                auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Float> >(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::FDIVIDE) {
+                auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Float> >(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::CONCAT) {
+                auto [msg, ptr] = ParseStringOpStringString<DBType<T>, ConcatStrings>(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::SUFFIX) {
+                auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, SuffixNode>(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::PREFIX) {
+                auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, PrefixNode>(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::AT) {
+                auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, AtNode>(view, dbType, db);
+                if (msg == ParseOperationRes::VALID) {
+                    toExecute = std::move(ptr);
+                } else {
+                    toExecute = GetError<T>(msg, 2, view.size());
+                }
+            } else if (type == OPType::FIND) {
+            } else if (type == OPType::APPEND) {
+                // ...
+            } else if (type == OPType::POP) {
+                // ...
+            } else if (type == OPType::VINSERT) {
+                // ...
+            } else if (type == OPType::REMOVE) {
+                // ...
+            } else if (type == OPType::SET) {
+                // ...
+            } else if (type == OPType::VGET) {
+                // ...
+            } else if (type == OPType::SIZE) {
+                // ...
+            } else {
+                auto ptr = std::make_unique<ErrorNode<T> >(std::move(InvalidOperation()));
+                toExecute = std::move(ptr);
+            }
+        }
+    }
+}
 #endif //PROJECT_OPERATIONTYPE_HPP

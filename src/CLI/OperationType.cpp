@@ -134,6 +134,47 @@ OPType GetOPType(view_t &args) {
     return OPType::INVALID;
 }
 
+bool ValidateIntOp(const OPType op) {
+    return (op == OPType::ADD || op == OPType::SUBTRACT || op == OPType::DIVIDE || op == OPType::MULTIPLY || op ==
+            OPType::SIZE);
+}
+
+bool ValidateFloatOp(const OPType op) {
+    return (op == OPType::FADD || op == OPType::FSUBTRACT || op == OPType::FDIVIDE || op == OPType::FMULTIPLY);
+}
+
+bool ValidateStringOp(const OPType op) {
+    return (op == OPType::CONCAT || op == OPType::SUFFIX || op == OPType::PREFIX || op == OPType::AT);
+}
+
+bool ValidateVectorOP(const OPType op) {
+    return (op == OPType::APPEND || op == OPType::POP || op == OPType::VINSERT || op == OPType::REMOVE || op ==
+            OPType::SET || op == OPType::VGET);
+}
+
+bool ValidateVectorIntOP(const OPType op) {
+    return ValidateVectorOP(op) || op == OPType::FIND;
+}
+
+bool ValidateOPType(const OPType op, const DBTypes dbType) {
+    if (dbType == DBTypes::INVALID) {
+        return false;
+    }
+    if (dbType == DBTypes::INTEGER) {
+        return ValidateIntOp(op);
+    }
+    if (dbType == DBTypes::FLOAT) {
+        return ValidateFloatOp(op);
+    }
+    if (dbType == DBTypes::STRING) {
+        return ValidateStringOp(op);
+    }
+    if (dbType == DBTypes::VECTOR_INT) {
+        return ValidateVectorIntOP(op);
+    }
+    return ValidateVectorOP(op);
+}
+
 args_parsed ParseArg(view_t &args) {
     if (args.empty()) {
         return {ArgsType::EMPTY, ""};
