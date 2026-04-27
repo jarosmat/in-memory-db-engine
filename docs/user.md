@@ -108,7 +108,8 @@ For operations on floating point numbers, add F in front of operation: e.g.: `FA
 In all operation operand called `[VECT]` appears, this operand specifies vector on which the operation is to take place.
 If you want to write a constant vector, it is in a format: `{item1, item2, item3}`. For vector of strings, items have to 
 be inside apostrophes '', all outside apostrophes are ignores. If you want the item to be `'something`, just write:
-`{..., ''somehing', ...}`
+`{..., ''somehing', ...}`, this notation is only used, when Inserting vector into database. For all other operations on
+vectors only keys are accepted.
 
 - `APPEND [VECT] [WHAT]`
   - appends value `[WHAT]` to end of `[VECT]` 
