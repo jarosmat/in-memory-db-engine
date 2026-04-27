@@ -862,6 +862,8 @@ std::pair<bool, std::vector<std::string> > parseLine(const std::string &line);
 void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueMutex,
                 std::queue<std::string> &dataQueue);
 
+bool HasTarget(OPType op);
+
 
 template<typename T>
 void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostream &ostream) {

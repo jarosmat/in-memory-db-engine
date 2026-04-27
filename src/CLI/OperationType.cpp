@@ -360,3 +360,8 @@ void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueM
         }
     }
 }
+
+bool HasTarget(const OPType op) {
+    return (op != OPType::INVALID && op != OPType::INSERT && op != OPType::GET && op != OPType::TERMINATE && op !=
+            OPType::DELETE);
+}
