@@ -923,17 +923,24 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
 
             auto ttl = ParseTTL(view, defaultTTL);
 
-            std::unique_ptr<DBopsNode<T> > toExecute;
+            std::unique_ptr<Node<T>> toExecute;
             if (type == OPType::GET) {
                 auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, ostream, db);
-                toExecute = std::move(ptr);
-            } else if (type == OPType::DELETE) {
+                ptr.get()->Execute();
+                continue;
+            }
+            if (type == OPType::DELETE) {
                 auto [msg, ptr] = ParseOneKeyOP<T, DeleteNode<T> >(view, ostream, db);
-                toExecute = std::move(ptr);
-            } else if (type == OPType::INSERT) {
+                ptr.get()->Execute();
+                continue;
+            }
+            if (type == OPType::INSERT) {
                 auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
-                toExecute = std::move(ptr);
-            } else if (type == OPType::ADD) {
+                ptr.get()->Execute();
+                continue;
+            }
+
+            if (type == OPType::ADD) {
                 auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Integer> >(view, dbType, db);
                 if (msg == ParseOperationRes::VALID) {
                     toExecute = std::move(ptr);
