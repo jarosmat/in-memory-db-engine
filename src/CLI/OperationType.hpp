@@ -1015,7 +1015,34 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
                 }
             } else if (type == OPType::FIND) {
             } else if (type == OPType::APPEND) {
-                // ...
+                constexpr size_t expectedArgs = 2;
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
+                    auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<Float>, Vector<
+                        Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
+                    auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<Integer>, Vector<Integer> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
+                    auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<String>, Vector<String> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
             } else if (type == OPType::POP) {
                 // ...
             } else if (type == OPType::VINSERT) {
