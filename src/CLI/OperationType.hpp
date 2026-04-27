@@ -335,6 +335,39 @@ std::pair<GetArgsReturnTypes, VectPtr<T> > getVector(DBTypes dbType, DB &db, arg
     return {GetArgsReturnTypes::INVALID, {}};
 }
 
+template<typename T, typename DB>
+    requires (!std::is_reference_v<DB>)
+std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DBTypes dbType, DB &db, args_parsed &&args) {
+    auto [type, val] = std::move(args);
+    if (type == ArgsType::EMPTY) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+    if (type == ArgsType::CONSTANT) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+
+    DBTypes expectedDb = DBVectType<T>::type;
+    if (dbType != expectedDb) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+
+    if (type == ArgsType::KEY_FROM_CONSTANT) {
+        auto key = stringBytes(std::move(val));
+        auto res = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
+    }
+
+    if (type == ArgsType::KEY_FROM_FILE) {
+        auto [res, key] = readFileBytes(val);
+        if (res == BytesFromFileRes::VALID) {
+            auto resPtr = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
+            return {GetArgsReturnTypes::VALID, std::move(resPtr)};
+        }
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+
+    return {GetArgsReturnTypes::INVALID, {}};
+}
+
 enum class ParseOperationRes {
     VALID,
     INVALID_ARG_C,
