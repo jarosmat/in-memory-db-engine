@@ -597,24 +597,50 @@ parse_op_r<OP> ParseVectOpVectNumVal(view_t &view, DBTypes dbType, DB &db) {
 }
 
 template<typename DB, typename OP, typename T>
-parse_op_r<OP> ParseVectOpVectNum(view_t &view, DBTypes dbType, DB &db,
-                                  std::function<std::pair<bool, T>(std::string_view)>
-                                  converter) {
+parse_op_r<OP> ParseVectOpVectNum(view_t &view, DBTypes dbType, DB &db) {
     if (view.size() != 2) {
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
 
-    auto parse = ParseArg(view);
-    auto [type, ptr] = getVector(dbType, db, std::move(parse), converter);
-    auto parseNum = ParseArg(view);
-    auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+    if constexpr (get_db_type<Vector<T> >::value == DBTypes::VECTOR_FLOAT) {
+        auto parse = ParseArg(view);
+        auto [type, ptr] = getVectorFromDB<T, DB>(dbType, db, std::move(parse), ParseFloat);
+        auto parseNum = ParseArg(view);
+        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
 
-    if (type == GetArgsReturnTypes::INVALID || typeNum == GetArgsReturnTypes::INVALID) {
-        return {ParseOperationRes::INVALID_ARGS, {}};
+        if (type == GetArgsReturnTypes::INVALID || typeNum == GetArgsReturnTypes::INVALID) {
+            return {ParseOperationRes::INVALID_ARGS, {}};
+        }
+
+        auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrNum));
+        return {ParseOperationRes::VALID, std::move(res)};
     }
+    if constexpr (get_db_type<Vector<T> >::value == DBTypes::VECTOR_INT) {
+        auto parse = ParseArg(view);
+        auto [type, ptr] = getVectorFromDB<T, DB>(dbType, db, std::move(parse), ParseInt);
+        auto parseNum = ParseArg(view);
+        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
 
-    auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrNum));
-    return {ParseOperationRes::VALID, std::move(res)};
+        if (type == GetArgsReturnTypes::INVALID || typeNum == GetArgsReturnTypes::INVALID) {
+            return {ParseOperationRes::INVALID_ARGS, {}};
+        }
+
+        auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrNum));
+        return {ParseOperationRes::VALID, std::move(res)};
+    }
+    if constexpr (get_db_type<Vector<T> >::value == DBTypes::VECTOR_STRING) {
+        auto parse = ParseArg(view);
+        auto [type, ptr] = getVectorFromDB<T, DB>(dbType, db, std::move(parse), ParseString);
+        auto parseNum = ParseArg(view);
+        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+
+        if (type == GetArgsReturnTypes::INVALID || typeNum == GetArgsReturnTypes::INVALID) {
+            return {ParseOperationRes::INVALID_ARGS, {}};
+        }
+
+        auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrNum));
+        return {ParseOperationRes::VALID, std::move(res)};
+    }
 }
 
 enum class KeyType {
