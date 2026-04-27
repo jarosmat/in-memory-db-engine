@@ -453,26 +453,50 @@ parse_op_r<N> ParseStringOpStringString(view_t &view, DBTypes dbType, DB &db) {
 }
 
 template<typename DB, typename OP, typename T>
-parse_op_r<OP> ParseVectOpVectVal(view_t &view, DBTypes dbType, DB &db,
-                                  std::function<std::pair<bool, T>(std::string_view)>
-                                  converter,
-                                  std::function<std::pair<GetArgsReturnTypes, Node<T> >(DBTypes, DB &, args_parsed &&)>
-                                  valParser) {
+parse_op_r<OP> ParseVectOpVectVal(view_t &view, DBTypes dbType, DB &db) {
     if (view.size() != 2) {
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
 
-    auto parse = ParseArg(view);
-    auto [type, ptr] = getVector(dbType, db, std::move(parse), converter);
-    auto parseVal = ParseArg(view);
-    auto [typeVal, ptrVal] = valParser(dbType, db, std::move(parseVal));
+    if constexpr (get_db_type<Vector<T> >::value == DBTypes::VECTOR_FLOAT) {
+        auto parse = ParseArg(view);
+        auto [type, ptr] = getVectorFromDB<T, DB>(dbType, db, std::move(parse), ParseFloat);
+        auto parseVal = ParseArg(view);
+        auto [typeVal, ptrVal] = getFloat<DB>(dbType, db, std::move(parseVal));
 
-    if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID) {
-        return {ParseOperationRes::INVALID_ARGS, {}};
+        if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID) {
+            return {ParseOperationRes::INVALID_ARGS, {}};
+        }
+
+        auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrVal));
+        return {ParseOperationRes::VALID, std::move(res)};
     }
+    if constexpr (get_db_type<Vector<T> >::value == DBTypes::VECTOR_INT) {
+        auto parse = ParseArg(view);
+        auto [type, ptr] = getVectorFromDB<T, DB>(dbType, db, std::move(parse), ParseInt);
+        auto parseVal = ParseArg(view);
+        auto [typeVal, ptrVal] = getInteger<DB>(dbType, db, std::move(parseVal));
 
-    auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrVal));
-    return {ParseOperationRes::VALID, std::move(res)};
+        if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID) {
+            return {ParseOperationRes::INVALID_ARGS, {}};
+        }
+
+        auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrVal));
+        return {ParseOperationRes::VALID, std::move(res)};
+    }
+    if constexpr (get_db_type<Vector<T> >::value == DBTypes::VECTOR_STRING) {
+        auto parse = ParseArg(view);
+        auto [type, ptr] = getVectorFromDB<T, DB>(dbType, db, std::move(parse), ParseString);
+        auto parseVal = ParseArg(view);
+        auto [typeVal, ptrVal] = getString<DB>(dbType, db, std::move(parseVal));
+
+        if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID) {
+            return {ParseOperationRes::INVALID_ARGS, {}};
+        }
+
+        auto res = std::make_unique<OP>(std::move(ptr), std::move(ptrVal));
+        return {ParseOperationRes::VALID, std::move(res)};
+    }
 }
 
 template<typename DB, typename OP, typename T>
