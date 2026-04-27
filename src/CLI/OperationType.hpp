@@ -1044,17 +1044,179 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
                     }
                 }
             } else if (type == OPType::POP) {
-                // ...
+                constexpr size_t expectedArgs = 1;
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
+                    auto [msg, ptr] = ParseVectOpVect<DBType<T>, PopNode<Float>, Vector<
+                        Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
+                    auto [msg, ptr] = ParseVectOpVect<DBType<T>, PopNode<Integer>, Vector<Integer> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
+                    auto [msg, ptr] = ParseVectOpVect<DBType<T>, PopNode<String>, Vector<String> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
             } else if (type == OPType::VINSERT) {
-                // ...
+                constexpr size_t expectedArgs = 3;
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
+                    auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, VInsertNode<Float>, Vector<
+                        Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
+                    auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, VInsertNode<Integer>, Vector<Integer> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
+                    auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, VInsertNode<String>, Vector<String> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
             } else if (type == OPType::REMOVE) {
-                // ...
+                constexpr size_t expectedArgs = 2;
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
+                    auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, RemoveNode<Float>, Vector<
+                        Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
+                    auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, RemoveNode<Integer>, Vector<Integer> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
+                    auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, RemoveNode<String>, Vector<String> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
             } else if (type == OPType::SET) {
-                // ...
+                constexpr size_t expectedArgs = 3;
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
+                    auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, SetNode<Float>, Vector<
+                        Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
+                    auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, SetNode<Integer>, Vector<Integer> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
+                    auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, SetNode<String>, Vector<String> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
             } else if (type == OPType::VGET) {
-                // ...
+                constexpr size_t expectedArgs = 2;
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
+                    auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, VgetNode<Float>, Vector<
+                        Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
+                    auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, VgetNode<Integer>, Vector<Integer> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
+                    auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, VgetNode<String>, Vector<String> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
             } else if (type == OPType::SIZE) {
-                // ...
+                constexpr size_t expectedArgs = 1;
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
+                    auto [msg, ptr] = ParseVectOpVect<DBType<T>, SizeNode<Float>, Vector<
+                        Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
+                    auto [msg, ptr] = ParseVectOpVect<DBType<T>, SizeNode<Integer>, Vector<Integer> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
+                if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
+                    auto [msg, ptr] = ParseVectOpVect<DBType<T>, SizeNode<String>, Vector<String> >(
+                        view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, expectedArgs, view.size());
+                    }
+                }
             } else {
                 auto ptr = std::make_unique<ErrorNode<T> >(std::move(InvalidOperation()));
                 toExecute = std::move(ptr);
