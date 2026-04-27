@@ -913,6 +913,8 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
 
             if (type == OPType::TERMINATE) {
                 run = false;
+                reader.request_stop();
+                continue;
             }
 
             if (!ValidateOPType(type, dbType)) {
