@@ -770,8 +770,13 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
 
             OPType type = GetOPType(view);
 
+
             if (type == OPType::TERMINATE) {
                 run = false;
+            }
+
+            if (!ValidateOPType(type, dbType)) {
+                type = OPType::INVALID;
             }
 
             auto ttl = ParseTTL(view, defaultTTL);
