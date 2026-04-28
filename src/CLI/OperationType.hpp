@@ -824,7 +824,8 @@ struct CompareQueueEntry {
 };
 
 template<typename T>
-std::unique_ptr<ErrorNode<T> > GetError(const ParseOperationRes res, const std::size_t expected, const std::size_t actual) {
+std::unique_ptr<ErrorNode<T> > GetError(const ParseOperationRes res, const std::size_t expected,
+                                        const std::size_t actual) {
     if (res == ParseOperationRes::INVALID_ARG_C) {
         auto node = std::make_unique<ErrorNode<T> >(std::move(InvalidArgsCount(expected, actual)));
         return node;
