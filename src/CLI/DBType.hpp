@@ -2,6 +2,7 @@
 #define PROJECT_DBTYPE_HPP
 #include <chrono>
 #include "DBEntry.hpp"
+#include "SipHash.hpp"
 
 enum class DBTypes {
     INTEGER,
@@ -23,29 +24,40 @@ template<>
 struct get_db_type<Integer> {
     static constexpr auto value = DBTypes::INTEGER;
 };
+
 template<>
 struct get_db_type<Float> {
     static constexpr auto value = DBTypes::FLOAT;
 };
+
 template<>
 struct get_db_type<String> {
     static constexpr auto value = DBTypes::STRING;
 };
+
 template<>
 struct get_db_type<Object> {
     static constexpr auto value = DBTypes::OBJECT;
 };
+
 template<>
-struct get_db_type<Vector<Integer>> {
+struct get_db_type<Vector<Integer> > {
     static constexpr auto value = DBTypes::VECTOR_INT;
 };
+
 template<>
-struct get_db_type<Vector<Float>> {
+struct get_db_type<Vector<Float> > {
     static constexpr auto value = DBTypes::VECTOR_FLOAT;
 };
+
 template<>
-struct get_db_type<Vector<String>> {
+struct get_db_type<Vector<String> > {
     static constexpr auto value = DBTypes::VECTOR_STRING;
+};
+
+template<typename T>
+struct get_db_type<SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> > > {
+    static constexpr auto value = get_db_type<T>::value;
 };
 
 enum class StartupTokens {
