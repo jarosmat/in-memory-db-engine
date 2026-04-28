@@ -314,7 +314,7 @@ public:
 template<typename T, typename TTL>
 class InsertNode : public DBopsNode<T> {
     std::vector<uint8_t> key;
-    std::unique_ptr<Node<T>> valNode;
+    std::unique_ptr<Node<T> > valNode;
     TTL ttl;
 
 public:
@@ -325,8 +325,9 @@ public:
         entry.SetValue(std::move(toInsert));
     }
 
-    InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, std::unique_ptr<Node<T>> &&valNode, TTL &&ttl) : DBopsNode<T>(db), key(std::move(key)),
-        valNode(std::move(valNode)), ttl(ttl) {
+    InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, std::unique_ptr<Node<T> > &&valNode,
+               TTL &&ttl) : DBopsNode<T>(db), key(std::move(key)),
+                            valNode(std::move(valNode)), ttl(ttl) {
     }
 };
 
@@ -382,6 +383,21 @@ public:
 
 
     ErrorNode(std::ostream &stream, std::vector<std::string> &&val) : stream(stream), val(std::move(val)) {
+    }
+};
+
+template<typename T, typename OPT>
+class ToStreamNode : public DBopsNode<T> {
+    std::unique_ptr<Node<OPT> > op;
+    std::ostream &stream;
+
+public:
+    void Execute() override {
+        stream << op->Execute() << std::endl;
+    }
+
+    ToStreamNode(std::ostream &stream, std::unique_ptr<Node<OPT> > &&op) : DBopsNode<T>(), op(std::move(op)),
+                                                                         stream(stream) {
     }
 };
 
