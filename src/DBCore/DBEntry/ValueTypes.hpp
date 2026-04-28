@@ -12,6 +12,7 @@ using Float = double;
 template<typename T>
 using VectorEntry = std::vector<T>;
 using PrimitiveValuePack = std::tuple<Integer, Float, String>;
+using AllValuePack = std::variant<Integer, Float, String, Object, Vector<Integer>, Vector<String>, Vector<Float> >;
 
 
 #endif //PROJECT_VALUETYPES_HPP
