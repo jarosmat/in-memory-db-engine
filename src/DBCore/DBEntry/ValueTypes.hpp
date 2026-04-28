@@ -1,3 +1,5 @@
+#ifndef PROJECT_VALUETYPES_HPP
+#define PROJECT_VALUETYPES_HPP
 #include <variant>
 
 #include "String/String.hpp"
@@ -11,8 +13,5 @@ template<typename T>
 using VectorEntry = std::vector<T>;
 using PrimitiveValuePack = std::tuple<Integer, Float, String>;
 
-
-#ifndef PROJECT_VALUETYPES_HPP
-#define PROJECT_VALUETYPES_HPP
 
 #endif //PROJECT_VALUETYPES_HPP
