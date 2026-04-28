@@ -77,17 +77,17 @@ using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
 OPType GetOPType(view_t &args);
 
-bool ValidateIntOp(const OPType op);
+bool ValidateIntOp(OPType op);
 
-bool ValidateFloatOp(const OPType op);
+bool ValidateFloatOp(OPType op);
 
-bool ValidateStringOp(const OPType op);
+bool ValidateStringOp(OPType op);
 
-bool ValidateVectorOP(const OPType op);
+bool ValidateVectorOP(OPType op);
 
-bool ValidateVectorIntOP(const OPType op);
+bool ValidateVectorIntOP(OPType op);
 
-bool ValidateOPType(const OPType op, const DBTypes dbType);
+bool ValidateOPType(OPType op, DBTypes dbType);
 
 using args_parsed = std::pair<ArgsType, std::string>;
 
