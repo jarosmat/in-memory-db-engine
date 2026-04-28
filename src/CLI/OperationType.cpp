@@ -294,6 +294,10 @@ std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
     return {dis(gen), dis(gen)};
 }
 
+bool CompareQueueEntry::operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const {
+    return a->RemainingTime() > b->RemainingTime();
+}
+
 std::pair<bool, std::string> parseQuote(std::string_view &view) {
     std::string res;
     while (!view.empty() && view.front() != '"') {

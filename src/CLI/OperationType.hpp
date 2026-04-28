@@ -820,9 +820,7 @@ struct QueueEntry {
 };
 
 struct CompareQueueEntry {
-    bool operator()(const QueueEntry &a, const QueueEntry &b) const {
-        return a.RemainingTime() > b.RemainingTime();
-    }
+    bool operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const;
 };
 
 template<typename T>
