@@ -887,6 +887,8 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
                 continue;
             }
             std::string line = std::move(dataQueue.front());
+            dataQueue.pop();
+
             auto [res, lineParsed] = parseLine(line);
             if (!res) {
                 ostream << "Invalid input: " << line << std::endl;
@@ -901,10 +903,6 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
                 run = false;
                 reader.request_stop();
                 continue;
-            }
-
-            if (!ValidateOPType(type, dbType)) {
-                type = OPType::INVALID;
             }
 
             auto ttl = ParseTTL(view, defaultTTL);
