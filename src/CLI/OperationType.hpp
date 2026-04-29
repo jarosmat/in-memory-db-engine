@@ -852,7 +852,7 @@ bool HasTarget(OPType op);
 
 
 template<typename T>
-void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostream &ostream) {
+void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostream &outstream) {
     const auto seed = static_cast<uint64_t>(std::time(nullptr));
     auto [k1,k2] = sampleKey(seed);
     SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> > db(SipHash(k1, k2, 2, 4));
@@ -891,7 +891,7 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
 
             auto [res, lineParsed] = parseLine(line);
             if (!res) {
-                ostream << "Invalid input: " << line << std::endl;
+                outstream << "Invalid input: " << line << std::endl;
                 continue;
             }
             view_t view(lineParsed.begin(), lineParsed.end());
@@ -909,12 +909,12 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
 
             std::unique_ptr<Node<T> > toExecute;
             if (type == OPType::GET) {
-                auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, ostream, db);
+                auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, outstream, db);
                 ptr.get()->Execute();
                 continue;
             }
             if (type == OPType::DELETE) {
-                auto [msg, ptr] = ParseOneKeyOP<T, DeleteNode<T> >(view, ostream, db);
+                auto [msg, ptr] = ParseOneKeyOP<T, DeleteNode<T> >(view, outstream, db);
                 ptr.get()->Execute();
                 continue;
             }
