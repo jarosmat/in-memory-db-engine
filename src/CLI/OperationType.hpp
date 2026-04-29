@@ -924,92 +924,109 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
                 continue;
             }
 
-            if (type == OPType::ADD) {
-                auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Integer> >(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
+            auto [targetType, targetValue] = ParseTarget(view);
+            if (targetType == TargetType::INVALID) {
+                outstream << "Invalid target" << std::endl;
+            }
+            if constexpr (get_db_type<T>::value == DBTypes::INTEGER) {
+                if (type == OPType::ADD) {
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Integer> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::SUBTRACT) {
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Integer> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::MULTIPLY) {
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Integer> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::DIVIDE) {
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Integer> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
                 }
-            } else if (type == OPType::SUBTRACT) {
-                auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Integer> >(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
+            }
+
+            if constexpr (get_db_type<T>::value == DBTypes::FLOAT) {
+                if (type == OPType::FADD) {
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::FSUBTRACT) {
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::FMULTIPLY) {
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::FDIVIDE) {
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Float> >(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
                 }
-            } else if (type == OPType::MULTIPLY) {
-                auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Integer> >(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
+            }
+
+            if constexpr (get_db_type<T>::value == DBTypes::STRING) {
+                if (type == OPType::CONCAT) {
+                    auto [msg, ptr] = ParseStringOpStringString<DBType<T>, ConcatStrings>(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::SUFFIX) {
+                    auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, SuffixNode>(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::PREFIX) {
+                    auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, PrefixNode>(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::AT) {
+                    auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, AtNode>(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        toExecute = std::move(ptr);
+                    } else {
+                        toExecute = GetError<T>(msg, 2, view.size());
+                    }
+                } else if (type == OPType::FIND) {
                 }
-            } else if (type == OPType::DIVIDE) {
-                auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Integer> >(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::FADD) {
-                auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Float> >(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::FSUBTRACT) {
-                auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Float> >(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::FMULTIPLY) {
-                auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Float> >(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::FDIVIDE) {
-                auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Float> >(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::CONCAT) {
-                auto [msg, ptr] = ParseStringOpStringString<DBType<T>, ConcatStrings>(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::SUFFIX) {
-                auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, SuffixNode>(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::PREFIX) {
-                auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, PrefixNode>(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::AT) {
-                auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, AtNode>(view, dbType, db);
-                if (msg == ParseOperationRes::VALID) {
-                    toExecute = std::move(ptr);
-                } else {
-                    toExecute = GetError<T>(msg, 2, view.size());
-                }
-            } else if (type == OPType::FIND) {
-            } else if (type == OPType::APPEND) {
+            }
+
+
+            if (type == OPType::APPEND) {
                 constexpr size_t expectedArgs = 2;
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
                     auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<Float>, Vector<
@@ -1215,6 +1232,32 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
             } else {
                 auto ptr = std::make_unique<ErrorNode<T> >(std::move(InvalidOperation()));
                 toExecute = std::move(ptr);
+            }
+
+            std::unique_ptr<DBopsNode<T> > opNode = ErrorNode<T>(outstream, {"Error"});
+            if (ValidateOPType(type, dbType) && targetType == TargetType::KEY) {
+                auto key = stringBytes(std::move(targetValue));
+                if (ttl.second == TTLTypes::MILLISECONDS) {
+                    opNode = std::unique_ptr<InsertNode<T, std::chrono::milliseconds> >(
+                        db, std::move(key), std::move(toExecute), ttl.first);
+                } else if (ttl.second == TTLTypes::SECONDS) {
+                    opNode = std::unique_ptr<InsertNode<T, std::chrono::seconds> >(
+                        db, std::move(key), std::move(toExecute), ttl.first);
+                } else if (ttl.second == TTLTypes::MINUTES) {
+                    opNode = std::unique_ptr<InsertNode<T, std::chrono::minutes> >(
+                        db, std::move(key), std::move(toExecute), ttl.first);
+                } else {
+                    opNode = std::unique_ptr<InsertNode<T, ImmortalSentinel> >(
+                        db, std::move(key), std::move(toExecute), ttl.first);
+                }
+            } else if (targetType == TargetType::FILE) {
+                std::ofstream outFile(targetValue);
+                if (!outFile.is_open()) {
+                    opNode = std::make_unique<ErrorNode<T> >({"Could not open file: ", targetValue});
+                }
+                opNode = std::make_unique<ToStreamNode<T, T> >(outFile, std::move(toExecute));
+            } else {
+                opNode = std::make_unique<ErrorNode<T> >(outstream, {"Error"});
             }
         }
     }
