@@ -401,4 +401,17 @@ public:
     }
 };
 
+template<typename T>
+class ExecuteErrorNode : public DBopsNode {
+    std::unique_ptr<ErrorNode<T> > err;
+
+public:
+    void Execute() override {
+        err.get()->Execute();
+    }
+
+    ExecuteErrorNode(std::unique_ptr<ErrorNode<T> > &&err) : err(std::move(err)) {
+    }
+};
+
 #endif //PROJECT_NODES_HPP
