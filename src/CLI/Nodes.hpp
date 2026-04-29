@@ -396,13 +396,13 @@ public:
         stream << op->Execute() << std::endl;
     }
 
-    ToStreamNode(std::ostream &stream, std::unique_ptr<Node<OPT> > &&op) : DBopsNode<T>(), op(std::move(op)),
+    ToStreamNode(std::ostream &stream, std::unique_ptr<Node<OPT> > &&op, DBType<T>&db) :DBopsNode<T>(db),  op(std::move(op)),
                                                                          stream(stream) {
     }
 };
 
 template<typename T>
-class ExecuteErrorNode : public DBopsNode {
+class ExecuteErrorNode : public DBopsNode<T> {
     std::unique_ptr<ErrorNode<T> > err;
 
 public:
@@ -410,7 +410,7 @@ public:
         err.get()->Execute();
     }
 
-    ExecuteErrorNode(std::unique_ptr<ErrorNode<T> > &&err) : err(std::move(err)) {
+    ExecuteErrorNode(std::unique_ptr<ErrorNode<T> > &&err, DBType<T> &db) :DBopsNode<T>(db), err(std::move(err)) {
     }
 };
 
