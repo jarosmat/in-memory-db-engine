@@ -135,6 +135,31 @@ public:
     }
 };
 
+class FindNode : public Node<Vector<Integer> > {
+    std::unique_ptr<StringNode> val;
+    std::unique_ptr<StringNode> toFind;
+
+public:
+    Vector<Integer> Execute() override {
+        const auto where = val.get()->Execute();
+        const auto what = toFind.get()->Execute();
+
+        const auto res = where.Find(what);
+
+        auto resV = Vector<Integer>(res.size());
+
+        for (auto &&a: res) {
+            resV.Append(a);
+        }
+
+        return resV;
+    }
+
+    FindNode(std::unique_ptr<StringNode> &&val, std::unique_ptr<StringNode> &&what) : val(std::move(val)),
+        toFind(std::move(what)) {
+    }
+};
+
 
 template<typename T>
 class BinaryOp : public NumberNode<T> {
