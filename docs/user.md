@@ -85,12 +85,12 @@ For operations on floating point numbers, add F in front of operation: e.g.: `FA
 - `SUFFIX [VALUE] [N]`
   - First operand is string 
   - Second operand is number
-  - result is first `[N]` characters of `[VALUE]` 
+  - result is last `[N]` characters of `[VALUE]` 
   - returns string value
 - `PREFIX [VALUE] [N]`
   - First operand is string 
   - Second operand is number
-  - result is last `[N]` characters of `[VALUE]`
+  - result is first `[N]` characters of `[VALUE]`
   - returns string value
 - `AT [VALUE] [I]`
   - First operand is string 
