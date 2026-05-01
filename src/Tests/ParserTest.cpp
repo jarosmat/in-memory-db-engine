@@ -266,3 +266,43 @@ TEST_CASE("Parse Target") {
         REQUIRE(valKey == "key");
     }
 }
+
+
+TEST_CASE("Parse One key op") {
+    DBType<Integer> db(SipHash(0, 0, 2, 4));
+    std::vector<std::uint8_t> key = {'k', 'e', 'y'};
+    auto dbEntry = db.LookUp(std::move(key));
+    auto inEntry = GetEntry(static_cast<Integer>(8), ImmortalSentinel());
+    dbEntry.SetValue(std::move(inEntry));
+
+    SECTION("Invalid args count") {
+        std::vector<std::string> val = {"$key", "8"};
+        auto view = view_t(val.begin(), val.end());
+        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer > >(view, std::cout, db);
+        REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
+    }
+
+    SECTION("Valid args Get") {
+        std::stringstream stream;
+        std::vector<std::string> val = {"key"};
+        auto view = view_t(val.begin(), val.end());
+        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer > >(view, stream, db);
+        REQUIRE(msg == ParseOperationRes::VALID);
+
+        res.get()->Execute();
+        auto resView = stream.view();
+        REQUIRE(resView == "Value is: 8\n");
+    }
+
+    SECTION("Invalid key Get") {
+        std::stringstream stream;
+        std::vector<std::string> val = {"keyy"};
+        auto view = view_t(val.begin(), val.end());
+        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer > >(view, stream, db);
+        REQUIRE(msg == ParseOperationRes::VALID);
+
+        res.get()->Execute();
+        auto resView = stream.view();
+        REQUIRE(resView == "Invalid key\n");
+    }
+}
