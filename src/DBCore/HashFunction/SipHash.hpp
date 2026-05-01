@@ -15,7 +15,7 @@ struct internalState {
 
     void Finalize(std::size_t d);
 
-    return_val GetValue() const;
+    [[nodiscard]] return_val GetValue() const;
 
     internalState(std::size_t k0, std::size_t k1);
 

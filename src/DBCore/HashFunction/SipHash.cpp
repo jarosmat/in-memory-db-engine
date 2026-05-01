@@ -54,7 +54,7 @@ void internalState::Compress(const std::size_t c, std::vector<uint8_t> &&data) {
 
     const std::size_t nSize = data.size();
     auto it = data.begin();
-    for (std::size_t i = 0; i < nSize; ++i) {
+    for (std::size_t i = 0; i < nSize; i += 8) {
         const auto m = Get64bitLE(it);
         v3 = v3 ^ m;
         ApplySipRounds(c);
