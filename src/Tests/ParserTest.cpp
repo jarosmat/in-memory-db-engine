@@ -241,3 +241,28 @@ TEST_CASE("Parse Key") {
         REQUIRE(valKey == "key");
     }
 }
+
+TEST_CASE("Parse Target") {
+    SECTION("Invalid target") {
+        std::vector<std::string> val = {};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, valKey] = ParseTarget(view);
+        REQUIRE(res == TargetType::INVALID);
+    }
+
+    SECTION("Constant target") {
+        std::vector<std::string> val = {"key"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, valKey] = ParseTarget(view);
+        REQUIRE(res == TargetType::KEY);
+        REQUIRE(valKey == "key");
+    }
+
+    SECTION("File path") {
+        std::vector<std::string> val = {"@key"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, valKey] = ParseTarget(view);
+        REQUIRE(res == TargetType::FILE);
+        REQUIRE(valKey == "key");
+    }
+}
