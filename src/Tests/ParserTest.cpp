@@ -334,3 +334,28 @@ TEST_CASE("Parse Delete") {
         REQUIRE_FALSE(dbEntryL.GetResult() == LookupRes::USED);
     }
 }
+
+TEST_CASE("Parse Insert") {
+    DBType<Integer> db(SipHash(0, 0, 2, 4));
+
+    SECTION("Invalid args count") {
+        std::vector<std::string> val = {"$key"};
+        auto view = view_t(val.begin(), val.end());
+        auto [msg, res] = ParseInsert<Integer>(view,  db, DBTypes::INTEGER, {ImmortalSentinel(), TTLTypes::IMMORTAL}, std::cout);
+        REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
+    }
+
+    SECTION("Valid args Insert") {
+        std::vector<std::string> val = {"key", "8"};
+        auto view = view_t(val.begin(), val.end());
+        auto [msg, res] = ParseInsert<Integer>(view,  db, DBTypes::INTEGER, {ImmortalSentinel(), TTLTypes::IMMORTAL}, std::cout);
+        REQUIRE(msg == ParseOperationRes::VALID);
+
+        res.get()->Execute();
+
+        std::vector<std::uint8_t> key = {'k', 'e', 'y'};
+        auto dbEntry = db.LookUp(std::move(key));
+        REQUIRE(dbEntry.GetResult() == LookupRes::USED);
+        REQUIRE(dbEntry.GetValue().GetRef() == 8);
+    }
+}
