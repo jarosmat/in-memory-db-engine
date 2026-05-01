@@ -199,3 +199,43 @@ TEST_CASE("Parse String Op String Num") {
         REQUIRE(node.get()->Execute() == String("t"));
     }
 }
+
+TEST_CASE("Parse String Op String String") {
+    DBType<String> db(SipHash(0, 0, 2, 4));
+
+    SECTION("Invalid Count") {
+        std::vector<std::string> val = {"String"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseStringOpStringString<DBType<String>, ConcatStrings>(view, DBTypes::STRING, db);
+        REQUIRE(res == ParseOperationRes::INVALID_ARG_C);
+    }
+
+    SECTION("Valid Count Concat") {
+        std::vector<std::string> val = {"String", "1"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseStringOpStringString<DBType<String>, ConcatStrings>(view, DBTypes::STRING, db);
+        REQUIRE(res == ParseOperationRes::VALID);
+        REQUIRE(node.get()->Execute() == String("String1"));
+    }
+
+    SECTION("Valid Count Find") {
+        std::vector<std::string> val = {"StringString", "S"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseStringOpStringString<DBType<String>, FindNode>(view, DBTypes::STRING, db);
+
+        Vector<Integer> resV;
+        resV.Append(0);
+        resV.Append(6);
+
+        auto resC = node.get()->Execute();
+
+        REQUIRE(resC.Count() == resV.Count());
+        REQUIRE((resC[0] == resV[0] || resC[0] == resV[1]));
+        REQUIRE((resC[1] == resV[0] || resC[1] == resV[1]));
+
+
+
+        REQUIRE(res == ParseOperationRes::VALID);
+
+    }
+}
