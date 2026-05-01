@@ -1083,6 +1083,14 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
                         toExecute = GetError<T>(msg, 2, view.size(), outstream);
                     }
                 } else if (type == OPType::FIND) {
+                    auto [msg, ptr] = ParseStringOpStringString<DBType<T>, FindNode>(view, dbType, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        std::unique_ptr<ToStreamNode<T, Vector<Integer> > > toExec = std::make_unique<ToStreamNode<T,
+                            Vector<Integer> > >(outstream, std::move(ptr), db);
+                        toExec.get()->Execute();
+                        continue;
+                    }
+                    toExecute = GetError<T>(msg, 2, view.size(), outstream);
                 }
             }
 
