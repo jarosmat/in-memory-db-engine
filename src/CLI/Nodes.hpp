@@ -221,7 +221,7 @@ public:
         return val;
     }
 
-    AppendNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what) : vect(std::move(vect)),
+    AppendNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > &&what) : vect(std::move(vect)),
         what(std::move(what)) {
     }
 };
