@@ -337,7 +337,7 @@ protected:
 public:
     virtual void Execute() = 0;
 
-    explicit DBopsNode(DBType<T> &dp) : db(db) {
+    explicit DBopsNode(DBType<T> &db) : db(db) {
     }
 };
 
