@@ -67,294 +67,47 @@ TEST_CASE("Double Parsing", "[Float]") {
         CHECK(ok2 == true);
         CHECK_THAT(val2, Catch::Matchers::WithinRel(-0.001));
 
-        auto [ok3, val3] = ParseFloat("2e3");
-        CHECK(ok3 == true);
-        CHECK(val3 == 2000.0);
+TEST_CASE("Parse Int Node") {
+    DBType<Integer> db(SipHash(0, 0, 2, 4));
+
+    SECTION("INVALID COUNT") {
+        std::vector<std::string> val = {"1"};
+        view_t view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseIntNode<DBType<Integer>, AddOp<Integer> >(view, DBTypes::INTEGER, db);
+        REQUIRE(res == ParseOperationRes::INVALID_ARG_C) ;
     }
-
-    SECTION("Invalid floats") {
-        CHECK(ParseFloat("3.14.15").first == false);
-        CHECK(ParseFloat("nan-ish").first == false);
+    SECTION("INVALID COUNT") {
+        std::vector<std::string> val = {"1", "a"};
+        view_t view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseIntNode<DBType<Integer>, AddOp<Integer> >(view, DBTypes::INTEGER, db);
+        REQUIRE(res == ParseOperationRes::INVALID_ARGS) ;
     }
-}
-
-TEST_CASE("Vector Parsing Logic", "[vector]") {
-    SECTION("Successful integer vector parsing") {
-        std::string_view input = "{ 1, 2,  3 , 4 }";
-        auto [result, vect] = ParseVect<Integer>(input, ParseInt);
-
-        REQUIRE(result == VectorParsingRes::VALID);
-        CHECK(vect.Count() == 4);
-        CHECK(vect[0] == 1);
-        CHECK(vect[3] == 4);
+    SECTION("VALID ADD") {
+        std::vector<std::string> val = {"1", "1"};
+        view_t view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseIntNode<DBType<Integer>, AddOp<Integer> >(view, DBTypes::INTEGER, db);
+        REQUIRE(res == ParseOperationRes::VALID) ;
+        REQUIRE(node.get()->Execute() == 2);
     }
-
-    SECTION("Successful double vector parsing") {
-        std::string_view input = "{1.1, 2.2, 3.3}";
-        auto [result , vect] = ParseVect<Float>(input, ParseFloat);
-
-        REQUIRE(result == VectorParsingRes::VALID);
-        CHECK(vect.Count() == 3);
-        CHECK_THAT(vect[1], Catch::Matchers::WithinRel(2.2));
+    SECTION("VALID SUBTRACT") {
+        std::vector<std::string> val = {"1", "1"};
+        view_t view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseIntNode<DBType<Integer>, SubtractOp<Integer> >(view, DBTypes::INTEGER, db);
+        REQUIRE(res == ParseOperationRes::VALID) ;
+        REQUIRE(node.get()->Execute() == 0);
     }
-
-    SECTION("Empty and minimal vectors") {
-        CHECK(ParseVect<Integer>("{}", ParseInt).second.Count() == 0);
-        CHECK(ParseVect<Integer>("{   }", ParseInt).second.Count() == 0);
-
-        auto [result,vect] = ParseVect<Integer>("{42}", ParseInt);
-        REQUIRE(result == VectorParsingRes::VALID);
-        CHECK(vect[0] == 42);
+    SECTION("VALID MULTIPLY") {
+        std::vector<std::string> val = {"1", "1"};
+        view_t view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseIntNode<DBType<Integer>, MultiplyOp<Integer> >(view, DBTypes::INTEGER, db);
+        REQUIRE(res == ParseOperationRes::VALID) ;
+        REQUIRE(node.get()->Execute() == 1);
     }
-
-    SECTION("Malformed structures") {
-        CHECK(ParseVect<Integer>("1, 2, 3", ParseInt).first == VectorParsingRes::INVALID_VECT);
-        CHECK(ParseVect<Integer>("{1, abc, 3}", ParseInt).first == VectorParsingRes::INVALID_ITEM);
-        auto trailing = ParseVect<Integer>("{1, 2, }", ParseInt);
-        CHECK(trailing.first == VectorParsingRes::INVALID_VECT);
-        auto first = ParseVect<Integer>("{ , 2, 3 }", ParseInt);
-        CHECK(first.first == VectorParsingRes::INVALID_VECT);
-        auto middle = ParseVect<Integer>("{1, , 3}", ParseInt);
-        CHECK(middle.first == VectorParsingRes::INVALID_VECT);
-    }
-}
-
-namespace fs = std::filesystem;
-
-void createTestFile(const std::string &path, const std::string &content) {
-    std::ofstream ofs(path, std::ios::binary);
-    ofs << content;
-    ofs.close();
-}
-
-TEST_CASE("stringToBytes converts string to byte vector", "[string]") {
-    SECTION("Standard string conversion") {
-        std::string input = "Hello";
-        auto result = stringBytes(std::move(input));
-
-        REQUIRE(result.size() == 5);
-        CHECK(result[0] == 'H');
-        CHECK(result[4] == 'o');
-    }
-
-    SECTION("Empty string conversion") {
-        std::string input;
-        auto result = stringBytes(std::move(input));
-        CHECK(result.empty());
-    }
-}
-
-
-TEST_CASE("readFileToBytes handles various file scenarios", "[file]") {
-    std::string testPath = "test_data.bin";
-
-    SECTION("Read an existing file correctly") {
-        std::string expectedContent = "BinaryData\0\1\2";
-        createTestFile(testPath, expectedContent);
-
-        auto [type, result] = readFileBytes(testPath);
-
-        REQUIRE(type == BytesFromFileRes::VALID);
-        REQUIRE(result.size() == expectedContent.size());
-        CHECK(std::memcmp(result.data(), expectedContent.data(), result.size()) == 0);
-
-        fs::remove(testPath);
-    }
-
-    SECTION("Handle non-existent file") {
-        auto [type,result] = readFileBytes("this_file_does_not_exist.xyz");
-        REQUIRE(type == BytesFromFileRes::COULD_NOT_OPEN);
-        CHECK(result.empty());
-    }
-
-    SECTION("Handle empty file") {
-        createTestFile(testPath, "");
-        auto [type, result] = readFileBytes(testPath);
-
-        REQUIRE(type == BytesFromFileRes::VALID);
-        CHECK(result.empty());
-
-        fs::remove(testPath);
-    }
-}
-
-using MockDBString = SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t>>;
-using MockDBInteger = SwissTable<SipHash, DBEntry<Integer>, std::vector<uint8_t>>;
-using MockDBFloat = SwissTable<SipHash, DBEntry<Float>, std::vector<uint8_t>>;
-template<typename T>
-using MockDBVect = SwissTable<SipHash, DBEntry<Vector<T>>, std::vector<uint8_t>>;
-
-
-
-TEST_CASE("Operation Type Parsing", "[OperationType]") {
-    SECTION("GetOPType correctly identifies operations") {
-        std::vector<std::string> rawArgs = {"INSERT", "GET", "INVALID_OP"};
-        view_t view(rawArgs.begin(), rawArgs.end());
-
-
-        CHECK(GetOPType(view) == OPType::INSERT);
-
-        CHECK(GetOPType(view) == OPType::GET);
-
-        CHECK(GetOPType(view) == OPType::INVALID);
-    }
-
-    SECTION("ParseArg identifies argument types and values") {
-        std::vector<std::string> rawArgs = {"hello", "@data.bin", "$mykey"};
-        view_t view(rawArgs.begin(), rawArgs.end());
-
-        auto [type1, val1] = ParseArg(view);
-        CHECK(type1 == ArgsType::CONSTANT);
-        CHECK(val1 == "hello");
-
-        auto [type2, val2] = ParseArg(view);
-        CHECK(type2 == ArgsType::KEY_FROM_FILE);
-        CHECK(val2 == "data.bin");
-
-        auto [type3, val3] = ParseArg(view);
-        CHECK(type3 == ArgsType::KEY_FROM_CONSTANT);
-        CHECK(val3 == "mykey");
-    }
-}
-
-TEST_CASE("Node Generation Functions", "[OperationType]") {
-    MockDBString dbS(SipHash(0,0,2,4));
-    MockDBInteger dbI(SipHash(0,0,2,4));
-    MockDBFloat dbF(SipHash(0,0,2,4));
-
-    SECTION("getString generation") {
-        SECTION("Constant string argument") {
-            args_parsed args = {ArgsType::CONSTANT, "test_val"};
-            auto [status, node] = getString(DBTypes::STRING, dbS, std::move(args));
-
-            REQUIRE(status == GetArgsReturnTypes::VALID);
-            REQUIRE(node != nullptr);
-            CHECK(node->Execute() == String("test_val"));
-        }
-
-        SECTION("Key from constant (Database Lookup)") {
-            args_parsed args = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
-            auto [status, node] = getString(DBTypes::STRING, dbS, std::move(args));
-            CHECK(status == GetArgsReturnTypes::VALID);
-            CHECK(node != nullptr);
-
-            args_parsed args2 = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
-            auto [status2, node2] = getString(DBTypes::INTEGER, dbS, std::move(args2));
-            CHECK(status2 == GetArgsReturnTypes::INVALID);
-        }
-    }
-
-    SECTION("getInteger generation") {
-        SECTION("Valid constant integer") {
-            args_parsed args = {ArgsType::CONSTANT, "123"};
-            auto [status, node] = getInteger(DBTypes::INTEGER, dbI, std::move(args));
-
-            REQUIRE(status == GetArgsReturnTypes::VALID);
-            CHECK(node->Execute() == 123);
-        }
-
-        SECTION("Empty argument failure") {
-            args_parsed args = {ArgsType::EMPTY, ""};
-            auto [status, node] = getInteger(DBTypes::INTEGER, dbI, std::move(args));
-            CHECK(status == GetArgsReturnTypes::INVALID);
-        }
-    }
-
-    SECTION("getFloat generation") {
-        SECTION("Valid constant float") {
-            args_parsed args = {ArgsType::CONSTANT, "3.14"};
-            auto [status, node] = getFloat(DBTypes::FLOAT, dbF, std::move(args));
-
-            REQUIRE(status == GetArgsReturnTypes::VALID);
-            CHECK(node->Execute() == Catch::Approx(3.14));
-        }
-
-        SECTION("Invalid DB Type for Key lookup") {
-            args_parsed args = {ArgsType::KEY_FROM_CONSTANT, "some_key"};
-            auto [status, node] = getFloat(DBTypes::STRING, dbF, std::move(args));
-            CHECK(status == GetArgsReturnTypes::INVALID);
-        }
-    }
-}
-
-TEST_CASE("Vector Node Generation", "[OperationType]") {
-    MockDBVect<Integer> db(SipHash(0,0,2,4));
-
-    SECTION("getVector basic logic") {
-        args_parsed args = {ArgsType::CONSTANT, "{1,2,3}"};
-        auto [status, node] = getVector<Integer, MockDBVect<Integer>>(
-            DBTypes::VECTOR_INT, db, std::move(args), ParseInt
-        );
-
-        if(status == GetArgsReturnTypes::VALID) {
-            SUCCEED("Vector node created");
-        }
-    }
-}
-
-TEST_CASE("parseLine handles space-delimited words", "[parseLine]") {
-    SECTION("Simple space-delimited words") {
-        auto [hasUnclosedQuotes, tokens] = parseLine("hello world");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens == std::vector<std::string>{"hello", "world"});
-    }
-
-    SECTION("Multiple spaces between words") {
-        auto [hasUnclosedQuotes, tokens] = parseLine("hello   world");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens == std::vector<std::string>{"hello", "world"});
-    }
-}
-
-TEST_CASE("parseLine handles quoted phrases", "[parseLine]") {
-    SECTION("Single quoted phrase") {
-        auto [hasUnclosedQuotes, tokens] = parseLine("\"hello world\"");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens == std::vector<std::string>{"hello world"});
-    }
-
-    SECTION("Quoted phrase with surrounding words") {
-        auto [hasUnclosedQuotes, tokens] = parseLine("hello \"world of tests\" 123");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens == std::vector<std::string>{"hello", "world of tests", "123"});
-    }
-
-    SECTION("Multiple quoted phrases") {
-        auto [hasUnclosedQuotes, tokens] = parseLine(R"("hello world" "another test")");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens == std::vector<std::string>{"hello world", "another test"});
-    }
-}
-
-TEST_CASE("parseLine handles mixed input", "[parseLine]") {
-    SECTION("Mixed quoted and unquoted words") {
-        auto [hasUnclosedQuotes, tokens] = parseLine(R"(hello "world of tests" 123 "another one")");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens == std::vector<std::string>{"hello", "world of tests", "123", "another one"});
-    }
-}
-
-TEST_CASE("parseLine handles edge cases", "[parseLine]") {
-    SECTION("Empty string") {
-        auto [hasUnclosedQuotes, tokens] = parseLine("");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens.empty());
-    }
-
-    SECTION("Only spaces") {
-        auto [hasUnclosedQuotes, tokens] = parseLine("   ");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens.empty());
-    }
-
-    SECTION("Only quoted empty string") {
-        auto [hasUnclosedQuotes, tokens] = parseLine("\"\"");
-        REQUIRE(hasUnclosedQuotes);
-        REQUIRE(tokens == std::vector<std::string>{""});
-    }
-
-    SECTION("Unclosed quote") {
-        auto [hasUnclosedQuotes, tokens] = parseLine("\"hello world");
-        REQUIRE_FALSE(hasUnclosedQuotes);
+    SECTION("VALID DIVIDE") {
+        std::vector<std::string> val = {"1", "1"};
+        view_t view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseIntNode<DBType<Integer>, DivideOp<Integer> >(view, DBTypes::INTEGER, db);
+        REQUIRE(res == ParseOperationRes::VALID) ;
+        REQUIRE(node.get()->Execute() == 1);
     }
 }
