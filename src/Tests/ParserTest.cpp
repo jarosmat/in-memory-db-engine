@@ -156,3 +156,46 @@ TEST_CASE("Parse Float Node") {
         REQUIRE(node.get()->Execute() == 1.0);
     }
 }
+
+
+TEST_CASE("Parse String Op String Num") {
+    DBType<String> db(SipHash(0, 0, 2, 4));
+
+    SECTION("Invalid Count") {
+        std::vector<std::string> val = {"String"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseStringOpStringNum<DBType<String>, PrefixNode>(view, DBTypes::STRING, db);
+        REQUIRE(res == ParseOperationRes::INVALID_ARG_C);
+    }
+
+    SECTION("Invalid Args") {
+        std::vector<std::string> val = {"String" , "XD"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseStringOpStringNum<DBType<String>, PrefixNode>(view, DBTypes::STRING, db);
+        REQUIRE(res == ParseOperationRes::INVALID_ARGS);
+    }
+
+    SECTION("Valid Count Prefix") {
+        std::vector<std::string> val = {"String", "1"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseStringOpStringNum<DBType<String>, PrefixNode>(view, DBTypes::STRING, db);
+        REQUIRE(res == ParseOperationRes::VALID);
+        REQUIRE(node.get()->Execute() == String("S"));
+    }
+
+    SECTION("Valid Count Suffix") {
+        std::vector<std::string> val = {"String", "1"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseStringOpStringNum<DBType<String>, SuffixNode>(view, DBTypes::STRING, db);
+        REQUIRE(res == ParseOperationRes::VALID);
+        REQUIRE(node.get()->Execute() == String("g"));
+    }
+
+    SECTION("Valid Count At") {
+        std::vector<std::string> val = {"String", "1"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseStringOpStringNum<DBType<String>, AtNode>(view, DBTypes::STRING, db);
+        REQUIRE(res == ParseOperationRes::VALID);
+        REQUIRE(node.get()->Execute() == String("t"));
+    }
+}
