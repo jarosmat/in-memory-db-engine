@@ -360,6 +360,7 @@ std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DBTypes dbType, DB &d
         if (type == ArgsType::KEY_FROM_CONSTANT) {
             auto key = stringBytes(std::move(val));
             auto res = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
+            return {GetArgsReturnTypes::VALID, std::move(res)};
         }
 
         if (type == ArgsType::KEY_FROM_FILE) {
