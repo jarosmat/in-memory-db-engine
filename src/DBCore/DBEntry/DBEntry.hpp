@@ -180,4 +180,11 @@ DBEntry<E> GetEntry(E && val, T&& ttl) {
     DBEntry_t<E,T> entry_t(std::forward<E>(val), std::forward<T>(ttl));
     return DBEntry<E>(std::move(entry_t));
 }
+
+template<typename E>
+std::ostream& operator<<(std::ostream& os, DBEntry<E>& obj)
+{
+    os << obj.GetRef();
+    return os;
+}
 #endif //PROJECT_DBENTRY_HPP
