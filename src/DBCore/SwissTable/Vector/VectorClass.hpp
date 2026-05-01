@@ -41,7 +41,7 @@ public:
 
     void Insert(size_t i, T &&val);
 
-    void Insert(size_t i, const T& val);
+    void Insert(size_t i, const T &val);
 
     const T &CLastEntry() const;
 
