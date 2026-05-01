@@ -858,28 +858,6 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, DBTypes dbTyp
 std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
 
 
-struct QueueEntry {
-    Timepoint timepoint{};
-    std::chrono::milliseconds ttl;
-    std::vector<uint8_t> key;
-    bool invalid = false;
-
-
-    QueueEntry(const std::chrono::milliseconds ttl, const std::vector<uint8_t> &key) : ttl(ttl), key(key) {
-    }
-
-    [[nodiscard]] bool Expired() const {
-        return timepoint.Elapsed(ttl) || invalid;
-    }
-
-    [[nodiscard]] std::chrono::milliseconds RemainingTime() const {
-        return timepoint.RemainingTime(ttl);
-    }
-
-    [[nodiscard]] bool Invalid() const {
-        return invalid;
-    }
-};
 
 struct CompareQueueEntry {
     bool operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const;
