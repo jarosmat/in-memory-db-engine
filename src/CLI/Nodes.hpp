@@ -5,6 +5,7 @@
 #include "String.hpp"
 #include "SwissTable.hpp"
 #include "DBEntry.hpp"
+#include "DBType.hpp"
 #include "SipHash.hpp"
 
 class BaseNode {
@@ -13,6 +14,7 @@ public:
 };
 
 using BaseNodePtr = std::unique_ptr<BaseNode>;
+// using RetVal = std::pair<DBTypes, AllValuePack>;
 
 template<typename T>
 class Node : BaseNode {
@@ -206,7 +208,7 @@ class PopNode : public VectNode<T> {
 public:
     Vector<T> Execute() override {
         auto val = vect->Execute();
-        val.Remove();
+        val.Remove(val.Count() - 1);
         return val;
     }
 
@@ -227,9 +229,9 @@ public:
         return val;
     }
 
-    VInsertNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
-                std::unique_ptr<NumberNode<Integer> > i) : vect(std::move(vect)), what(std::move(what)),
-                                                           i(std::move(i)) {
+    VInsertNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > i,
+                std::unique_ptr<Node<T> > what) : vect(std::move(vect)), what(std::move(what)),
+                                                  i(std::move(i)) {
     }
 };
 
@@ -264,19 +266,21 @@ public:
         return val;
     }
 
-    SetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<Node<T> > what,
-            std::unique_ptr<NumberNode<Integer> > i) : vect(std::move(vect)), what(std::move(what)), i(std::move(i)) {
+    SetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > i,
+            std::unique_ptr<Node<T> > what) : vect(std::move(vect)), what(std::move(what)), i(std::move(i)) {
     }
 };
 
 template<typename T>
-class VgetNode : public VectNode<T> {
+class VgetNode : public Node<T> {
     std::unique_ptr<VectNode<T> > vect;
     std::unique_ptr<NumberNode<Integer> > i;
 
 public:
     T Execute() override {
-        return vect->Execute()[i];
+        auto index = i.get()->Execute();
+        auto vectVal = vect.get()->Execute();
+        return vectVal[index];
     }
 
     VgetNode(std::unique_ptr<VectNode<T> > &&vect, std::unique_ptr<NumberNode<Integer> > &&i) : vect(std::move(vect)),
@@ -285,7 +289,7 @@ public:
 };
 
 template<typename T>
-class SizeNode : public VectNode<T> {
+class SizeNode : public Node<Integer> {
     std::unique_ptr<VectNode<T> > vect;
 
 public:
@@ -302,6 +306,7 @@ using DBType = SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> >;
 
 template<typename T>
 class DBopsNode : BaseNode {
+protected:
     DBType<T> &db;
 
 public:
@@ -366,12 +371,12 @@ public:
 };
 
 template<typename T>
-class ErrorNode : public DBopsNode<T> {
+class ErrorNode : public Node<T> {
     std::ostream &stream;
     std::vector<std::string> val;
 
 public:
-    void Execute() override {
+    T Execute() override {
         for (auto &&s: val) {
             stream << s;
         }
@@ -396,8 +401,9 @@ public:
         stream << op->Execute() << std::endl;
     }
 
-    ToStreamNode(std::ostream &stream, std::unique_ptr<Node<OPT> > &&op, DBType<T>&db) :DBopsNode<T>(db),  op(std::move(op)),
-                                                                         stream(stream) {
+    ToStreamNode(std::ostream &stream, std::unique_ptr<Node<OPT> > &&op, DBType<T> &db) : DBopsNode<T>(db),
+        op(std::move(op)),
+        stream(stream) {
     }
 };
 
@@ -410,7 +416,7 @@ public:
         err.get()->Execute();
     }
 
-    ExecuteErrorNode(std::unique_ptr<ErrorNode<T> > &&err, DBType<T> &db) :DBopsNode<T>(db), err(std::move(err)) {
+    ExecuteErrorNode(std::unique_ptr<ErrorNode<T> > &&err, DBType<T> &db) : DBopsNode<T>(db), err(std::move(err)) {
     }
 };
 
