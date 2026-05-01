@@ -72,42 +72,87 @@ TEST_CASE("Parse Int Node") {
 
     SECTION("INVALID COUNT") {
         std::vector<std::string> val = {"1"};
-        view_t view = view_t(val.begin(), val.end());
+        auto view = view_t(val.begin(), val.end());
         auto [res, node] = ParseIntNode<DBType<Integer>, AddOp<Integer> >(view, DBTypes::INTEGER, db);
         REQUIRE(res == ParseOperationRes::INVALID_ARG_C) ;
     }
     SECTION("INVALID COUNT") {
         std::vector<std::string> val = {"1", "a"};
-        view_t view = view_t(val.begin(), val.end());
+        auto view = view_t(val.begin(), val.end());
         auto [res, node] = ParseIntNode<DBType<Integer>, AddOp<Integer> >(view, DBTypes::INTEGER, db);
         REQUIRE(res == ParseOperationRes::INVALID_ARGS) ;
     }
     SECTION("VALID ADD") {
         std::vector<std::string> val = {"1", "1"};
-        view_t view = view_t(val.begin(), val.end());
+        auto view = view_t(val.begin(), val.end());
         auto [res, node] = ParseIntNode<DBType<Integer>, AddOp<Integer> >(view, DBTypes::INTEGER, db);
         REQUIRE(res == ParseOperationRes::VALID) ;
         REQUIRE(node.get()->Execute() == 2);
     }
     SECTION("VALID SUBTRACT") {
         std::vector<std::string> val = {"1", "1"};
-        view_t view = view_t(val.begin(), val.end());
+        auto view = view_t(val.begin(), val.end());
         auto [res, node] = ParseIntNode<DBType<Integer>, SubtractOp<Integer> >(view, DBTypes::INTEGER, db);
         REQUIRE(res == ParseOperationRes::VALID) ;
         REQUIRE(node.get()->Execute() == 0);
     }
     SECTION("VALID MULTIPLY") {
         std::vector<std::string> val = {"1", "1"};
-        view_t view = view_t(val.begin(), val.end());
+        auto view = view_t(val.begin(), val.end());
         auto [res, node] = ParseIntNode<DBType<Integer>, MultiplyOp<Integer> >(view, DBTypes::INTEGER, db);
         REQUIRE(res == ParseOperationRes::VALID) ;
         REQUIRE(node.get()->Execute() == 1);
     }
     SECTION("VALID DIVIDE") {
         std::vector<std::string> val = {"1", "1"};
-        view_t view = view_t(val.begin(), val.end());
+        auto view = view_t(val.begin(), val.end());
         auto [res, node] = ParseIntNode<DBType<Integer>, DivideOp<Integer> >(view, DBTypes::INTEGER, db);
         REQUIRE(res == ParseOperationRes::VALID) ;
         REQUIRE(node.get()->Execute() == 1);
+    }
+}
+
+TEST_CASE("Parse Float Node") {
+    DBType<Float> db(SipHash(0, 0, 2, 4));
+
+    SECTION("INVALID COUNT") {
+        std::vector<std::string> val = {"1.0"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view, DBTypes::FLOAT, db);
+        REQUIRE(res == ParseOperationRes::INVALID_ARG_C) ;
+    }
+    SECTION("INVALID COUNT") {
+        std::vector<std::string> val = {"1", "a"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view, DBTypes::FLOAT, db);
+        REQUIRE(res == ParseOperationRes::INVALID_ARGS) ;
+    }
+    SECTION("VALID ADD") {
+        std::vector<std::string> val = {"1.0", "1.0"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view, DBTypes::FLOAT, db);
+        REQUIRE(res == ParseOperationRes::VALID) ;
+        REQUIRE(node.get()->Execute() == 2.0);
+    }
+    SECTION("VALID SUBTRACT") {
+        std::vector<std::string> val = {"1.0", "1.0"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseFloatNode<DBType<Float>, SubtractOp<Float> >(view, DBTypes::FLOAT, db);
+        REQUIRE(res == ParseOperationRes::VALID) ;
+        REQUIRE(node.get()->Execute() == 0.0);
+    }
+    SECTION("VALID MULTIPLY") {
+        std::vector<std::string> val = {"1.0", "1.0"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseFloatNode<DBType<Float>, MultiplyOp<Float> >(view, DBTypes::FLOAT, db);
+        REQUIRE(res == ParseOperationRes::VALID) ;
+        REQUIRE(node.get()->Execute() == 1.0);
+    }
+    SECTION("VALID DIVIDE") {
+        std::vector<std::string> val = {"1.0", "1.0"};
+        auto view = view_t(val.begin(), val.end());
+        auto [res, node] = ParseFloatNode<DBType<Float>, DivideOp<Float> >(view, DBTypes::FLOAT, db);
+        REQUIRE(res == ParseOperationRes::VALID) ;
+        REQUIRE(node.get()->Execute() == 1.0);
     }
 }
