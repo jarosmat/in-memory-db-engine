@@ -13,7 +13,7 @@
 #include <random>
 #include <stop_token>
 #include <thread>
-
+#include "QueueEntry.hpp"
 #include "DBEntry.hpp"
 
 template<typename T>
