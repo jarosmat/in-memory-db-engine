@@ -110,12 +110,12 @@ TEST_CASE("Vector Parsing Logic", "[vector]") {
     SECTION("Malformed structures") {
         CHECK(ParseVect<Integer>("1, 2, 3", ParseInt).first == VectorParsingRes::INVALID_VECT);
         CHECK(ParseVect<Integer>("{1, abc, 3}", ParseInt).first == VectorParsingRes::INVALID_ITEM);
-        auto trailing = ParseVect<Integer>("{1, 2, }", ParseInt);
-        CHECK(trailing.first == VectorParsingRes::INVALID_VECT);
-        auto first = ParseVect<Integer>("{ , 2, 3 }", ParseInt);
-        CHECK(first.first == VectorParsingRes::INVALID_VECT);
-        auto middle = ParseVect<Integer>("{1, , 3}", ParseInt);
-        CHECK(middle.first == VectorParsingRes::INVALID_VECT);
+        auto [fst, snd] = ParseVect<Integer>("{1, 2, }", ParseInt);
+        CHECK(fst == VectorParsingRes::INVALID_VECT);
+        auto [fst1, snd1] = ParseVect<Integer>("{ , 2, 3 }", ParseInt);
+        CHECK(fst1 == VectorParsingRes::INVALID_VECT);
+        auto [fst2, snd2] = ParseVect<Integer>("{1, , 3}", ParseInt);
+        CHECK(fst2 == VectorParsingRes::INVALID_VECT);
     }
 }
 
@@ -178,12 +178,11 @@ TEST_CASE("readFileToBytes handles various file scenarios", "[file]") {
     }
 }
 
-using MockDBString = SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t>>;
-using MockDBInteger = SwissTable<SipHash, DBEntry<Integer>, std::vector<uint8_t>>;
-using MockDBFloat = SwissTable<SipHash, DBEntry<Float>, std::vector<uint8_t>>;
+using MockDBString = SwissTable<SipHash, DBEntry<String>, std::vector<uint8_t> >;
+using MockDBInteger = SwissTable<SipHash, DBEntry<Integer>, std::vector<uint8_t> >;
+using MockDBFloat = SwissTable<SipHash, DBEntry<Float>, std::vector<uint8_t> >;
 template<typename T>
-using MockDBVect = SwissTable<SipHash, DBEntry<Vector<T>>, std::vector<uint8_t>>;
-
+using MockDBVect = SwissTable<SipHash, DBEntry<Vector<T> >, std::vector<uint8_t> >;
 
 
 TEST_CASE("Operation Type Parsing", "[OperationType]") {
@@ -218,14 +217,14 @@ TEST_CASE("Operation Type Parsing", "[OperationType]") {
 }
 
 TEST_CASE("Node Generation Functions", "[OperationType]") {
-    MockDBString dbS(SipHash(0,0,2,4));
-    MockDBInteger dbI(SipHash(0,0,2,4));
-    MockDBFloat dbF(SipHash(0,0,2,4));
+    MockDBString dbS(SipHash(0, 0, 2, 4));
+    MockDBInteger dbI(SipHash(0, 0, 2, 4));
+    MockDBFloat dbF(SipHash(0, 0, 2, 4));
 
     SECTION("getString generation") {
         SECTION("Constant string argument") {
             args_parsed args = {ArgsType::CONSTANT, "test_val"};
-            auto [status, node] = getString( dbS, std::move(args));
+            auto [status, node] = getString(dbS, std::move(args));
 
             REQUIRE(status == GetArgsReturnTypes::VALID);
             REQUIRE(node != nullptr);
@@ -263,7 +262,7 @@ TEST_CASE("Node Generation Functions", "[OperationType]") {
     SECTION("getFloat generation") {
         SECTION("Valid constant float") {
             args_parsed args = {ArgsType::CONSTANT, "3.14"};
-            auto [status, node] = getFloat( dbF, std::move(args));
+            auto [status, node] = getFloat(dbF, std::move(args));
 
             REQUIRE(status == GetArgsReturnTypes::VALID);
             CHECK(node->Execute() == Catch::Approx(3.14));
@@ -278,13 +277,13 @@ TEST_CASE("Node Generation Functions", "[OperationType]") {
 }
 
 TEST_CASE("Vector Node Generation", "[OperationType]") {
-    MockDBVect<Integer> db(SipHash(0,0,2,4));
+    MockDBVect<Integer> db(SipHash(0, 0, 2, 4));
 
     SECTION("getVector basic logic") {
         args_parsed args = {ArgsType::CONSTANT, "{1,2,3}"};
-        auto [status, node] = getVector<Integer, MockDBVect<Integer>>(db, std::move(args), ParseInt);
 
-        if(status == GetArgsReturnTypes::VALID) {
+        if (auto [status, node] = getVector<Integer, MockDBVect<Integer> >(db, std::move(args), ParseInt);
+            status == GetArgsReturnTypes::VALID) {
             SUCCEED("Vector node created");
         }
     }
@@ -389,14 +388,14 @@ TEST_CASE("Parse Int Node") {
     SECTION("VALID MULTIPLY") {
         std::vector<std::string> val = {"1", "1"};
         auto view = view_t(val.begin(), val.end());
-        auto [res, node] = ParseIntNode<DBType<Integer>, MultiplyOp<Integer> >(view,  db);
+        auto [res, node] = ParseIntNode<DBType<Integer>, MultiplyOp<Integer> >(view, db);
         REQUIRE(res == ParseOperationRes::VALID) ;
         REQUIRE(node.get()->Execute() == 1);
     }
     SECTION("VALID DIVIDE") {
         std::vector<std::string> val = {"1", "1"};
         auto view = view_t(val.begin(), val.end());
-        auto [res, node] = ParseIntNode<DBType<Integer>, DivideOp<Integer> >(view,  db);
+        auto [res, node] = ParseIntNode<DBType<Integer>, DivideOp<Integer> >(view, db);
         REQUIRE(res == ParseOperationRes::VALID) ;
         REQUIRE(node.get()->Execute() == 1);
     }
@@ -408,19 +407,19 @@ TEST_CASE("Parse Float Node") {
     SECTION("INVALID COUNT") {
         std::vector<std::string> val = {"1.0"};
         auto view = view_t(val.begin(), val.end());
-        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view,  db);
+        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view, db);
         REQUIRE(res == ParseOperationRes::INVALID_ARG_C) ;
     }
     SECTION("INVALID COUNT") {
         std::vector<std::string> val = {"1", "a"};
         auto view = view_t(val.begin(), val.end());
-        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view,  db);
+        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view, db);
         REQUIRE(res == ParseOperationRes::INVALID_ARGS) ;
     }
     SECTION("VALID ADD") {
         std::vector<std::string> val = {"1.0", "1.0"};
         auto view = view_t(val.begin(), val.end());
-        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view,  db);
+        auto [res, node] = ParseFloatNode<DBType<Float>, AddOp<Float> >(view, db);
         REQUIRE(res == ParseOperationRes::VALID) ;
         REQUIRE(node.get()->Execute() == 2.0);
     }
@@ -511,7 +510,7 @@ TEST_CASE("Parse String Op String String") {
     SECTION("Valid Count Find") {
         std::vector<std::string> val = {"StringString", "S"};
         auto view = view_t(val.begin(), val.end());
-        auto [res, node] = ParseStringOpStringString<DBType<String>, FindNode>(view,  db);
+        auto [res, node] = ParseStringOpStringString<DBType<String>, FindNode>(view, db);
 
         Vector<Integer> resV;
         resV.Append(0);
@@ -532,68 +531,76 @@ TEST_CASE("Parse Vector operation Vector value") {
     SECTION("Vector Integer") {
         DBType<Vector<Integer> > db(SipHash(0, 0, 2, 4));
         std::vector<std::uint8_t> key = {'k', 'e', 'y'};
+        auto mss = std::chrono::milliseconds(1);
+        auto entry = std::make_unique<QueueEntry>(mss, key);
         auto dbEntry = db.LookUp(std::move(key));
         Vector<Integer> vec;
         for (std::size_t i = 0; i < 4; ++i) {
             vec.Append(0);
         }
-        auto inEntry = GetEntry(std::move(vec), ImmortalSentinel());
+        auto inEntry = GetEntry(std::move(vec), ImmortalSentinel(), entry.get());
         dbEntry.SetValue(std::move(inEntry));
 
 
         SECTION("Invalid args count") {
             std::vector<std::string> val = {"$key"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
         }
         SECTION("Valid args count") {
             std::vector<std::string> val = {"$key", "xd"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARGS);
         }
 
         SECTION("Valid args Append") {
             std::vector<std::string> val = {"$key", "1"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
 
             REQUIRE(res.get()->Execute().Count() == 5);
         }
-
     }
 }
+
 TEST_CASE("Parse Vector operation Vector") {
     SECTION("Vector Integer") {
         DBType<Vector<Integer> > db(SipHash(0, 0, 2, 4));
         std::vector<std::uint8_t> key = {'k', 'e', 'y'};
+        auto mss = std::chrono::milliseconds(1);
+        auto entry = std::make_unique<QueueEntry>(mss, key);
+
         auto dbEntry = db.LookUp(std::move(key));
         Vector<Integer> vec;
         for (std::size_t i = 0; i < 4; ++i) {
             vec.Append(0);
         }
-        auto inEntry = GetEntry(std::move(vec), ImmortalSentinel());
+        auto inEntry = GetEntry(std::move(vec), ImmortalSentinel(), entry.get());
         dbEntry.SetValue(std::move(inEntry));
 
         SECTION("Invalid args count") {
             std::vector<std::string> val = {"$key", "8"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, PopNode<Integer>, Vector<Integer> >(view,  db);
+            auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, PopNode<Integer>, Vector<Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
         }
         SECTION("Valid args") {
             std::vector<std::string> val = {"key"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, PopNode<Integer>, Vector<Integer> >(view,  db);
+            auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, PopNode<Integer>, Vector<Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARGS);
         }
 
         SECTION("Valid args Pop") {
-            std::vector<std::string> val = {"$key" };
+            std::vector<std::string> val = {"$key"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, PopNode<Integer>, Vector<Integer> >(view,  db);
+            auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, PopNode<Integer>, Vector<Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
 
             REQUIRE(res.get()->Execute().Count() == 3);
@@ -601,14 +608,13 @@ TEST_CASE("Parse Vector operation Vector") {
 
 
         SECTION("Valid args Size") {
-            std::vector<std::string> val = {"$key" };
+            std::vector<std::string> val = {"$key"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, SizeNode<Integer>, Vector<Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
 
             REQUIRE(res.get()->Execute() == 4);
         }
-
     }
 }
 
@@ -616,31 +622,37 @@ TEST_CASE("Parse Vector operation Vector Num Val") {
     SECTION("Vector Integer") {
         DBType<Vector<Integer> > db(SipHash(0, 0, 2, 4));
         std::vector<std::uint8_t> key = {'k', 'e', 'y'};
+        auto mss = std::chrono::milliseconds(1);
+        auto entry = std::make_unique<QueueEntry>(mss, key);
+
         auto dbEntry = db.LookUp(std::move(key));
         Vector<Integer> vec;
         for (std::size_t i = 0; i < 4; ++i) {
             vec.Append(0);
         }
-        auto inEntry = GetEntry(std::move(vec), ImmortalSentinel());
+        auto inEntry = GetEntry(std::move(vec), ImmortalSentinel(), entry.get());
         dbEntry.SetValue(std::move(inEntry));
 
         SECTION("Invalid args count") {
             std::vector<std::string> val = {"$key", "8"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, VInsertNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, VInsertNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
         }
         SECTION("Valid args") {
             std::vector<std::string> val = {"key", "xd", "xd"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, VInsertNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, VInsertNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARGS);
         }
 
         SECTION("Valid args VInsert") {
             std::vector<std::string> val = {"$key", "0", "1"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, VInsertNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, VInsertNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
 
             auto resVal = res.get()->Execute();
@@ -651,16 +663,16 @@ TEST_CASE("Parse Vector operation Vector Num Val") {
 
 
         SECTION("Valid args Set") {
-            std::vector<std::string> val = {"$key", "0" , "1"};
+            std::vector<std::string> val = {"$key", "0", "1"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, SetNode<Integer>, Vector<Integer> >(view,  db);
+            auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, SetNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
 
             auto resVal = res.get()->Execute();
 
             REQUIRE(resVal[0] == 1);
         }
-
     }
 }
 
@@ -669,31 +681,37 @@ TEST_CASE("Parse Vector operation Vector Num") {
     SECTION("Vector Integer") {
         DBType<Vector<Integer> > db(SipHash(0, 0, 2, 4));
         std::vector<std::uint8_t> key = {'k', 'e', 'y'};
+        auto mss = std::chrono::milliseconds(1);
+        auto entry = std::make_unique<QueueEntry>(mss, key);
+
         auto dbEntry = db.LookUp(std::move(key));
         Vector<Integer> vec;
         for (std::size_t i = 0; i < 4; ++i) {
             vec.Append(0);
         }
-        auto inEntry = GetEntry(std::move(vec), ImmortalSentinel());
+        auto inEntry = GetEntry(std::move(vec), ImmortalSentinel(), entry.get());
         dbEntry.SetValue(std::move(inEntry));
 
         SECTION("Invalid args count") {
             std::vector<std::string> val = {"$key"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, RemoveNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, RemoveNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
         }
         SECTION("Valid args") {
             std::vector<std::string> val = {"key", "xd"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, RemoveNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, RemoveNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARGS);
         }
 
         SECTION("Valid args Remove") {
             std::vector<std::string> val = {"$key", "0"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, RemoveNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, RemoveNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
 
             auto resVal = res.get()->Execute();
@@ -703,16 +721,16 @@ TEST_CASE("Parse Vector operation Vector Num") {
 
 
         SECTION("Valid args VGet") {
-            std::vector<std::string> val = {"$key", "0" };
+            std::vector<std::string> val = {"$key", "0"};
             auto view = view_t(val.begin(), val.end());
-            auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, VgetNode<Integer>, Vector<Integer> >(view, db);
+            auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, VgetNode<Integer>, Vector<
+                Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
 
             auto resVal = res.get()->Execute();
 
             REQUIRE(resVal == 0);
         }
-
     }
 }
 
@@ -770,14 +788,16 @@ TEST_CASE("Parse Target") {
 TEST_CASE("Parse One key op") {
     DBType<Integer> db(SipHash(0, 0, 2, 4));
     std::vector<std::uint8_t> key = {'k', 'e', 'y'};
+    auto mss = std::chrono::milliseconds(1);
+    auto entry = std::make_unique<QueueEntry>(mss, key);
     auto dbEntry = db.LookUp(std::move(key));
-    auto inEntry = GetEntry(static_cast<Integer>(8), ImmortalSentinel());
+    auto inEntry = GetEntry(static_cast<Integer>(8), ImmortalSentinel(), entry.get());
     dbEntry.SetValue(std::move(inEntry));
 
     SECTION("Invalid args count") {
         std::vector<std::string> val = {"$key", "8"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer > >(view, std::cout, db);
+        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer> >(view, std::cout, db);
         REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
     }
 
@@ -785,7 +805,7 @@ TEST_CASE("Parse One key op") {
         std::stringstream stream;
         std::vector<std::string> val = {"key"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer > >(view, stream, db);
+        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer> >(view, stream, db);
         REQUIRE(msg == ParseOperationRes::VALID);
 
         res.get()->Execute();
@@ -797,7 +817,7 @@ TEST_CASE("Parse One key op") {
         std::stringstream stream;
         std::vector<std::string> val = {"keyy"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer > >(view, stream, db);
+        auto [msg, res] = ParseOneKeyOP<Integer, GetNode<Integer> >(view, stream, db);
         REQUIRE(msg == ParseOperationRes::VALID);
 
         res.get()->Execute();
@@ -807,10 +827,12 @@ TEST_CASE("Parse One key op") {
 }
 
 TEST_CASE("Parse Delete") {
-    DBType<Integer> db(SipHash(0, 0, 2, 4));
     std::vector<std::uint8_t> key = {'k', 'e', 'y'};
+    auto mss = std::chrono::milliseconds(1);
+    auto entry = std::make_unique<QueueEntry>(mss, key);
+    DBType<Integer> db(SipHash(0, 0, 2, 4));
     auto dbEntry = db.LookUp(std::move(key));
-    auto inEntry = GetEntry(static_cast<Integer>(8), ImmortalSentinel());
+    auto inEntry = GetEntry(static_cast<Integer>(8), ImmortalSentinel(), entry.get());
     dbEntry.SetValue(std::move(inEntry));
 
     SECTION("Invalid args count") {
@@ -836,18 +858,19 @@ TEST_CASE("Parse Delete") {
 
 TEST_CASE("Parse Insert") {
     DBType<Integer> db(SipHash(0, 0, 2, 4));
+    ttlQueueType queue;
 
     SECTION("Invalid args count") {
         std::vector<std::string> val = {"$key"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseInsert<Integer>(view,  db, {ImmortalSentinel(), TTLTypes::IMMORTAL});
+        auto [msg, res] = ParseInsert<Integer>(view, db, {ImmortalSentinel(), TTLTypes::IMMORTAL}, queue);
         REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
     }
 
     SECTION("Valid args Insert") {
         std::vector<std::string> val = {"key", "8"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseInsert<Integer>(view,  db,  {ImmortalSentinel(), TTLTypes::IMMORTAL});
+        auto [msg, res] = ParseInsert<Integer>(view, db, {ImmortalSentinel(), TTLTypes::IMMORTAL}, queue);
         REQUIRE(msg == ParseOperationRes::VALID);
 
         res.get()->Execute();
