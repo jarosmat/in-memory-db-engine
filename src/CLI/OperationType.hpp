@@ -827,9 +827,7 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl) {
 std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
 
 
-struct CompareQueueEntry {
-    bool operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const;
-};
+
 
 std::unique_ptr<ErrorNode> GetError(ParseOperationRes res, std::size_t expected, std::size_t actual,
                                     std::ostream &outstream, const std::string &file);

@@ -349,9 +349,6 @@ std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
     return {dis(gen), dis(gen)};
 }
 
-bool CompareQueueEntry::operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const {
-    return a->RemainingTime() > b->RemainingTime();
-}
 
 std::unique_ptr<ErrorNode> GetError(const ParseOperationRes res, const std::size_t expected, const std::size_t actual,
                                     std::ostream &outstream, const std::string &file) {

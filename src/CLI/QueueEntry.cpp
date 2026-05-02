@@ -1,6 +1,6 @@
 #include "QueueEntry.hpp"
 
-QueueEntry::QueueEntry(const std::chrono::milliseconds ttl, const std::vector<uint8_t> &key): ttl(ttl), key(key) {
+QueueEntry::QueueEntry(const std::chrono::milliseconds ttl, const std::vector<uint8_t> &key) : ttl(ttl), key(key) {
 }
 
 bool QueueEntry::Expired() const {
@@ -13,4 +13,8 @@ std::chrono::milliseconds QueueEntry::RemainingTime() const {
 
 bool QueueEntry::Invalid() const {
     return invalid;
+}
+
+bool CompareQueueEntry::operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const {
+    return a->RemainingTime() > b->RemainingTime();
 }

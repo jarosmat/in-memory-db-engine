@@ -18,4 +18,8 @@ struct QueueEntry {
     [[nodiscard]] bool Invalid() const;
 };
 
+struct CompareQueueEntry {
+    bool operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const;
+};
+
 #endif //PROJECT_QUEUEENTRY_HPP
