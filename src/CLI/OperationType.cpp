@@ -65,7 +65,7 @@ err_t CouldNotReadFileErr(const std::string &file) {
 }
 
 err_t InvalidArgs() {
-    return {"Invalid arguments: "};
+    return {"Invalid arguments"};
 }
 
 err_t InvalidArgsCount(const std::size_t expected, const std::size_t actual) {
