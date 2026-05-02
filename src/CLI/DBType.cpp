@@ -101,7 +101,7 @@ auto GetTTL(view_t &args) -> ttl_t {
     args.advance(1);
     const auto size = val.size();
 
-    if (size < 3) {
+    if (size < 2) {
         return {variant_t{}, TTLTypes::INVALID};
     }
 
