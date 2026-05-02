@@ -816,14 +816,14 @@ TEST_CASE("Parse Delete") {
     SECTION("Invalid args count") {
         std::vector<std::string> val = {"$key", "8"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseDelete<Integer>(view, std::cout, db);
+        auto [msg, res] = ParseDelete<Integer>(view, db);
         REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
     }
 
     SECTION("Valid args Delete") {
         std::vector<std::string> val = {"key"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseDelete<Integer>(view, std::cout, db);
+        auto [msg, res] = ParseDelete<Integer>(view, db);
         REQUIRE(msg == ParseOperationRes::VALID);
 
         res.get()->Execute();
@@ -840,14 +840,14 @@ TEST_CASE("Parse Insert") {
     SECTION("Invalid args count") {
         std::vector<std::string> val = {"$key"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseInsert<Integer>(view,  db, {ImmortalSentinel(), TTLTypes::IMMORTAL}, std::cout);
+        auto [msg, res] = ParseInsert<Integer>(view,  db, {ImmortalSentinel(), TTLTypes::IMMORTAL});
         REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
     }
 
     SECTION("Valid args Insert") {
         std::vector<std::string> val = {"key", "8"};
         auto view = view_t(val.begin(), val.end());
-        auto [msg, res] = ParseInsert<Integer>(view,  db,  {ImmortalSentinel(), TTLTypes::IMMORTAL}, std::cout);
+        auto [msg, res] = ParseInsert<Integer>(view,  db,  {ImmortalSentinel(), TTLTypes::IMMORTAL});
         REQUIRE(msg == ParseOperationRes::VALID);
 
         res.get()->Execute();

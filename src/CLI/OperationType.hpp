@@ -140,8 +140,7 @@ std::pair<GetArgsReturnTypes, StringPtr> getString(DB &db, args_parsed &&args) {
             return {GetArgsReturnTypes::VALID, std::move(res)};
         }
         if (type == ArgsType::KEY_FROM_FILE) {
-            auto [res, key] = readFileBytes(val);
-            if (res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
                 auto resPtr = std::make_unique<FromDB<String> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -161,8 +160,7 @@ std::pair<GetArgsReturnTypes, NumberPtr<Integer> > getInteger(DB &db, args_parse
         return {GetArgsReturnTypes::INVALID, {}};
     }
     if (type == ArgsType::CONSTANT) {
-        auto [res, valNum] = ParseInt(std::string_view(val.begin(), val.end()));
-        if (res) {
+        if (auto [res, valNum] = ParseInt(std::string_view(val.begin(), val.end())); res) {
             auto resPtr = std::make_unique<ConstantNode<Integer> >(valNum);
             return {GetArgsReturnTypes::VALID, std::move(resPtr)};
         }
@@ -175,8 +173,7 @@ std::pair<GetArgsReturnTypes, NumberPtr<Integer> > getInteger(DB &db, args_parse
             return {GetArgsReturnTypes::VALID, std::move(res)};
         }
         if (type == ArgsType::KEY_FROM_FILE) {
-            auto [res, key] = readFileBytes(val);
-            if (res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
                 auto resPtr = std::make_unique<FromDB<Integer> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -197,8 +194,7 @@ std::pair<GetArgsReturnTypes, NumberPtr<Float> > getFloat(DB &db, args_parsed &&
         return {GetArgsReturnTypes::INVALID, {}};
     }
     if (type == ArgsType::CONSTANT) {
-        auto [res, valNum] = ParseFloat(std::string_view(val.begin(), val.end()));
-        if (res) {
+        if (auto [res, valNum] = ParseFloat(std::string_view(val.begin(), val.end())); res) {
             auto resPtr = std::make_unique<ConstantNode<Float> >(valNum);
             return {GetArgsReturnTypes::VALID, std::move(resPtr)};
         }
@@ -211,8 +207,7 @@ std::pair<GetArgsReturnTypes, NumberPtr<Float> > getFloat(DB &db, args_parsed &&
             return {GetArgsReturnTypes::VALID, std::move(res)};
         }
         if (type == ArgsType::KEY_FROM_FILE) {
-            auto [res, key] = readFileBytes(val);
-            if (res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
                 auto resPtr = std::make_unique<FromDB<Float> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -334,8 +329,7 @@ std::pair<GetArgsReturnTypes, VectPtr<typename vector_t<T>::type> > getVector(
         }
 
         if (type == ArgsType::KEY_FROM_FILE) {
-            auto [res, key] = readFileBytes(val);
-            if (res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
                 auto resPtr = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -365,8 +359,7 @@ std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DB &db, args_parsed &
         }
 
         if (type == ArgsType::KEY_FROM_FILE) {
-            auto [res, key] = readFileBytes(val);
-            if (res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
                 auto resPtr = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -693,13 +686,12 @@ parse_op_r<DBopsNode<T> > ParseOneKeyOP(view_t &view, std::ostream &stream, DBTy
     }
 
     std::unique_ptr<DBopsNode<T> > res;
-    ParseOperationRes resMsg = ParseOperationRes::VALID;
+    auto resMsg = ParseOperationRes::VALID;
     if (type == KeyType::CONSTANT) {
         std::vector<uint8_t> bytes = stringBytes(std::move(val));
         res = std::make_unique<N>(db, std::move(bytes), stream);
     } else if (type == KeyType::FILE_PATH) {
-        auto [msg, bytes] = readFileBytes(val);
-        if (msg == BytesFromFileRes::COULD_NOT_OPEN) {
+        if (auto [msg, bytes] = readFileBytes(val); msg == BytesFromFileRes::COULD_NOT_OPEN) {
             resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
         } else if (msg == BytesFromFileRes::COULD_NOT_READ) {
             resMsg = ParseOperationRes::COULD_NOT_READ_FILE;
@@ -711,7 +703,7 @@ parse_op_r<DBopsNode<T> > ParseOneKeyOP(view_t &view, std::ostream &stream, DBTy
 }
 
 template<typename T>
-parse_op_r<DBopsNode<T> > ParseDelete(view_t &view, std::ostream &stream, DBType<T> &db) {
+parse_op_r<DBopsNode<T> > ParseDelete(view_t &view, DBType<T> &db) {
     if (view.size() != 1) {
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
@@ -723,13 +715,12 @@ parse_op_r<DBopsNode<T> > ParseDelete(view_t &view, std::ostream &stream, DBType
     }
 
     std::unique_ptr<DBopsNode<T> > res;
-    ParseOperationRes resMsg = ParseOperationRes::VALID;
+    auto resMsg = ParseOperationRes::VALID;
     if (type == KeyType::CONSTANT) {
         std::vector<uint8_t> bytes = stringBytes(std::move(val));
         res = std::make_unique<DeleteNode<T> >(db, std::move(bytes));
     } else if (type == KeyType::FILE_PATH) {
-        auto [msg, bytes] = readFileBytes(val);
-        if (msg == BytesFromFileRes::COULD_NOT_OPEN) {
+        if (auto [msg, bytes] = readFileBytes(val); msg == BytesFromFileRes::COULD_NOT_OPEN) {
             resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
         } else if (msg == BytesFromFileRes::COULD_NOT_READ) {
             resMsg = ParseOperationRes::COULD_NOT_READ_FILE;
@@ -743,8 +734,7 @@ parse_op_r<DBopsNode<T> > ParseDelete(view_t &view, std::ostream &stream, DBType
 template<typename T>
 parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db,
                                                 std::function<std::pair<GetArgsReturnTypes, NodePtr<T> >(
-                                                    DBType<T> &, args_parsed &&)> parser, ttl_t ttl,
-                                                std::ostream &stream) {
+                                                    DBType<T> &, args_parsed &&)> parser, ttl_t ttl) {
     if (view.size() != 2) {
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
@@ -805,30 +795,30 @@ parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db,
 }
 
 template<typename T>
-parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl, std::ostream &stream) {
+parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl) {
     if constexpr (get_db_type<T>::value == DBTypes::FLOAT) {
-        return ParseInsertWithParser<T>(view, db, getFloat<DBType<T> >, ttl, stream);
+        return ParseInsertWithParser<T>(view, db, getFloat<DBType<T> >, ttl);
     }
     if constexpr (get_db_type<T>::value == DBTypes::INTEGER) {
-        return ParseInsertWithParser<T>(view, db, getInteger<DBType<T> >, ttl, stream);
+        return ParseInsertWithParser<T>(view, db, getInteger<DBType<T> >, ttl);
     }
     if constexpr (get_db_type<T>::value == DBTypes::STRING) {
-        return ParseInsertWithParser<T>(view, db, getString<DBType<T> >, ttl, stream);
+        return ParseInsertWithParser<T>(view, db, getString<DBType<T> >, ttl);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
         return ParseInsertWithParser<T>(view, db, [](DBType<T> &dbRef, args_parsed &&args) {
             return getVector<T, DBType<T> >(dbRef, std::move(args), ParseFloat);
-        }, ttl, stream);
+        }, ttl);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
         return ParseInsertWithParser<T>(view, db, [](DBType<T> &dbRef, args_parsed &&args) {
             return getVector<T, DBType<T> >(dbRef, std::move(args), ParseInt);
-        }, ttl, stream);
+        }, ttl);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
         return ParseInsertWithParser<T>(view, db, [](DBType<T> &dbRef, args_parsed &&args) {
             return getVector<T, DBType<T> >(dbRef, std::move(args), ParseString);
-        }, ttl, stream);
+        }, ttl);
     } else {
         return {ParseOperationRes::INVALID_ARGS, {}};
     }
@@ -890,7 +880,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
         }
 
         if (!dataQueue.empty()) {
-            std::lock_guard<std::mutex> lock(queueMutex);
+            std::lock_guard lock(queueMutex);
             if (dataQueue.empty()) {
                 continue;
             }
@@ -942,14 +932,14 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::DELETE) {
-                    auto [msg, ptr] = ParseDelete<T>(view, outstream, db);
+                    auto [msg, ptr] = ParseDelete<T>(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, outstream);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -997,14 +987,14 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::DELETE) {
-                    auto [msg, ptr] = ParseDelete<T>(view, outstream, db);
+                    auto [msg, ptr] = ParseDelete<T>(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, outstream);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -1051,14 +1041,14 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::DELETE) {
-                    auto [msg, ptr] = ParseDelete<T>(view, outstream, db);
+                    auto [msg, ptr] = ParseDelete<T>(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, outstream);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -1343,8 +1333,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         db, std::move(key), std::move(toExecute), ImmortalSentinel());
                 }
             } else if (targetType == TargetType::FILE) {
-                std::ofstream outFile(targetValue);
-                if (!outFile.is_open()) {
+                if (std::ofstream outFile(targetValue); !outFile.is_open()) {
                     std::vector<std::string> err = {"Could not open file: ", targetValue};
                     opNode = std::make_unique<ErrorNode>(outstream, std::move(err));
                 } else {
