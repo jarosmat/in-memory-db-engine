@@ -1321,7 +1321,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                 }
             }
 
-            // std::unique_ptr<DBopsNode<T> > opNode = std::make_unique<ErrorNode<T>>(outstream, {"Error"});
 
             std::unique_ptr<DBopsNodeBase> opNode;
 
