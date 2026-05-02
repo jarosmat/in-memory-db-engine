@@ -55,19 +55,7 @@ public:
 };
 
 template<typename T>
-std::ostream &operator<<(std::ostream &os, const Vector<T> &obj) {
-    if (!obj.Count() == 0) {
-        os << "{" << obj[0];
-        for (std::size_t i = 1; i < obj.Count(); ++i) {
-            os << ", " << obj[i];
-        }
-        os << "}";
-    } else {
-        os << "{}";
-    }
-    os << std::endl;
-    return os;
-}
+std::ostream &operator<<(std::ostream &os, const Vector<T> &obj);
 
 
 #endif //PROJECT_ARRAY_HPP

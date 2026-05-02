@@ -153,4 +153,18 @@ template<typename T>
 size_t Vector<T>::Count() const {
     return count;
 }
+
+template<typename T>
+std::ostream & operator<<(std::ostream &os, const Vector<T> &obj) {
+    if (!obj.Count() == 0) {
+        os << "{" << obj[0];
+        for (std::size_t i = 1; i < obj.Count(); ++i) {
+            os << ", " << obj[i];
+        }
+        os << "}";
+    } else {
+        os << "{}";
+    }
+    return os;
+}
 #endif // VECTOR_TPP
