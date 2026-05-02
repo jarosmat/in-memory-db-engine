@@ -1096,7 +1096,28 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
             }
 
             if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
-                if (type == OPType::APPEND) {
+                if (type == OPType::GET) {
+                    auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, outstream, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::DELETE) {
+                    auto [msg, ptr] = ParseDelete<T>(view, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::INSERT) {
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::APPEND) {
                     auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<Float>, Vector<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1167,7 +1188,28 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     resMsg = ParseOperationRes::INVALID_ARGS;
                 }
             } else if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
-                if (type == OPType::APPEND) {
+                if (type == OPType::GET) {
+                    auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, outstream, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::DELETE) {
+                    auto [msg, ptr] = ParseDelete<T>(view, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::INSERT) {
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::APPEND) {
                     auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<Integer>, Vector<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1239,7 +1281,28 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     resMsg = ParseOperationRes::INVALID_ARGS;
                 }
             } else if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
-                if (type == OPType::APPEND) {
+                if (type == OPType::GET) {
+                    auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, outstream, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::DELETE) {
+                    auto [msg, ptr] = ParseDelete<T>(view, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::INSERT) {
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::APPEND) {
                     auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<String>, Vector<String> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
