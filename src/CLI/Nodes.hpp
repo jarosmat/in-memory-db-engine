@@ -356,10 +356,11 @@ public:
     void Execute() override {
         std::unique_ptr<QueueEntry> queueEntry = std::make_unique<QueueEntry>(
             std::chrono::duration_cast<std::chrono::milliseconds>(ttl), key);
+        QueueEntry* pointer = queueEntry.get();
         priority_queue_.push(std::move(queueEntry));
         auto entry = this->db.LookUp(std::move(key));
         auto value = valNode->Execute();
-        DBEntry<T> toInsert = GetEntry<T, TTL>(std::move(value), std::move(ttl));
+        DBEntry<T> toInsert = GetEntry<T, TTL>(std::move(value), std::move(ttl), pointer);
         entry.SetValue(std::move(toInsert));
     }
 
@@ -380,7 +381,7 @@ public:
     void Execute() override {
         auto entry = this->db.LookUp(std::move(key));
         auto value = valNode->Execute();
-        DBEntry<T> toInsert = GetEntry<T, ImmortalSentinel>(std::move(value), ImmortalSentinel());
+        DBEntry<T> toInsert = GetEntry<T, ImmortalSentinel>(std::move(value), ImmortalSentinel(), nullptr);
         entry.SetValue(std::move(toInsert));
     }
 
