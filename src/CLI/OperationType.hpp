@@ -1082,10 +1082,16 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::FIND) {
+                    if (TargetType::KEY == targetType) {
+                        outstream << "Invalid target" << std::endl;
+                        continue;
+                    }
                     auto [msg, ptr] = ParseStringOpStringString<DBType<T>, FindNode>(view, db);
-                    if (msg == ParseOperationRes::VALID) {
+                    if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                        resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                    } else if (msg == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Vector<Integer> > > toExec = std::make_unique<ToStreamNode<T,
-                            Vector<Integer> > >(outstream, std::move(ptr), db);
+                            Vector<Integer> > >(outFile, std::move(ptr), db);
                         toExec.get()->Execute();
                         continue;
                     }
@@ -1162,9 +1168,16 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else {
                         resMsg = msg;
                     }
-                    if (msgGet == ParseOperationRes::VALID) {
+
+                    if (TargetType::KEY == targetType) {
+                        outstream << "Invalid target" << std::endl;
+                        continue;
+                    }
+                    if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                        resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                    } else if (msgGet == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Float> > toExec =
-                                std::make_unique<ToStreamNode<T, Float> >(outstream, std::move(resGet), db);
+                                std::make_unique<ToStreamNode<T, Float> >(outFile, std::move(resGet), db);
                         toExec.get()->Execute();
                         continue;
                     }
@@ -1178,9 +1191,16 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else {
                         resMsg = msg;
                     }
-                    if (msgSize == ParseOperationRes::VALID) {
+
+                    if (TargetType::KEY == targetType) {
+                        outstream << "Invalid target" << std::endl;
+                        continue;
+                    }
+                    if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                        resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                    } else if (msgSize == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Integer> > toExec =
-                                std::make_unique<ToStreamNode<T, Integer> >(outstream, std::move(resSize), db);
+                                std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
                         toExec.get()->Execute();
                         continue;
                     }
@@ -1255,9 +1275,16 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else {
                         resMsg = msg;
                     }
-                    if (msgGet == ParseOperationRes::VALID) {
+
+                    if (TargetType::KEY == targetType) {
+                        outstream << "Invalid target" << std::endl;
+                        continue;
+                    }
+                    if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                        resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                    } else if (msgGet == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Integer> > toExec =
-                                std::make_unique<ToStreamNode<T, Integer> >(outstream, std::move(resGet), db);
+                                std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resGet), db);
                         toExec.get()->Execute();
                         continue;
                     }
@@ -1271,9 +1298,16 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else {
                         resMsg = msg;
                     }
-                    if (msgSize == ParseOperationRes::VALID) {
+
+                    if (TargetType::KEY == targetType) {
+                        outstream << "Invalid target" << std::endl;
+                        continue;
+                    }
+                    if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                        resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                    } else if (msgSize == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Integer> > toExec =
-                                std::make_unique<ToStreamNode<T, Integer> >(outstream, std::move(resSize), db);
+                                std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
                         toExec.get()->Execute();
                         continue;
                     }
@@ -1347,9 +1381,16 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else {
                         resMsg = msg;
                     }
-                    if (msgGet == ParseOperationRes::VALID) {
+
+                    if (TargetType::KEY == targetType) {
+                        outstream << "Invalid target" << std::endl;
+                        continue;
+                    }
+                    if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                        resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                    } else if (msgGet == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, String> > toExec =
-                                std::make_unique<ToStreamNode<T, String> >(outstream, std::move(resGet), db);
+                                std::make_unique<ToStreamNode<T, String> >(outFile, std::move(resGet), db);
                         toExec.get()->Execute();
                         continue;
                     }
@@ -1363,9 +1404,16 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else {
                         resMsg = msg;
                     }
-                    if (msgSize == ParseOperationRes::VALID) {
+
+                    if (TargetType::KEY == targetType) {
+                        outstream << "Invalid target" << std::endl;
+                        continue;
+                    }
+                    if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                        resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                    } else if (msgSize == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Integer> > toExec =
-                                std::make_unique<ToStreamNode<T, Integer> >(outstream, std::move(resSize), db);
+                                std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
                         toExec.get()->Execute();
                         continue;
                     }
