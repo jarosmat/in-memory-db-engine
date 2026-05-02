@@ -40,4 +40,4 @@ add_test(NAME ParserTest COMMAND ParserTest)
 
 
 include(Catch)
-catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest ObjectTest TimepointTest DBEntryTest ParserTest.cpp)
+catch_discover_tests(StringTest VectorTest GroupTest SwissTableTest ObjectTest TimepointTest DBEntryTest ParserTest)
