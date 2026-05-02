@@ -380,7 +380,9 @@ std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DB &db, args_parsed &
 enum class ParseOperationRes {
     VALID,
     INVALID_ARG_C,
-    INVALID_ARGS
+    INVALID_ARGS,
+    COULD_NOT_READ_FILE,
+    COULD_NOT_OPEN_FILE
 };
 
 
