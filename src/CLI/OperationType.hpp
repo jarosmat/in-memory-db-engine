@@ -16,6 +16,10 @@
 #include "QueueEntry.hpp"
 #include "DBEntry.hpp"
 
+
+using ttlQueueType = std::priority_queue<std::unique_ptr<QueueEntry>, std::vector<std::unique_ptr<QueueEntry> >,
+    CompareQueueEntry>;
+
 template<typename T>
 struct vector_t {
     using type = T;
@@ -734,7 +738,8 @@ parse_op_r<DBopsNode<T> > ParseDelete(view_t &view, DBType<T> &db) {
 template<typename T>
 parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db,
                                                 std::function<std::pair<GetArgsReturnTypes, NodePtr<T> >(
-                                                    DBType<T> &, args_parsed &&)> parser, ttl_t ttl) {
+                                                    DBType<T> &, args_parsed &&)> parser, ttl_t ttl,
+                                                ttlQueueType &queue) {
     if (view.size() != 2) {
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
@@ -771,23 +776,23 @@ parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db,
 
 
     if (ttl.second == TTLTypes::IMMORTAL) {
-        auto resNode = std::make_unique<InsertNode<T, ImmortalSentinel> >(
-            db, std::move(keyBytes), std::move(ptr), std::move(ImmortalSentinel()));
+        auto resNode = std::make_unique<InsertNode<T, ImmortalSentinel, ttlQueueType> >(
+            db, std::move(keyBytes), std::move(ptr), std::move(ImmortalSentinel()), queue);
         return {ParseOperationRes::VALID, std::move(resNode)};
     }
     if (ttl.second == TTLTypes::MILLISECONDS) {
-        auto resNode = std::make_unique<InsertNode<T, std::chrono::milliseconds> >(
-            db, std::move(keyBytes), std::move(ptr), std::move(std::get<std::chrono::milliseconds>(ttl.first)));
+        auto resNode = std::make_unique<InsertNode<T, std::chrono::milliseconds, ttlQueueType> >(
+            db, std::move(keyBytes), std::move(ptr), std::move(std::get<std::chrono::milliseconds>(ttl.first)), queue);
         return {ParseOperationRes::VALID, std::move(resNode)};
     }
     if (ttl.second == TTLTypes::SECONDS) {
-        auto resNode = std::make_unique<InsertNode<T, std::chrono::seconds> >(
-            db, std::move(keyBytes), std::move(ptr), std::move(std::get<std::chrono::seconds>(ttl.first)));
+        auto resNode = std::make_unique<InsertNode<T, std::chrono::seconds, ttlQueueType> >(
+            db, std::move(keyBytes), std::move(ptr), std::move(std::get<std::chrono::seconds>(ttl.first)), queue);
         return {ParseOperationRes::VALID, std::move(resNode)};
     }
     if (ttl.second == TTLTypes::MINUTES) {
-        auto resNode = std::make_unique<InsertNode<T, std::chrono::minutes> >(
-            db, std::move(keyBytes), std::move(ptr), std::move(std::get<std::chrono::minutes>(ttl.first)));
+        auto resNode = std::make_unique<InsertNode<T, std::chrono::minutes, ttlQueueType> >(
+            db, std::move(keyBytes), std::move(ptr), std::move(std::get<std::chrono::minutes>(ttl.first)), queue);
         return {ParseOperationRes::VALID, std::move(resNode)};
     }
 
@@ -795,38 +800,37 @@ parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db,
 }
 
 template<typename T>
-parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl) {
+parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl,
+                                      ttlQueueType &queue) {
     if constexpr (get_db_type<T>::value == DBTypes::FLOAT) {
-        return ParseInsertWithParser<T>(view, db, getFloat<DBType<T> >, ttl);
+        return ParseInsertWithParser<T>(view, db, getFloat<DBType<T> >, ttl, queue);
     }
     if constexpr (get_db_type<T>::value == DBTypes::INTEGER) {
-        return ParseInsertWithParser<T>(view, db, getInteger<DBType<T> >, ttl);
+        return ParseInsertWithParser<T>(view, db, getInteger<DBType<T> >, ttl, queue);
     }
     if constexpr (get_db_type<T>::value == DBTypes::STRING) {
-        return ParseInsertWithParser<T>(view, db, getString<DBType<T> >, ttl);
+        return ParseInsertWithParser<T>(view, db, getString<DBType<T> >, ttl, queue);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
         return ParseInsertWithParser<T>(view, db, [](DBType<T> &dbRef, args_parsed &&args) {
             return getVector<T, DBType<T> >(dbRef, std::move(args), ParseFloat);
-        }, ttl);
+        }, ttl, queue);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
         return ParseInsertWithParser<T>(view, db, [](DBType<T> &dbRef, args_parsed &&args) {
             return getVector<T, DBType<T> >(dbRef, std::move(args), ParseInt);
-        }, ttl);
+        }, ttl, queue);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
         return ParseInsertWithParser<T>(view, db, [](DBType<T> &dbRef, args_parsed &&args) {
             return getVector<T, DBType<T> >(dbRef, std::move(args), ParseString);
-        }, ttl);
+        }, ttl, queue);
     } else {
         return {ParseOperationRes::INVALID_ARGS, {}};
     }
 }
 
 std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
-
-
 
 
 std::unique_ptr<ErrorNode> GetError(ParseOperationRes res, std::size_t expected, std::size_t actual,
@@ -852,8 +856,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
     const auto seed = static_cast<uint64_t>(std::time(nullptr));
     auto [k1,k2] = sampleKey(seed);
     SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> > db(SipHash(k1, k2, 2, 4));
-    std::priority_queue<std::unique_ptr<QueueEntry>, std::vector<std::unique_ptr<QueueEntry> >, CompareQueueEntry>
-            ttlQueue;
+    ttlQueueType ttlQueue;
     std::queue<std::string> dataQueue;
     std::mutex queueMutex;
 
@@ -874,6 +877,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                 auto key = ttlQueue.top()->key;
                 auto entry = db.LookUp(std::move(key));
                 entry.DeleteEntry();
+                ttlQueue.pop();
             }
         }
 
@@ -937,7 +941,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, ttlQueue);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -992,7 +996,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, ttlQueue);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -1046,7 +1050,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, ttlQueue);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -1115,7 +1119,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, ttlQueue);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -1221,7 +1225,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, ttlQueue);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -1328,7 +1332,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     }
                     resMsg = msg;
                 } else if (type == OPType::INSERT) {
-                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl);
+                    auto [msg, ptr] = ParseInsert<T>(view, db, ttl, ttlQueue);
                     if (msg == ParseOperationRes::VALID) {
                         ptr.get()->Execute();
                         continue;
@@ -1428,18 +1432,20 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
             } else if (ValidateOPType(type, dbType) && targetType == TargetType::KEY) {
                 auto key = stringBytes(std::move(targetValue));
                 if (ttl.second == TTLTypes::MILLISECONDS) {
-                    opNode = std::make_unique<InsertNode<T, std::chrono::milliseconds> >(
+                    opNode = std::make_unique<InsertNode<T, std::chrono::milliseconds, ttlQueueType> >(
                         db, std::move(key), std::move(toExecute),
-                        std::get<std::chrono::milliseconds>(std::move(ttl.first)));
+                        std::get<std::chrono::milliseconds>(std::move(ttl.first)), ttlQueue);
                 } else if (ttl.second == TTLTypes::SECONDS) {
-                    opNode = std::make_unique<InsertNode<T, std::chrono::seconds> >(
-                        db, std::move(key), std::move(toExecute), std::get<std::chrono::seconds>(std::move(ttl.first)));
+                    opNode = std::make_unique<InsertNode<T, std::chrono::seconds, ttlQueueType> >(
+                        db, std::move(key), std::move(toExecute), std::get<std::chrono::seconds>(std::move(ttl.first)),
+                        ttlQueue);
                 } else if (ttl.second == TTLTypes::MINUTES) {
-                    opNode = std::make_unique<InsertNode<T, std::chrono::minutes> >(
-                        db, std::move(key), std::move(toExecute), std::get<std::chrono::minutes>(std::move(ttl.first)));
+                    opNode = std::make_unique<InsertNode<T, std::chrono::minutes, ttlQueueType> >(
+                        db, std::move(key), std::move(toExecute), std::get<std::chrono::minutes>(std::move(ttl.first)),
+                        ttlQueue);
                 } else {
-                    opNode = std::make_unique<InsertNode<T, ImmortalSentinel> >(
-                        db, std::move(key), std::move(toExecute), ImmortalSentinel());
+                    opNode = std::make_unique<InsertNode<T, ImmortalSentinel, ttlQueueType> >(
+                        db, std::move(key), std::move(toExecute), ImmortalSentinel(), ttlQueue);
                 }
             } else if (targetType == TargetType::FILE) {
                 if (std::ofstream outFile(targetValue); !outFile.is_open()) {
