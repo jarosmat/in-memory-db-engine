@@ -124,7 +124,7 @@ parse_res<String> ParseString(std::string_view input);
 
 template<typename DB>
     requires (!std::is_reference_v<DB>)
-std::pair<GetArgsReturnTypes, StringPtr> getString(const DBTypes dbType, DB &db, args_parsed &&args) {
+std::pair<GetArgsReturnTypes, StringPtr> getString(DB &db, args_parsed &&args) {
     auto [type, val] = std::move(args);
     auto stringVal = String(std::move(val));
     if (type == ArgsType::CONSTANT) {
@@ -153,7 +153,7 @@ parse_res<Integer> ParseInt(std::string_view input);
 
 template<typename DB>
     requires (!std::is_reference_v<DB>)
-std::pair<GetArgsReturnTypes, NumberPtr<Integer> > getInteger(const DBTypes dbType, DB &db, args_parsed &&args) {
+std::pair<GetArgsReturnTypes, NumberPtr<Integer> > getInteger(DB &db, args_parsed &&args) {
     auto [type, val] = std::move(args);
     if (type == ArgsType::EMPTY) {
         return {GetArgsReturnTypes::INVALID, {}};
@@ -189,7 +189,7 @@ parse_res<Float> ParseFloat(std::string_view input);
 
 template<typename DB>
     requires (!std::is_reference_v<DB>)
-std::pair<GetArgsReturnTypes, NumberPtr<Float> > getFloat(DBTypes dbType, DB &db, args_parsed &&args) {
+std::pair<GetArgsReturnTypes, NumberPtr<Float> > getFloat(DB &db, args_parsed &&args) {
     auto [type, val] = std::move(args);
     if (type == ArgsType::EMPTY) {
         return {GetArgsReturnTypes::INVALID, {}};
@@ -231,7 +231,7 @@ template<typename T>
 using vector_parse_t = std::pair<VectorParsingRes, Vector<T> >;
 
 template<typename T>
-vector_parse_t<typename vector_t<T>::type> ParseVect(std::string_view input,
+vector_parse_t<typename vector_t<T>::type> ParseVect(const std::string_view input,
                                                      std::function<std::pair<bool, typename vector_t<T>::type>(
                                                          std::string_view)> converter) {
     if (input.empty() || input.front() != '{' || input.back() != '}') {
@@ -310,9 +310,8 @@ using DBVectType_t = DBVectType<T>::type;
 template<typename T, typename DB>
     requires (!std::is_reference_v<DB>)
 std::pair<GetArgsReturnTypes, VectPtr<typename vector_t<T>::type> > getVector(
-    DBTypes dbType, DB &db, args_parsed &&args,
-    std::function<std::pair<bool, typename vector_t<T>::type>(std::string_view)>
-    converter) {
+    DB &db, args_parsed &&args,
+    std::function<std::pair<bool, typename vector_t<T>::type>(std::string_view)> converter) {
     auto [type, val] = std::move(args);
     if (type == ArgsType::EMPTY) {
         return {GetArgsReturnTypes::INVALID, {}};
@@ -347,7 +346,7 @@ std::pair<GetArgsReturnTypes, VectPtr<typename vector_t<T>::type> > getVector(
 
 template<typename T, typename DB>
     requires (!std::is_reference_v<DB>)
-std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DBTypes dbType, DB &db, args_parsed &&args) {
+std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DB &db, args_parsed &&args) {
     auto [type, val] = std::move(args);
     if (type == ArgsType::EMPTY) {
         return {GetArgsReturnTypes::INVALID, {}};
@@ -387,14 +386,14 @@ template<typename N>
 using parse_op_r = std::pair<ParseOperationRes, std::unique_ptr<N> >;
 
 template<typename DB, typename N>
-parse_op_r<N> ParseIntNode(view_t &view, const DBTypes dbType, DB &db) {
+parse_op_r<N> ParseIntNode(view_t &view, DB &db) {
     if (view.size() != 2) {
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
     auto parse1 = ParseArg(view);
-    auto [type1, ptr1] = getInteger<DB>(dbType, db, std::move(parse1));
+    auto [type1, ptr1] = getInteger<DB>(db, std::move(parse1));
     auto parse2 = ParseArg(view);
-    auto [type2, ptr2] = getInteger<DB>(dbType, db, std::move(parse2));
+    auto [type2, ptr2] = getInteger<DB>(db, std::move(parse2));
 
 
     if (GetArgsReturnTypes::INVALID == type1 || GetArgsReturnTypes::INVALID == type2) {
@@ -405,14 +404,14 @@ parse_op_r<N> ParseIntNode(view_t &view, const DBTypes dbType, DB &db) {
 }
 
 template<typename DB, typename N>
-parse_op_r<N> ParseFloatNode(view_t &view, const DBTypes dbType, DB &db) {
+parse_op_r<N> ParseFloatNode(view_t &view, DB &db) {
     if (view.size() != 2) {
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
     auto parse1 = ParseArg(view);
-    auto [type1, ptr1] = getFloat<DB>(dbType, db, std::move(parse1));
+    auto [type1, ptr1] = getFloat<DB>(db, std::move(parse1));
     auto parse2 = ParseArg(view);
-    auto [type2, ptr2] = getFloat<DB>(dbType, db, std::move(parse2));
+    auto [type2, ptr2] = getFloat<DB>(db, std::move(parse2));
 
 
     if (GetArgsReturnTypes::INVALID == type1 || GetArgsReturnTypes::INVALID == type2) {
@@ -428,9 +427,9 @@ parse_op_r<N> ParseStringOpStringNum(view_t &view, const DBTypes dbType, DB &db)
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
     auto parse1 = ParseArg(view);
-    auto [typeS, ptrS] = getString<DB>(dbType, db, std::move(parse1));
+    auto [typeS, ptrS] = getString<DB>(db, std::move(parse1));
     auto parse2 = ParseArg(view);
-    auto [typeI, ptrI] = getInteger<DB>(dbType, db, std::move(parse2));
+    auto [typeI, ptrI] = getInteger<DB>(db, std::move(parse2));
 
     if (GetArgsReturnTypes::INVALID == typeS || GetArgsReturnTypes::INVALID == typeI) {
         return {ParseOperationRes::INVALID_ARGS, {}};
@@ -447,9 +446,9 @@ parse_op_r<N> ParseStringOpStringString(view_t &view, const DBTypes dbType, DB &
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
     auto parse1 = ParseArg(view);
-    auto [type1, ptr1] = getString<DB>(dbType, db, std::move(parse1));
+    auto [type1, ptr1] = getString<DB>(db, std::move(parse1));
     auto parse2 = ParseArg(view);
-    auto [type2, ptr2] = getString<DB>(dbType, db, std::move(parse2));
+    auto [type2, ptr2] = getString<DB>(db, std::move(parse2));
 
     if (GetArgsReturnTypes::INVALID == type1 || GetArgsReturnTypes::INVALID == type2) {
         return {ParseOperationRes::INVALID_ARGS, {}};
@@ -468,9 +467,9 @@ parse_op_r<OP> ParseVectOpVectVal(view_t &view, DBTypes dbType, DB &db) {
 
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<Float, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<Float, DB>(db, std::move(parse));
         auto parseVal = ParseArg(view);
-        auto [typeVal, ptrVal] = getFloat<DB>(dbType, db, std::move(parseVal));
+        auto [typeVal, ptrVal] = getFloat<DB>(db, std::move(parseVal));
 
         if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -481,9 +480,9 @@ parse_op_r<OP> ParseVectOpVectVal(view_t &view, DBTypes dbType, DB &db) {
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<Integer, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<Integer, DB>(db, std::move(parse));
         auto parseVal = ParseArg(view);
-        auto [typeVal, ptrVal] = getInteger<DB>(dbType, db, std::move(parseVal));
+        auto [typeVal, ptrVal] = getInteger<DB>(db, std::move(parseVal));
 
         if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -494,9 +493,9 @@ parse_op_r<OP> ParseVectOpVectVal(view_t &view, DBTypes dbType, DB &db) {
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<String, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<String, DB>(db, std::move(parse));
         auto parseVal = ParseArg(view);
-        auto [typeVal, ptrVal] = getString<DB>(dbType, db, std::move(parseVal));
+        auto [typeVal, ptrVal] = getString<DB>(db, std::move(parseVal));
 
         if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -514,9 +513,9 @@ parse_op_r<OP> ParseVectOpVect(view_t &view, DBTypes dbType, DB &db) {
         return {ParseOperationRes::INVALID_ARG_C, {}};
     }
 
-    if constexpr (get_db_type<T >::value == DBTypes::VECTOR_FLOAT) {
+    if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<Float, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<Float, DB>(db, std::move(parse));
 
         if (type == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -525,9 +524,9 @@ parse_op_r<OP> ParseVectOpVect(view_t &view, DBTypes dbType, DB &db) {
         auto res = std::make_unique<OP>(std::move(ptr));
         return {ParseOperationRes::VALID, std::move(res)};
     }
-    if constexpr (get_db_type<T >::value == DBTypes::VECTOR_INT) {
+    if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<Integer, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<Integer, DB>(db, std::move(parse));
 
         if (type == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -536,9 +535,9 @@ parse_op_r<OP> ParseVectOpVect(view_t &view, DBTypes dbType, DB &db) {
         auto res = std::make_unique<OP>(std::move(ptr));
         return {ParseOperationRes::VALID, std::move(res)};
     }
-    if constexpr (get_db_type<T >::value == DBTypes::VECTOR_STRING) {
+    if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<String, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<String, DB>(db, std::move(parse));
 
         if (type == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -558,11 +557,11 @@ parse_op_r<OP> ParseVectOpVectNumVal(view_t &view, DBTypes dbType, DB &db) {
 
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<Float, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<Float, DB>(db, std::move(parse));
         auto parseNum = ParseArg(view);
-        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+        auto [typeNum, ptrNum] = getInteger(db, std::move(parseNum));
         auto parseVal = ParseArg(view);
-        auto [typeVal, ptrVal] = getFloat<DB>(dbType, db, std::move(parseVal));
+        auto [typeVal, ptrVal] = getFloat<DB>(db, std::move(parseVal));
 
         if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID || typeNum ==
             GetArgsReturnTypes::INVALID) {
@@ -574,11 +573,11 @@ parse_op_r<OP> ParseVectOpVectNumVal(view_t &view, DBTypes dbType, DB &db) {
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<Integer, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<Integer, DB>(db, std::move(parse));
         auto parseNum = ParseArg(view);
-        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+        auto [typeNum, ptrNum] = getInteger(db, std::move(parseNum));
         auto parseVal = ParseArg(view);
-        auto [typeVal, ptrVal] = getInteger<DB>(dbType, db, std::move(parseVal));
+        auto [typeVal, ptrVal] = getInteger<DB>(db, std::move(parseVal));
 
         if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID || typeNum ==
             GetArgsReturnTypes::INVALID) {
@@ -590,11 +589,11 @@ parse_op_r<OP> ParseVectOpVectNumVal(view_t &view, DBTypes dbType, DB &db) {
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<String, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<String, DB>(db, std::move(parse));
         auto parseNum = ParseArg(view);
-        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+        auto [typeNum, ptrNum] = getInteger(db, std::move(parseNum));
         auto parseVal = ParseArg(view);
-        auto [typeVal, ptrVal] = getString<DB>(dbType, db, std::move(parseVal));
+        auto [typeVal, ptrVal] = getString<DB>(db, std::move(parseVal));
 
         if (type == GetArgsReturnTypes::INVALID || typeVal == GetArgsReturnTypes::INVALID || typeNum ==
             GetArgsReturnTypes::INVALID) {
@@ -615,9 +614,9 @@ parse_op_r<OP> ParseVectOpVectNum(view_t &view, DBTypes dbType, DB &db) {
 
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<Float, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<Float, DB>(db, std::move(parse));
         auto parseNum = ParseArg(view);
-        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+        auto [typeNum, ptrNum] = getInteger(db, std::move(parseNum));
 
         if (type == GetArgsReturnTypes::INVALID || typeNum == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -628,9 +627,9 @@ parse_op_r<OP> ParseVectOpVectNum(view_t &view, DBTypes dbType, DB &db) {
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<Integer, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<Integer, DB>(db, std::move(parse));
         auto parseNum = ParseArg(view);
-        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+        auto [typeNum, ptrNum] = getInteger(db, std::move(parseNum));
 
         if (type == GetArgsReturnTypes::INVALID || typeNum == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -641,9 +640,9 @@ parse_op_r<OP> ParseVectOpVectNum(view_t &view, DBTypes dbType, DB &db) {
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
         auto parse = ParseArg(view);
-        auto [type, ptr] = getVectorFromDB<String, DB>(dbType, db, std::move(parse));
+        auto [type, ptr] = getVectorFromDB<String, DB>(db, std::move(parse));
         auto parseNum = ParseArg(view);
-        auto [typeNum, ptrNum] = getInteger(dbType, db, std::move(parseNum));
+        auto [typeNum, ptrNum] = getInteger(db, std::move(parseNum));
 
         if (type == GetArgsReturnTypes::INVALID || typeNum == GetArgsReturnTypes::INVALID) {
             return {ParseOperationRes::INVALID_ARGS, {}};
@@ -835,18 +834,18 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, DBTypes dbTyp
         return ParseInsertWithParser<T>(view, db, dbType, getString<DBType<T> >, ttl, stream);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
-        return ParseInsertWithParser<T>(view, db, dbType, [](DBTypes Type, DBType<T> &dbRef, args_parsed &&args) {
-            return getVector<T, DBType<T> >(Type, dbRef, std::move(args), ParseFloat);
+        return ParseInsertWithParser<T>(view, db, dbType, [](DBType<T> &dbRef, args_parsed &&args) {
+            return getVector<T, DBType<T> >(dbRef, std::move(args), ParseFloat);
         }, ttl, stream);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
-        return ParseInsertWithParser<T>(view, db, dbType, [](DBTypes Type, DBType<T> &dbRef, args_parsed &&args) {
-            return getVector<T, DBType<T> >(Type, dbRef, std::move(args), ParseInt);
+        return ParseInsertWithParser<T>(view, db, dbType, [](DBType<T> &dbRef, args_parsed &&args) {
+            return getVector<T, DBType<T> >(dbRef, std::move(args), ParseInt);
         }, ttl, stream);
     }
     if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
-        return ParseInsertWithParser<T>(view, db, dbType, [](DBTypes Type, DBType<T> &dbRef, args_parsed &&args) {
-            return getVector<T, DBType<T> >(Type, dbRef, std::move(args), ParseString);
+        return ParseInsertWithParser<T>(view, db, dbType, [](DBType<T> &dbRef, args_parsed &&args) {
+            return getVector<T, DBType<T> >(dbRef, std::move(args), ParseString);
         }, ttl, stream);
     } else {
         auto res = std::make_unique<ErrorNode<T> >(stream, InvalidArgs());
@@ -856,7 +855,6 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, DBTypes dbTyp
 }
 
 std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
-
 
 
 struct CompareQueueEntry {
@@ -970,28 +968,28 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
             }
             if constexpr (get_db_type<T>::value == DBTypes::INTEGER) {
                 if (type == OPType::ADD) {
-                    auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Integer> >(view, dbType, db);
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
                         toExecute = std::move(GetError<T>(msg, 2, view.size(), outstream));
                     }
                 } else if (type == OPType::SUBTRACT) {
-                    auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Integer> >(view, dbType, db);
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
                         toExecute = GetError<T>(msg, 2, view.size(), outstream);
                     }
                 } else if (type == OPType::MULTIPLY) {
-                    auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Integer> >(view, dbType, db);
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
                         toExecute = GetError<T>(msg, 2, view.size(), outstream);
                     }
                 } else if (type == OPType::DIVIDE) {
-                    auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Integer> >(view, dbType, db);
+                    auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
@@ -1002,28 +1000,28 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
 
             if constexpr (get_db_type<T>::value == DBTypes::FLOAT) {
                 if (type == OPType::FADD) {
-                    auto [msg, ptr] = ParseFloatNode<DBType<T>, AddOp<Float> >(view, dbType, db);
+                    auto [msg, ptr] = ParseFloatNode<DBType<T>, AddOp<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
                         toExecute = GetError<T>(msg, 2, view.size(), outstream);
                     }
                 } else if (type == OPType::FSUBTRACT) {
-                    auto [msg, ptr] = ParseFloatNode<DBType<T>, SubtractOp<Float> >(view, dbType, db);
+                    auto [msg, ptr] = ParseFloatNode<DBType<T>, SubtractOp<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
                         toExecute = GetError<T>(msg, 2, view.size(), outstream);
                     }
                 } else if (type == OPType::FMULTIPLY) {
-                    auto [msg, ptr] = ParseFloatNode<DBType<T>, MultiplyOp<Float> >(view, dbType, db);
+                    auto [msg, ptr] = ParseFloatNode<DBType<T>, MultiplyOp<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
                         toExecute = GetError<T>(msg, 2, view.size(), outstream);
                     }
                 } else if (type == OPType::FDIVIDE) {
-                    auto [msg, ptr] = ParseFloatNode<DBType<T>, DivideOp<Float> >(view, dbType, db);
+                    auto [msg, ptr] = ParseFloatNode<DBType<T>, DivideOp<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
@@ -1336,7 +1334,7 @@ void RunDB(ttl_t &&defaultTTL, DBTypes dbType, std::istream &instream, std::ostr
                 auto resE = std::make_unique<ErrorNode<T> >(outstream, std::move(err));
                 opNode = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
             }
-            opNode.get()->Execute();
+            opNode->Execute();
         }
     }
 }
