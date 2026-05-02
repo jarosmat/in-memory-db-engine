@@ -842,7 +842,7 @@ struct CompareQueueEntry {
 };
 
 std::unique_ptr<ErrorNode> GetError(ParseOperationRes res, std::size_t expected, std::size_t actual,
-                                    std::ostream &outstream, const std::string& file);
+                                    std::ostream &outstream, const std::string &file);
 
 std::pair<bool, std::string> parseQuote(std::string_view &view);
 
@@ -915,28 +915,46 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
 
             auto ttl = ParseTTL(view, defaultTTL);
 
+            TargetType targetType;
+            std::string targetValue;
+            if (type != OPType::GET && type != OPType::DELETE &&  type !=  OPType::INSERT) {
+                auto [targetTypeP, targetValueP] = ParseTarget(view);
+                targetType = targetTypeP;
+                targetValue = std::move(targetValueP);
+
+                if (targetTypeP == TargetType::INVALID) {
+                    outstream << "Invalid target" << std::endl;
+                    continue;
+                }
+            }
+
+
             std::unique_ptr<Node<T> > toExecute;
-            ParseOperationRes resMsg = ParseOperationRes::VALID;
+            auto resMsg = ParseOperationRes::VALID;
             if (type == OPType::GET) {
                 auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, outstream, db);
-                ptr.get()->Execute();
-                continue;
+                if (msg == ParseOperationRes::VALID) {
+                    ptr.get()->Execute();
+                    continue;
+                }
+                resMsg = msg;
             }
             if (type == OPType::DELETE) {
                 auto [msg, ptr] = ParseDelete<T>(view, outstream, db);
-                ptr.get()->Execute();
-                continue;
+                if (msg == ParseOperationRes::VALID) {
+                    ptr.get()->Execute();
+                    continue;
+                }
+                resMsg = msg;
             }
             if (type == OPType::INSERT) {
                 auto [msg, ptr] = ParseInsert<T>(view, db, ttl, outstream);
-                ptr.get()->Execute();
-                continue;
+                if (msg == ParseOperationRes::VALID) {
+                    ptr.get()->Execute();
+                    continue;
+                }
             }
 
-            auto [targetType, targetValue] = ParseTarget(view);
-            if (targetType == TargetType::INVALID) {
-                outstream << "Invalid target" << std::endl;
-            }
             if constexpr (get_db_type<T>::value == DBTypes::INTEGER) {
                 if (type == OPType::ADD) {
                     auto [msg, ptr] = ParseIntNode<DBType<T>, AddOp<Integer> >(view, db);
@@ -1274,11 +1292,10 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
 
             // std::unique_ptr<DBopsNode<T> > opNode = std::make_unique<ErrorNode<T>>(outstream, {"Error"});
 
-            std::unique_ptr<DBopsNodeBase > opNode;
+            std::unique_ptr<DBopsNodeBase> opNode;
 
             if (resMsg != ParseOperationRes::VALID) {
-               opNode = GetError(resMsg, GetArgCount(type), view.size(), outstream, "") ;
-
+                opNode = GetError(resMsg, GetArgCount(type), view.size(), outstream, "");
             } else if (ValidateOPType(type, dbType) && targetType == TargetType::KEY) {
                 auto key = stringBytes(std::move(targetValue));
                 if (ttl.second == TTLTypes::MILLISECONDS) {
