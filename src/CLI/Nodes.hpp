@@ -419,6 +419,7 @@ class DeleteNode : public DBopsNode<T> {
 public:
     void Execute() override {
         auto entry = this->db.LookUp(std::move(key));
+        entry.GetValue().Invalidate();
         entry.DeleteEntry();
     }
 
