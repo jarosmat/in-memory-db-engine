@@ -873,7 +873,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
             if (ttlQueue.top()->Invalid()) {
                 ttlQueue.pop();
             }
-            if (ttlQueue.top()->Expired()) {
+            else if (ttlQueue.top()->Expired()) {
                 auto key = ttlQueue.top()->key;
                 auto entry = db.LookUp(std::move(key));
                 entry.DeleteEntry();
