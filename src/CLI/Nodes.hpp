@@ -6,6 +6,7 @@
 #include "SwissTable.hpp"
 #include "DBEntry.hpp"
 #include "DBType.hpp"
+#include "QueueEntry.hpp"
 #include "SipHash.hpp"
 
 class BaseNode {
@@ -344,14 +345,18 @@ public:
     }
 };
 
-template<typename T, typename TTL>
+template<typename T, typename TTL, typename QUEUE>
 class InsertNode : public DBopsNode<T> {
     std::vector<uint8_t> key;
     std::unique_ptr<Node<T> > valNode;
     TTL ttl;
+    QUEUE &priority_queue_;
 
 public:
     void Execute() override {
+        std::unique_ptr<QueueEntry> queueEntry = std::make_unique<QueueEntry>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(ttl), key);
+        priority_queue_.push(std::move(queueEntry));
         auto entry = this->db.LookUp(std::move(key));
         auto value = valNode->Execute();
         DBEntry<T> toInsert = GetEntry<T, TTL>(std::move(value), std::move(ttl));
@@ -359,8 +364,30 @@ public:
     }
 
     InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, std::unique_ptr<Node<T> > &&valNode,
-               TTL &&ttl) : DBopsNode<T>(db), key(std::move(key)),
-                            valNode(std::move(valNode)), ttl(ttl) {
+               TTL &&ttl, QUEUE &queue) : DBopsNode<T>(db),
+        key(std::move(key)),
+        valNode(std::move(valNode)), ttl(ttl), priority_queue_(queue) {
+    }
+};
+
+template<typename T, typename QUEUE>
+class InsertNode<T, ImmortalSentinel, QUEUE> : public DBopsNode<T> {
+    std::vector<uint8_t> key;
+    std::unique_ptr<Node<T> > valNode;
+    QUEUE &priority_queue_;
+
+public:
+    void Execute() override {
+        auto entry = this->db.LookUp(std::move(key));
+        auto value = valNode->Execute();
+        DBEntry<T> toInsert = GetEntry<T, ImmortalSentinel>(std::move(value), ImmortalSentinel());
+        entry.SetValue(std::move(toInsert));
+    }
+
+    InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, std::unique_ptr<Node<T> > &&valNode,
+               ImmortalSentinel &&, QUEUE &queue) : DBopsNode<T>(db),
+        key(std::move(key)),
+        valNode(std::move(valNode)), priority_queue_(queue) {
     }
 };
 
