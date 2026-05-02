@@ -1107,7 +1107,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
 
             if constexpr (get_db_type<T>::value == DBTypes::VECTOR_FLOAT) {
                 if (type == OPType::APPEND) {
-                    constexpr size_t expectedArgs = 2;
                     auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<Float>, Vector<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1115,7 +1114,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::POP) {
-                    constexpr size_t expectedArgs = 1;
                     auto [msg, ptr] = ParseVectOpVect<DBType<T>, PopNode<Float>, Vector<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1123,7 +1121,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::VINSERT) {
-                    constexpr size_t expectedArgs = 3;
                     auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, VInsertNode<Float>, Vector<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1131,7 +1128,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::REMOVE) {
-                    constexpr size_t expectedArgs = 2;
                     auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, RemoveNode<Float>, Vector<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1139,7 +1135,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::SET) {
-                    constexpr size_t expectedArgs = 3;
                     auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, SetNode<Float>, Vector<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1147,7 +1142,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::VGET) {
-                    constexpr size_t expectedArgs = 2;
                     std::unique_ptr<Node<Float> > resGet;
                     auto msgGet = ParseOperationRes::INVALID_ARGS;
                     auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, VgetNode<Float>, Vector<Float> >(view, db);
@@ -1164,7 +1158,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         continue;
                     }
                 } else if (type == OPType::SIZE) {
-                    constexpr size_t expectedArgs = 1;
                     std::unique_ptr<Node<Integer> > resSize;
                     auto msgSize = ParseOperationRes::INVALID_ARGS;
                     auto [msg, ptr] = ParseVectOpVect<DBType<T>, SizeNode<Float>, Vector<Float> >(view, db);
@@ -1185,7 +1178,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                 }
             } else if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
                 if (type == OPType::APPEND) {
-                    constexpr size_t expectedArgs = 2;
                     auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<Integer>, Vector<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1193,7 +1185,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::POP) {
-                    constexpr size_t expectedArgs = 1;
                     auto [msg, ptr] = ParseVectOpVect<DBType<T>, PopNode<Integer>, Vector<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1201,7 +1192,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::VINSERT) {
-                    constexpr size_t expectedArgs = 3;
                     auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, VInsertNode<Integer>, Vector<
                         Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
@@ -1210,7 +1200,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::REMOVE) {
-                    constexpr size_t expectedArgs = 2;
                     auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, RemoveNode<Integer>, Vector<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1218,7 +1207,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::SET) {
-                    constexpr size_t expectedArgs = 3;
                     auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, SetNode<Integer>, Vector<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1226,7 +1214,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::VGET) {
-                    constexpr size_t expectedArgs = 2;
                     std::unique_ptr<Node<Integer> > resGet;
                     auto msgGet = ParseOperationRes::INVALID_ARGS;
                     auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, VgetNode<Integer>, Vector<Integer> >(view, db);
@@ -1243,7 +1230,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         continue;
                     }
                 } else if (type == OPType::SIZE) {
-                    constexpr size_t expectedArgs = 1;
                     std::unique_ptr<Node<Integer> > resSize;
                     auto msgSize = ParseOperationRes::INVALID_ARGS;
                     auto [msg, ptr] = ParseVectOpVect<DBType<T>, SizeNode<Integer>, Vector<Integer> >(view, db);
@@ -1264,7 +1250,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                 }
             } else if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
                 if (type == OPType::APPEND) {
-                    constexpr size_t expectedArgs = 2;
                     auto [msg, ptr] = ParseVectOpVectVal<DBType<T>, AppendNode<String>, Vector<String> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1272,7 +1257,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::POP) {
-                    constexpr size_t expectedArgs = 1;
                     auto [msg, ptr] = ParseVectOpVect<DBType<T>, PopNode<String>, Vector<String> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1280,7 +1264,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::VINSERT) {
-                    constexpr size_t expectedArgs = 3;
                     auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, VInsertNode<String>, Vector<String> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1288,7 +1271,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::REMOVE) {
-                    constexpr size_t expectedArgs = 2;
                     auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, RemoveNode<String>, Vector<String> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1296,7 +1278,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::SET) {
-                    constexpr size_t expectedArgs = 3;
                     auto [msg, ptr] = ParseVectOpVectNumVal<DBType<T>, SetNode<String>, Vector<String> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
@@ -1304,7 +1285,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resMsg = msg;
                     }
                 } else if (type == OPType::VGET) {
-                    constexpr size_t expectedArgs = 2;
                     std::unique_ptr<Node<String> > resGet;
                     auto msgGet = ParseOperationRes::INVALID_ARGS;
                     auto [msg, ptr] = ParseVectOpVectNum<DBType<T>, VgetNode<String>, Vector<String> >(view, db);
@@ -1321,7 +1301,6 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         continue;
                     }
                 } else if (type == OPType::SIZE) {
-                    constexpr size_t expectedArgs = 1;
                     std::unique_ptr<Node<Integer> > resSize;
                     auto msgSize = ParseOperationRes::INVALID_ARGS;
                     auto [msg, ptr] = ParseVectOpVect<DBType<T>, SizeNode<String>, Vector<String> >(view, db);
