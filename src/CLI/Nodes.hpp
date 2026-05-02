@@ -329,14 +329,17 @@ public:
 template<typename T>
 using DBType = SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> >;
 
+class DBopsNodeBase : public BaseNode {
+public:
+    virtual void Execute() = 0;
+};
+
 template<typename T>
-class DBopsNode : BaseNode {
+class DBopsNode : public DBopsNodeBase {
 protected:
     DBType<T> &db;
 
 public:
-    virtual void Execute() = 0;
-
     explicit DBopsNode(DBType<T> &db) : db(db) {
     }
 };
@@ -395,13 +398,12 @@ public:
     }
 };
 
-template<typename T>
-class ErrorNode : public Node<T> {
+class ErrorNode : public DBopsNodeBase {
     std::ostream &stream;
     std::vector<std::string> val;
 
 public:
-    T Execute() override {
+    void Execute() override {
         for (auto &&s: val) {
             stream << s;
         }
@@ -432,17 +434,5 @@ public:
     }
 };
 
-template<typename T>
-class ExecuteErrorNode : public DBopsNode<T> {
-    std::unique_ptr<ErrorNode<T> > err;
-
-public:
-    void Execute() override {
-        err.get()->Execute();
-    }
-
-    ExecuteErrorNode(std::unique_ptr<ErrorNode<T> > &&err, DBType<T> &db) : DBopsNode<T>(db), err(std::move(err)) {
-    }
-};
 
 #endif //PROJECT_NODES_HPP
