@@ -683,71 +683,61 @@ ttl_t ParseTTL(view_t &view, ttl_t defaultTTL);
 template<typename T, typename N>
 parse_op_r<DBopsNode<T> > ParseOneKeyOP(view_t &view, std::ostream &stream, DBType<T> &db) {
     if (view.size() != 1) {
-        auto resE = std::make_unique<ErrorNode<T> >(stream, InvalidArgsCount(1, view.size()));
-        auto res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-        return {ParseOperationRes::INVALID_ARG_C, std::move(res)};
+        return {ParseOperationRes::INVALID_ARG_C, {}};
     }
 
     auto [type, val] = ParseKey(view);
 
     if (type == KeyType::INVALID) {
-        auto resE = std::make_unique<ErrorNode<T> >(stream, InvalidArgs());
-        auto res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-        return {ParseOperationRes::INVALID_ARGS, std::move(res)};
+        return {ParseOperationRes::INVALID_ARGS, {}};
     }
 
     std::unique_ptr<DBopsNode<T> > res;
+    ParseOperationRes resMsg = ParseOperationRes::VALID;
     if (type == KeyType::CONSTANT) {
         std::vector<uint8_t> bytes = stringBytes(std::move(val));
         res = std::make_unique<N>(db, std::move(bytes), stream);
     } else if (type == KeyType::FILE_PATH) {
         auto [msg, bytes] = readFileBytes(val);
         if (msg == BytesFromFileRes::COULD_NOT_OPEN) {
-            auto resE = std::make_unique<ErrorNode<T> >(stream, CouldNotOpenFileErr(val));
-            res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
+            resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
         } else if (msg == BytesFromFileRes::COULD_NOT_READ) {
-            auto resE = std::make_unique<ErrorNode<T> >(stream, CouldNotReadFileErr(val));
-            res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
+            resMsg = ParseOperationRes::COULD_NOT_READ_FILE;
         } else {
             res = std::make_unique<N>(db, std::move(bytes), stream);
         }
     }
-    return {ParseOperationRes::VALID, std::move(res)};
+    return {resMsg, std::move(res)};
 }
 
 template<typename T>
 parse_op_r<DBopsNode<T> > ParseDelete(view_t &view, std::ostream &stream, DBType<T> &db) {
     if (view.size() != 1) {
-        auto resE = std::make_unique<ErrorNode<T> >(stream, InvalidArgsCount(1, view.size()));
-        auto res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-        return {ParseOperationRes::INVALID_ARG_C, std::move(res)};
+        return {ParseOperationRes::INVALID_ARG_C, {}};
     }
 
     auto [type, val] = ParseKey(view);
 
     if (type == KeyType::INVALID) {
-        auto resE = std::make_unique<ErrorNode<T> >(stream, InvalidArgs());
-        auto res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-        return {ParseOperationRes::INVALID_ARGS, std::move(res)};
+        return {ParseOperationRes::INVALID_ARGS, {}};
     }
 
     std::unique_ptr<DBopsNode<T> > res;
+    ParseOperationRes resMsg = ParseOperationRes::VALID;
     if (type == KeyType::CONSTANT) {
         std::vector<uint8_t> bytes = stringBytes(std::move(val));
         res = std::make_unique<DeleteNode<T> >(db, std::move(bytes));
     } else if (type == KeyType::FILE_PATH) {
         auto [msg, bytes] = readFileBytes(val);
         if (msg == BytesFromFileRes::COULD_NOT_OPEN) {
-            auto resE = std::make_unique<ErrorNode<T> >(stream, CouldNotOpenFileErr(val));
-            res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
+            resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
         } else if (msg == BytesFromFileRes::COULD_NOT_READ) {
-            auto resE = std::make_unique<ErrorNode<T> >(stream, CouldNotReadFileErr(val));
-            res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
+            resMsg = ParseOperationRes::COULD_NOT_READ_FILE;
         } else {
             res = std::make_unique<DeleteNode<T> >(db, std::move(bytes));
         }
     }
-    return {ParseOperationRes::VALID, std::move(res)};
+    return {resMsg, std::move(res)};
 }
 
 template<typename T>
@@ -756,26 +746,20 @@ parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db,
                                                     DBType<T> &, args_parsed &&)> parser, ttl_t ttl,
                                                 std::ostream &stream) {
     if (view.size() != 2) {
-        auto resE = std::make_unique<ErrorNode<T> >(stream, InvalidArgsCount(2, view.size()));
-        auto res = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-        return {ParseOperationRes::INVALID_ARG_C, std::move(res)};
+        return {ParseOperationRes::INVALID_ARG_C, {}};
     }
 
     auto [keyType, key] = ParseKey(view);
 
     if (keyType == KeyType::INVALID) {
-        auto resE = std::make_unique<ErrorNode<T> >(stream, InvalidArgs());
-        auto resNode = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-        return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+        return {ParseOperationRes::INVALID_ARGS, {}};
     }
 
     auto arg = ParseArg(view);
     auto [res, ptr] = parser(db, std::move(arg));
 
     if (res == GetArgsReturnTypes::INVALID) {
-        auto resE = std::make_unique<ErrorNode<T> >(stream, InvalidArgs());
-        auto resNode = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-        return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+        return {ParseOperationRes::INVALID_ARGS, {}};
     }
 
     std::vector<uint8_t> keyBytes;
@@ -787,14 +771,10 @@ parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db,
     if (keyType == KeyType::FILE_PATH) {
         auto [fileRead, value] = readFileBytes(key);
         if (fileRead == BytesFromFileRes::COULD_NOT_READ) {
-            auto resE = std::make_unique<ErrorNode<T> >(stream, CouldNotReadFileErr(key));
-            auto resNode = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-            return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+            return {ParseOperationRes::COULD_NOT_READ_FILE, {}};
         }
         if (fileRead == BytesFromFileRes::COULD_NOT_OPEN) {
-            auto resE = std::make_unique<ErrorNode<T> >(stream, CouldNotOpenFileErr(key));
-            auto resNode = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-            return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+            return {ParseOperationRes::COULD_NOT_OPEN_FILE, {}};
         }
         keyBytes = std::move(value);
     }
@@ -821,9 +801,7 @@ parse_op_r<DBopsNode<T> > ParseInsertWithParser(view_t &view, DBType<T> &db,
         return {ParseOperationRes::VALID, std::move(resNode)};
     }
 
-    auto resE = std::make_unique<ErrorNode<T> >(stream, InvalidArgs());
-    auto resNode = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
-    return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+    return {ParseOperationRes::INVALID_ARGS, {}};
 }
 
 template<typename T>
@@ -852,9 +830,7 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl, st
             return getVector<T, DBType<T> >(dbRef, std::move(args), ParseString);
         }, ttl, stream);
     } else {
-        auto res = std::make_unique<ErrorNode<T> >(stream, InvalidArgs());
-        auto resNode = std::make_unique<ExecuteErrorNode<T> >(std::move(res), db);
-        return {ParseOperationRes::INVALID_ARGS, std::move(resNode)};
+        return {ParseOperationRes::INVALID_ARGS, {}};
     }
 }
 
@@ -940,6 +916,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
             auto ttl = ParseTTL(view, defaultTTL);
 
             std::unique_ptr<Node<T> > toExecute;
+            ParseOperationRes resMsg = ParseOperationRes::VALID;
             if (type == OPType::GET) {
                 auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, outstream, db);
                 ptr.get()->Execute();
@@ -966,28 +943,28 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = std::move(GetError<T>(msg, 2, view.size(), outstream));
+                        resMsg = msg;
                     }
                 } else if (type == OPType::SUBTRACT) {
                     auto [msg, ptr] = ParseIntNode<DBType<T>, SubtractOp<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::MULTIPLY) {
                     auto [msg, ptr] = ParseIntNode<DBType<T>, MultiplyOp<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::DIVIDE) {
                     auto [msg, ptr] = ParseIntNode<DBType<T>, DivideOp<Integer> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
             }
@@ -998,28 +975,28 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::FSUBTRACT) {
                     auto [msg, ptr] = ParseFloatNode<DBType<T>, SubtractOp<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::FMULTIPLY) {
                     auto [msg, ptr] = ParseFloatNode<DBType<T>, MultiplyOp<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::FDIVIDE) {
                     auto [msg, ptr] = ParseFloatNode<DBType<T>, DivideOp<Float> >(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
             }
@@ -1030,28 +1007,28 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::SUFFIX) {
                     auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, SuffixNode>(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::PREFIX) {
                     auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, PrefixNode>(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::AT) {
                     auto [msg, ptr] = ParseStringOpStringNum<DBType<T>, AtNode>(view, db);
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                        resMsg = msg;
                     }
                 } else if (type == OPType::FIND) {
                     auto [msg, ptr] = ParseStringOpStringString<DBType<T>, FindNode>(view, db);
@@ -1061,7 +1038,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         toExec.get()->Execute();
                         continue;
                     }
-                    toExecute = GetError<T>(msg, 2, view.size(), outstream);
+                    resMsg = msg;
                 }
             }
 
@@ -1074,7 +1051,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
@@ -1083,7 +1060,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
@@ -1092,7 +1069,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
             } else if (type == OPType::POP) {
@@ -1103,7 +1080,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
@@ -1112,7 +1089,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
@@ -1121,7 +1098,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
             } else if (type == OPType::VINSERT) {
@@ -1132,7 +1109,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
@@ -1141,7 +1118,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
@@ -1150,7 +1127,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
             } else if (type == OPType::REMOVE) {
@@ -1161,7 +1138,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
@@ -1170,7 +1147,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
@@ -1179,7 +1156,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
             } else if (type == OPType::SET) {
@@ -1190,7 +1167,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
@@ -1199,7 +1176,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
@@ -1208,7 +1185,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     if (msg == ParseOperationRes::VALID) {
                         toExecute = std::move(ptr);
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
             } else if (type == OPType::VGET) {
@@ -1222,7 +1199,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resGet = std::move(ptr);
                         msgGet = msg;
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
@@ -1232,7 +1209,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resGet = std::move(ptr);
                         msgGet = msg;
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
@@ -1242,7 +1219,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resGet = std::move(ptr);
                         msgGet = msg;
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if (msgGet == ParseOperationRes::VALID) {
@@ -1262,7 +1239,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resSize = std::move(ptr);
                         msgSize = msg;
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_INT) {
@@ -1272,7 +1249,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resSize = std::move(ptr);
                         msgSize = msg;
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if constexpr (get_db_type<T>::value == DBTypes::VECTOR_STRING) {
@@ -1282,7 +1259,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                         resSize = std::move(ptr);
                         msgSize = msg;
                     } else {
-                        toExecute = GetError<T>(msg, expectedArgs, view.size(), outstream);
+                        resMsg = msg;
                     }
                 }
                 if (msgSize == ParseOperationRes::VALID) {
@@ -1292,13 +1269,17 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     continue;
                 }
             } else {
-                auto ptr = std::make_unique<ErrorNode<T> >(outstream, std::move(InvalidOperation()));
-                toExecute = std::move(ptr);
+                resMsg = ParseOperationRes::INVALID_ARGS;
             }
 
             // std::unique_ptr<DBopsNode<T> > opNode = std::make_unique<ErrorNode<T>>(outstream, {"Error"});
-            std::unique_ptr<DBopsNode<T> > opNode;
-            if (ValidateOPType(type, dbType) && targetType == TargetType::KEY) {
+
+            std::unique_ptr<DBopsNodeBase > opNode;
+
+            if (resMsg != ParseOperationRes::VALID) {
+               opNode = GetError(resMsg, GetArgCount(type), view.size(), outstream, "") ;
+
+            } else if (ValidateOPType(type, dbType) && targetType == TargetType::KEY) {
                 auto key = stringBytes(std::move(targetValue));
                 if (ttl.second == TTLTypes::MILLISECONDS) {
                     opNode = std::make_unique<InsertNode<T, std::chrono::milliseconds> >(
@@ -1318,15 +1299,13 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                 std::ofstream outFile(targetValue);
                 if (!outFile.is_open()) {
                     std::vector<std::string> err = {"Could not open file: ", targetValue};
-                    auto resE = std::make_unique<ErrorNode<T> >(outstream, std::move(err));
-                    opNode = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
+                    opNode = std::make_unique<ErrorNode>(outstream, std::move(err));
                 } else {
                     opNode = std::make_unique<ToStreamNode<T, T> >(outFile, std::move(toExecute), db);
                 }
             } else {
                 std::vector<std::string> err = {"Error"};
-                auto resE = std::make_unique<ErrorNode<T> >(outstream, std::move(err));
-                opNode = std::make_unique<ExecuteErrorNode<T> >(std::move(resE), db);
+                opNode = std::make_unique<ErrorNode>(outstream, std::move(err));
             }
             opNode->Execute();
         }
