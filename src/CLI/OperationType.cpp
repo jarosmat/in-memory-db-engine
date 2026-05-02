@@ -1,6 +1,61 @@
 #include "OperationType.hpp"
 
 
+std::size_t GetArgCount(const OPType op) {
+    switch (op) {
+        case OPType::INSERT:
+            return 2;
+        case OPType::GET:
+            return 1;
+        case OPType::DELETE:
+            return 1;
+        case OPType::TERMINATE:
+            return 0;
+        case OPType::ADD:
+            return 2;
+        case OPType::SUBTRACT:
+            return 2;
+        case OPType::DIVIDE:
+            return 2;
+        case OPType::MULTIPLY:
+            return 2;
+        case OPType::FADD:
+            return 2;
+        case OPType::FSUBTRACT:
+            return 2;
+        case OPType::FDIVIDE:
+            return 2;
+        case OPType::FMULTIPLY:
+            return 2;
+        case OPType::CONCAT:
+            return 2;
+        case OPType::SUFFIX:
+            return 2;
+        case OPType::PREFIX:
+            return 2;
+        case OPType::AT:
+            return 2;
+        case OPType::FIND:
+            return 2;
+        case OPType::APPEND:
+            return 2;
+        case OPType::POP:
+            return 1;
+        case OPType::VINSERT:
+            return 3;
+        case OPType::REMOVE:
+            return 2;
+        case OPType::SET:
+            return 3;
+        case OPType::VGET:
+            2;
+        case OPType::SIZE:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
 err_t CouldNotOpenFileErr(const std::string &file) {
     return {"Could not open file: ", file};
 }

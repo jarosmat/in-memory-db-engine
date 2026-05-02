@@ -67,6 +67,8 @@ enum class BytesFromFileRes {
     COULD_NOT_READ
 };
 
+std::size_t GetArgCount(OPType op);
+
 using err_t = std::vector<std::string>;
 
 err_t CouldNotOpenFileErr(const std::string &file);
