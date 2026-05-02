@@ -865,19 +865,8 @@ struct CompareQueueEntry {
     bool operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b) const;
 };
 
-template<typename T>
-std::unique_ptr<ErrorNode<T> > GetError(const ParseOperationRes res, const std::size_t expected,
-                                        const std::size_t actual, std::ostream &outstream) {
-    if (res == ParseOperationRes::INVALID_ARG_C) {
-        auto node = std::make_unique<ErrorNode<T> >(outstream, std::move(InvalidArgsCount(expected, actual)));
-        return node;
-    }
-    if (res == ParseOperationRes::INVALID_ARGS) {
-        auto node = std::make_unique<ErrorNode<T> >(outstream, std::move(InvalidArgs()));
-        return node;
-    }
-    return {};
-}
+std::unique_ptr<ErrorNode> GetError(ParseOperationRes res, std::size_t expected, std::size_t actual,
+                                    std::ostream &outstream, const std::string& file);
 
 std::pair<bool, std::string> parseQuote(std::string_view &view);
 

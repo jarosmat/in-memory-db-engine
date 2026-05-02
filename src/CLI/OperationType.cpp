@@ -353,6 +353,25 @@ bool CompareQueueEntry::operator()(const std::unique_ptr<QueueEntry> &a, const s
     return a->RemainingTime() > b->RemainingTime();
 }
 
+std::unique_ptr<ErrorNode> GetError(const ParseOperationRes res, const std::size_t expected, const std::size_t actual,
+                                    std::ostream &outstream, const std::string &file) {
+    if (res == ParseOperationRes::INVALID_ARG_C) {
+        auto node = std::make_unique<ErrorNode>(outstream, std::move(InvalidArgsCount(expected, actual)));
+        return node;
+    }
+    if (res == ParseOperationRes::INVALID_ARGS) {
+        auto node = std::make_unique<ErrorNode>(outstream, std::move(InvalidArgs()));
+        return node;
+    }
+    if (res == ParseOperationRes::COULD_NOT_OPEN_FILE) {
+        auto node = std::make_unique<ErrorNode>(outstream, std::move(CouldNotOpenFileErr(file)));
+    }
+    if (res == ParseOperationRes::COULD_NOT_READ_FILE) {
+        auto node = std::make_unique<ErrorNode>(outstream, std::move(CouldNotReadFileErr(file)));
+    }
+    return {};
+}
+
 std::pair<bool, std::string> parseQuote(std::string_view &view) {
     std::string res;
     while (!view.empty() && view.front() != '"') {
