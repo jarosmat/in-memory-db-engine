@@ -155,7 +155,7 @@ For writing a constant value of object write it in a format: `{[FIELD1]:val, [FI
 Every string value, that is to be saved as a value of a field must be enclosed in apostrophes: '', all outside apostrophes
 are ignores. If you want the item to be `'something`, just write: `''somehing'`
 
-- `GET [OBJECT] [FIELD]`
+- `OGET [OBJECT] [FIELD]`
   - gets the value of field named `[FIELD]` from object `[OBJECT]`
-- `SET [OBJECT] [FIELD] [VALUE]`
+- `OSET [OBJECT] [FIELD] [VALUE]`
   - sets the value of field `[FIELD]` in object `[OBJECT]` to value `[VALUE]`
