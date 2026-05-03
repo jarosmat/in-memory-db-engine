@@ -526,6 +526,14 @@ ttl_t ParseTTL(view_t &view, ttl_t defaultTTL) {
     return GetTTL(view);
 }
 
+parse_op_r<DBopsNode<Object>> ParseInsert(view_t &view, DBType<Object> &db, ttl_t ttl, ttlQueueType &queue,
+    const object_reference &reference, const Object &referenceObject) {
+    return ParseInsertWithParser<Object>(
+        view, db, [&reference, &referenceObject](DBType<Object> &dbRef, args_parsed &&args) {
+            return getObject(dbRef, std::move(args), referenceObject, reference);
+        }, ttl, queue);
+}
+
 std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
     std::mt19937_64 gen(seed);
     std::uniform_int_distribution<uint64_t> dis;

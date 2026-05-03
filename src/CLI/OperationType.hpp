@@ -147,8 +147,6 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
 std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_view view);
 
 
-// std::pair<GetArgsReturnTypes>
-
 parse_res<String> ParseString(std::string_view input);
 
 template<typename DB>
@@ -889,6 +887,9 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl,
         return {ParseOperationRes::INVALID_ARGS, {}};
     }
 }
+
+parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, ttl_t ttl, ttlQueueType &queue,
+                                           const object_reference &reference, const Object &referenceObject);
 
 std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
 
