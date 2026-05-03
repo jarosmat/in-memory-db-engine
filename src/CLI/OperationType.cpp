@@ -320,6 +320,53 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
     return {{}, ObjectFieldTypes::INVALID_TYPE, false};
 }
 
+std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_view view) {
+    RemoveTrailingSpaces(view);
+    SkipSpaces(view);
+    auto nameIt = view.begin();
+
+    while (*nameIt != ':' && !std::isspace(*nameIt) && nameIt != view.end()) {
+        ++nameIt;
+    }
+
+    if (nameIt == view.end()) {
+        return {{}, ObjectFieldTypes::INVALID_FIELD, std::string()};
+    }
+
+    std::string name(view.begin(), nameIt);
+
+    while (nameIt != view.begin()) {
+        view.remove_prefix(1);
+    }
+
+    SkipSpaces(view);
+
+    if (view.front() != ':') {
+        return {{}, ObjectFieldTypes::INVALID_FIELD, std::string()};
+    }
+    view.remove_prefix(1);
+
+    SkipSpaces(view);
+
+    auto valIt = view.begin();
+
+    while (!std::isspace(*valIt) && nameIt != view.end()) {
+        ++valIt;
+    }
+
+    const std::string value(view.begin(), valIt);
+
+    while (view.begin() != valIt) {
+        view.remove_prefix(1);
+    }
+
+    if (view.empty()) {
+        return {std::move(name), ObjectFieldTypes::VALID, std::move(value)};
+    }
+
+    return {{}, ObjectFieldTypes::INVALID_TYPE, std::string()};
+}
+
 parse_res<String> ParseString(const std::string_view input) {
     if (input.length() < 2) {
         return {false, String()};

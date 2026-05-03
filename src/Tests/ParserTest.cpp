@@ -967,3 +967,27 @@ TEST_CASE("Parse Field Startup") {
         REQUIRE(type == ObjectFieldTypes::INVALID_TYPE);
     }
 }
+
+TEST_CASE("Parse Field") {
+    SECTION("Valid Int") {
+        std::string val = " name : val ";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, value] = ParseField(view);
+
+        REQUIRE(name == "name");
+        REQUIRE(type == ObjectFieldTypes::VALID);
+        REQUIRE(value == "val");
+    }
+
+
+    SECTION("Invalid field") {
+        std::string val = " name";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, value] = ParseField(view);
+        REQUIRE(type == ObjectFieldTypes::INVALID_FIELD);
+    }
+
+
+}

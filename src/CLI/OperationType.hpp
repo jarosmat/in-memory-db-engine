@@ -135,7 +135,8 @@ enum class ObjectFieldTypes {
     FLOAT,
     STRING,
     INVALID_TYPE,
-    INVALID_FIELD
+    INVALID_FIELD,
+    VALID
 };
 
 using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
@@ -143,18 +144,7 @@ using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
 std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_view view);
 
 
-
-}
-
-parse_res<Object> ParseObject(std::string_view input, Object referenceObject, const object_reference& reference) {
-    if (input.size() < 2 || input.front() != '{' || input.back() != '}') {
-        return {false, {}};
-    }
-
-    input.remove_prefix(1);
-    input.remove_suffix(1);
-
-    while (!input.empty()) {
+std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_view view);
 
     }
 
