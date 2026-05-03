@@ -450,13 +450,13 @@ std::pair<GetArgsReturnTypes, NodePtr<Object> > getObjectFromDB(DB &db, args_par
     if constexpr (get_db_type<DB>::value == DBTypes::OBJECT) {
         if (type == ArgsType::KEY_FROM_CONSTANT) {
             auto key = stringBytes(std::move(val));
-            auto res = std::make_unique<FromDB<Object > >(db, std::move(key));
+            auto res = std::make_unique<FromDB<Object> >(db, std::move(key));
             return {GetArgsReturnTypes::VALID, std::move(res)};
         }
 
         if (type == ArgsType::KEY_FROM_FILE) {
             if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
-                auto resPtr = std::make_unique<FromDB<Object > >(db, std::move(key));
+                auto resPtr = std::make_unique<FromDB<Object> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
             return {GetArgsReturnTypes::INVALID, {}};
