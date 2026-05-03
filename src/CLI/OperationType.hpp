@@ -17,6 +17,8 @@
 #include "DBEntry.hpp"
 
 
+void SkipSpaces(std::string_view &view);
+
 using ttlQueueType = std::priority_queue<std::unique_ptr<QueueEntry>, std::vector<std::unique_ptr<QueueEntry> >,
     CompareQueueEntry>;
 
