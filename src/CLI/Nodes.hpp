@@ -357,7 +357,7 @@ public:
     }
 
     ObjectSetNode(std::unique_ptr<Node<Object> > &&obj, Key key, std::unique_ptr<Node<T>>&& value) : obj(std::move(obj)), key(std::move(key)),
-                                                                            value(value) {
+                                                                            value(std::move(value)) {
     }
 };
 
