@@ -881,3 +881,89 @@ TEST_CASE("Parse Insert") {
         REQUIRE(dbEntry.GetValue().GetRef() == 8);
     }
 }
+
+TEST_CASE("Parse Field Startup") {
+    SECTION("Valid Int") {
+        std::string val = " name : int ";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, optional] = ParseFieldStartup(view);
+
+        REQUIRE(name == "name");
+        REQUIRE(type == ObjectFieldTypes::INTEGER);
+        REQUIRE_FALSE(optional);
+    }
+
+    SECTION("Valid Float") {
+        std::string val = " name : float ";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, optional] = ParseFieldStartup(view);
+
+        REQUIRE(name == "name");
+        REQUIRE(type == ObjectFieldTypes::FLOAT);
+        REQUIRE_FALSE(optional);
+    }
+
+    SECTION("Valid String") {
+        std::string val = " name : string ";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, optional] = ParseFieldStartup(view);
+
+        REQUIRE(name == "name");
+        REQUIRE(type == ObjectFieldTypes::STRING);
+        REQUIRE_FALSE(optional);
+    }
+
+
+    SECTION("Valid Int optional") {
+        std::string val = " name : int-O ";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, optional] = ParseFieldStartup(view);
+
+        REQUIRE(name == "name");
+        REQUIRE(type == ObjectFieldTypes::INTEGER);
+        REQUIRE(optional);
+    }
+
+    SECTION("Valid Float optional") {
+        std::string val = " name : float-O ";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, optional] = ParseFieldStartup(view);
+
+        REQUIRE(name == "name");
+        REQUIRE(type == ObjectFieldTypes::FLOAT);
+        REQUIRE(optional);
+    }
+
+    SECTION("Valid String optional") {
+        std::string val = " name : string-O ";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, optional] = ParseFieldStartup(view);
+
+        REQUIRE(name == "name");
+        REQUIRE(type == ObjectFieldTypes::STRING);
+        REQUIRE(optional);
+    }
+
+    SECTION("Invalid field") {
+        std::string val = " name";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, optional] = ParseFieldStartup(view);
+        REQUIRE(type == ObjectFieldTypes::INVALID_FIELD);
+    }
+
+
+    SECTION("Invalid type") {
+        std::string val = " name:iiint";
+        std::string_view view(val.begin(), val.end());
+
+        auto [name, type, optional] = ParseFieldStartup(view);
+        REQUIRE(type == ObjectFieldTypes::INVALID_TYPE);
+    }
+}

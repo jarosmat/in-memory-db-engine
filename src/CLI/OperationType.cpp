@@ -257,6 +257,69 @@ args_parsed ParseArg(view_t &args) {
     return {ArgsType::CONSTANT, std::move(val)};
 }
 
+std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_view view) {
+    RemoveTrailingSpaces(view);
+    SkipSpaces(view);
+    auto nameIt = view.begin();
+
+    while (*nameIt != ':' && !std::isspace(*nameIt) && nameIt != view.end()) {
+        ++nameIt;
+    }
+
+    if (nameIt == view.end()) {
+        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
+    }
+
+    std::string name(view.begin(), nameIt);
+
+    while (nameIt != view.begin()) {
+        view.remove_prefix(1);
+    }
+
+    SkipSpaces(view);
+
+    if (view.front() != ':') {
+        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
+    }
+    view.remove_prefix(1);
+
+    SkipSpaces(view);
+
+    auto typeIt = view.begin();
+
+    while (*typeIt != '-' && !std::isspace(*typeIt) && nameIt != view.end()) {
+        ++typeIt;
+    }
+
+    const std::string typeVal(view.begin(), typeIt);
+
+    while (view.begin() != typeIt) {
+        view.remove_prefix(1);
+    }
+
+    ObjectFieldTypes resType;
+
+    if (typeVal == "int") {
+        resType = ObjectFieldTypes::INTEGER;
+    } else if (typeVal == "float") {
+        resType = ObjectFieldTypes::FLOAT;
+    } else if (typeVal == "string") {
+        resType = ObjectFieldTypes::STRING;
+    } else {
+        return {{}, ObjectFieldTypes::INVALID_TYPE, false};
+    }
+
+    if (view.empty()) {
+        return {std::move(name), resType, false};
+    }
+
+    if (view.size() == 2 && view.front() == '-' && view.back() == 'O') {
+        return {std::move(name), resType, true};
+    }
+
+    return {{}, ObjectFieldTypes::INVALID_TYPE, false};
+}
+
 parse_res<String> ParseString(const std::string_view input) {
     if (input.length() < 2) {
         return {false, String()};

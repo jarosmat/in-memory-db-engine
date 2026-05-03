@@ -140,58 +140,7 @@ enum class ObjectFieldTypes {
 
 using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
 
-std::tuple<std::string, ObjectFieldTypes, bool> ParseField(std::string_view view) {
-    SkipSpaces(view);
-    auto nameIt = view.begin();
-
-    while (*nameIt != ':' && !std::isspace(*nameIt) && nameIt != view.end()) {
-        ++nameIt;
-    }
-
-    if (nameIt == view.end()) {
-        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
-    }
-
-    std::string name(view.begin(), nameIt);
-
-    while (nameIt != view.begin()) {
-        view.remove_prefix(1);
-    }
-
-    SkipSpaces(view);
-
-    if (view.front() != ':') {
-        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
-    }
-    view.remove_prefix(1);
-
-    SkipSpaces(view);
-
-    auto typeIt = view.begin();
-
-    while (*typeIt != '-' && !std::isspace(*nameIt) && nameIt != view.end()) {
-        ++typeIt;
-    }
-
-    std::string typeVal(view.begin(), typeIt);
-
-    while (view.begin() != typeIt) {
-        view.remove_prefix(1);
-    }
-
-    ObjectFieldTypes resType;
-
-    if (typeVal == "int") {
-        resType = ObjectFieldTypes::INTEGER;
-    } else if (typeVal == "float") {
-        resType = ObjectFieldTypes::FLOAT;
-    } else if (typeVal == "string") {
-        resType = ObjectFieldTypes::STRING;
-    } else {
-        return {{}, ObjectFieldTypes::INVALID_TYPE, false};
-    }
-
-
+std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_view view);
 
 
 
