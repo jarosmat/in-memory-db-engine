@@ -287,7 +287,7 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
 
     auto typeIt = view.begin();
 
-    while (*typeIt != '-' && !std::isspace(*typeIt) && nameIt != view.end()) {
+    while (*typeIt != '-' && !std::isspace(*typeIt) && typeIt != view.end()) {
         ++typeIt;
     }
 
