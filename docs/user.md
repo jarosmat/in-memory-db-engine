@@ -23,6 +23,21 @@ Use command `database` for starting the database. Following options are availabl
   - Is used to specify default time to live for entries, when the option is omitted, there won't be default value of time
     to live and entries that won't have time to live explicitly specified won't be deleted until user does so
 
+When the value of database entries is object a last thing must be specification of entries, in a format:
+
+`{[FIELD1]:[TYPE1], [FIELD2]: [TYPE2], [FIELD3]:[TYPE3]}`
+
+Every entry in database must adhere to same structure, how to specify values on insertion is described below. Types may
+only be one of three: `int`, `float`, `string`.
+
+Field have also may be optional, these fields do not have to be set on insertion, to specify, that write then in this way
+on startup: `[FIELD]:[TYPE]-O`
+
+For example:
+`{Age: int, Name: string, College: string-O }`
+Defines that entry has 3 fields, one integer field Age, two string fields: Name, College, also the field College is optional.
+
+
 ## Operations
 
 - `INSERT [KEY] [VALUE]` - inserts key/value pair into database
@@ -134,6 +149,8 @@ vectors only keys are accepted.
   
 
 ## Operations on objects
+
+For writing a constant value of object write it in a format: `{[FIELD1]:val, [FIELD2]: val, [FIELD3]: val}`
 
 - `GET [OBJECT] [FIELD]`
   - gets the value of field named `[FIELD]` from object `[OBJECT]`
