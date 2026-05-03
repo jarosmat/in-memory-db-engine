@@ -4,7 +4,7 @@ using namespace std;
 
 String::PrefixAut::PrefixAut(const String& toFind) : word(toFind) {
     statesCount = word.Size();
-    backEdges = vector<size_t>(statesCount, 0);
+    backEdges = vector<size_t>(statesCount + 1, 0);
 
     for (size_t i = 1; i < statesCount - 1; i++) {
         backEdges[i + 1] = GetNewState(word[i], backEdges[i]);
