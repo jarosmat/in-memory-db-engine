@@ -76,6 +76,10 @@ err_t InvalidOperation() {
     return {"Invalid operation"};
 }
 
+err_t InvalidField(const std::string &field) {
+    return {"Invalid field: ", field};
+}
+
 read_from_file_r readFileBytes(const std::string &filePath) {
     std::ifstream file(filePath, std::ios::binary | std::ios::ate);
 

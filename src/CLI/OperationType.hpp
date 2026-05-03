@@ -91,6 +91,8 @@ err_t InvalidArgsCount(std::size_t expected, std::size_t actual);
 
 err_t InvalidOperation();
 
+err_t InvalidField(const std::string &field);
+
 using read_from_file_r = std::pair<BytesFromFileRes, std::vector<uint8_t> >;
 
 read_from_file_r readFileBytes(const std::string &filePath);
