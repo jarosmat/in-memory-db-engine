@@ -152,6 +152,9 @@ vectors only keys are accepted.
 
 For writing a constant value of object write it in a format: `{[FIELD1]:val, [FIELD2]: val, [FIELD3]: val}`
 
+Every string value, that is to be saved as a value of a field must be enclosed in apostrophes: '', all outside apostrophes
+are ignores. If you want the item to be `'something`, just write: `''somehing'`
+
 - `GET [OBJECT] [FIELD]`
   - gets the value of field named `[FIELD]` from object `[OBJECT]`
 - `SET [OBJECT] [FIELD] [VALUE]`
