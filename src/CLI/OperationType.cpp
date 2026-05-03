@@ -350,7 +350,7 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
 
     auto valIt = view.begin();
 
-    while (!std::isspace(*valIt) && nameIt != view.end()) {
+    while (!std::isspace(*valIt) && valIt != view.end()) {
         ++valIt;
     }
 
