@@ -19,7 +19,7 @@
 
 void SkipSpaces(std::string_view &view);
 
-void RemoveTrailingSpaces(std::string_view & view);
+void RemoveTrailingSpaces(std::string_view &view);
 
 using ttlQueueType = std::priority_queue<std::unique_ptr<QueueEntry>, std::vector<std::unique_ptr<QueueEntry> >,
     CompareQueueEntry>;
@@ -146,9 +146,6 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
 
 std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_view view);
 
-    }
-
-}
 
 // std::pair<GetArgsReturnTypes>
 
@@ -899,8 +896,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
         if (!ttlQueue.empty()) {
             if (ttlQueue.top()->Invalid()) {
                 ttlQueue.pop();
-            }
-            else if (ttlQueue.top()->Expired()) {
+            } else if (ttlQueue.top()->Expired()) {
                 auto key = ttlQueue.top()->key;
                 auto entry = db.LookUp(std::move(key));
                 entry.DeleteEntry();
@@ -1123,7 +1119,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                             Vector<Integer> > >(outFile, std::move(ptr), db);
                         toExec->Execute();
                         continue;
-                    }else {
+                    } else {
                         resMsg = msg;
                     }
                 } else {
