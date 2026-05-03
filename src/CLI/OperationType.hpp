@@ -747,6 +747,51 @@ parse_op_r<OP> ParseVectOpVectNum(view_t &view, DB &db) {
     return {ParseOperationRes::INVALID_ARGS, {}};
 }
 
+template<typename DB>
+std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
+    view_t &view, DB &db, object_reference &reference, std::ostream &outstream) {
+    if (view.size() != 2) {
+        auto ptr = std::make_unique<ErrorNode>(outstream, InvalidArgsCount(2, view.size()));
+        return {ParseOperationRes::INVALID_ARG_C, std::move(ptr)};
+    }
+    auto parse = ParseArg(view);
+    auto [type, ptr] = getObjectFromDB(db, std::move(parse));
+    auto parseField = ParseArg(view);
+    auto [typeField, ptrField] = getString(db, std::move(parseField));
+    const auto fieldName = static_cast<std::string>(ptrField.get()->Execute());
+
+    auto findRes = reference.find(fieldName);
+
+    if (findRes == reference.end()) {
+        auto errorPtr = std::make_unique<ErrorNode>(outstream, InvalidField(fieldName));
+        return {ParseOperationRes::INVALID_ARGS, std::move(errorPtr)};
+    }
+
+    if (findRes->second == ObjectFieldTypes::INTEGER) {
+        auto ptrEval = std::make_unique<ObjectGetNode<Integer> >(std::move(ptr), fieldName);
+        auto ptrOp = std::make_unique<ToStreamNode<typename get_db_type<DB>::type, Integer> >(
+            outstream, std::move(ptrEval), db);
+        return {ParseOperationRes::VALID, std::move(ptrOp)};
+    }
+
+
+    if (findRes->second == ObjectFieldTypes::FLOAT) {
+        auto ptrEval = std::make_unique<ObjectGetNode<Float> >(std::move(ptr), fieldName);
+        auto ptrOp = std::make_unique<ToStreamNode<typename get_db_type<DB>::type, Float> >(
+            outstream, std::move(ptrEval), db);
+        return {ParseOperationRes::VALID, std::move(ptrOp)};
+    }
+
+    if (findRes->second == ObjectFieldTypes::STRING) {
+        auto ptrEval = std::make_unique<ObjectGetNode<String> >(std::move(ptr), fieldName);
+        auto ptrOp = std::make_unique<ToStreamNode<typename get_db_type<DB>::type, String> >(
+            outstream, std::move(ptrEval), db);
+        return {ParseOperationRes::VALID, std::move(ptrOp)};
+    }
+
+    return {ParseOperationRes::INVALID_ARGS, {}};
+}
+
 enum class KeyType {
     INVALID,
     CONSTANT,
