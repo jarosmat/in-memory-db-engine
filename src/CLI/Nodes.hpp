@@ -384,7 +384,7 @@ public:
     void Execute() override {
         std::unique_ptr<QueueEntry> queueEntry = std::make_unique<QueueEntry>(
             std::chrono::duration_cast<std::chrono::milliseconds>(ttl), key);
-        QueueEntry* pointer = queueEntry.get();
+        QueueEntry *pointer = queueEntry.get();
         priority_queue_.push(std::move(queueEntry));
         auto entry = this->db.LookUp(std::move(key));
         auto value = valNode->Execute();
@@ -394,8 +394,8 @@ public:
 
     InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, std::unique_ptr<Node<T> > &&valNode,
                TTL &&ttl, QUEUE &queue) : DBopsNode<T>(db),
-        key(std::move(key)),
-        valNode(std::move(valNode)), ttl(ttl), priority_queue_(queue) {
+                                          key(std::move(key)),
+                                          valNode(std::move(valNode)), ttl(ttl), priority_queue_(queue) {
     }
 };
 
@@ -415,8 +415,8 @@ public:
 
     InsertNode(DBType<T> &db, std::vector<uint8_t> &&key, std::unique_ptr<Node<T> > &&valNode,
                ImmortalSentinel &&, QUEUE &queue) : DBopsNode<T>(db),
-        key(std::move(key)),
-        valNode(std::move(valNode)), priority_queue_(queue) {
+                                                    key(std::move(key)),
+                                                    valNode(std::move(valNode)), priority_queue_(queue) {
     }
 };
 
