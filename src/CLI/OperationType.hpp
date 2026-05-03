@@ -769,7 +769,7 @@ std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
 
     if (findRes->second == ObjectFieldTypes::INTEGER) {
         auto ptrEval = std::make_unique<ObjectGetNode<Integer> >(std::move(ptr), fieldName);
-        auto ptrOp = std::make_unique<ToStreamNode<typename get_db_type<DB>::type, Integer> >(
+        auto ptrOp = std::make_unique<ToStreamNode<Object, Integer> >(
             outstream, std::move(ptrEval), db);
         return {ParseOperationRes::VALID, std::move(ptrOp)};
     }
@@ -777,14 +777,14 @@ std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
 
     if (findRes->second == ObjectFieldTypes::FLOAT) {
         auto ptrEval = std::make_unique<ObjectGetNode<Float> >(std::move(ptr), fieldName);
-        auto ptrOp = std::make_unique<ToStreamNode<typename get_db_type<DB>::type, Float> >(
+        auto ptrOp = std::make_unique<ToStreamNode<Object, Float> >(
             outstream, std::move(ptrEval), db);
         return {ParseOperationRes::VALID, std::move(ptrOp)};
     }
 
     if (findRes->second == ObjectFieldTypes::STRING) {
         auto ptrEval = std::make_unique<ObjectGetNode<String> >(std::move(ptr), fieldName);
-        auto ptrOp = std::make_unique<ToStreamNode<typename get_db_type<DB>::type, String> >(
+        auto ptrOp = std::make_unique<ToStreamNode<Object, String> >(
             outstream, std::move(ptrEval), db);
         return {ParseOperationRes::VALID, std::move(ptrOp)};
     }
