@@ -135,6 +135,8 @@ enum class ObjectFieldTypes {
     INVALID
 };
 
+using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
+
 parse_res<String> ParseString(std::string_view input);
 
 template<typename DB>
