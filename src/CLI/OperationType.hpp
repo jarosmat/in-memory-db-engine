@@ -19,6 +19,8 @@
 
 void SkipSpaces(std::string_view &view);
 
+void RemoveTrailingSpaces(std::string_view & view);
+
 using ttlQueueType = std::priority_queue<std::unique_ptr<QueueEntry>, std::vector<std::unique_ptr<QueueEntry> >,
     CompareQueueEntry>;
 
@@ -136,6 +138,79 @@ enum class ObjectFieldTypes {
 };
 
 using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
+
+std::tuple<std::string, ObjectFieldTypes, bool> ParseField(std::string_view view) {
+    SkipSpaces(view);
+    auto nameIt = view.begin();
+
+    while (*nameIt != ':' && !std::isspace(*nameIt) && nameIt != view.end()) {
+        ++nameIt;
+    }
+
+    if (nameIt == view.end()) {
+        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
+    }
+
+    std::string name(view.begin(), nameIt);
+
+    while (nameIt != view.begin()) {
+        view.remove_prefix(1);
+    }
+
+    SkipSpaces(view);
+
+    if (view.front() != ':') {
+        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
+    }
+    view.remove_prefix(1);
+
+    SkipSpaces(view);
+
+    auto typeIt = view.begin();
+
+    while (*typeIt != '-' && !std::isspace(*nameIt) && nameIt != view.end()) {
+        ++typeIt;
+    }
+
+    std::string typeVal(view.begin(), typeIt);
+
+    while (view.begin() != typeIt) {
+        view.remove_prefix(1);
+    }
+
+    ObjectFieldTypes resType;
+
+    if (typeVal == "int") {
+        resType = ObjectFieldTypes::INTEGER;
+    } else if (typeVal == "float") {
+        resType = ObjectFieldTypes::FLOAT;
+    } else if (typeVal == "string") {
+        resType = ObjectFieldTypes::STRING;
+    } else {
+        return {{}, ObjectFieldTypes::INVALID_TYPE, false};
+    }
+
+
+
+
+
+}
+
+parse_res<Object> ParseObject(std::string_view input, Object referenceObject, const object_reference& reference) {
+    if (input.size() < 2 || input.front() != '{' || input.back() != '}') {
+        return {false, {}};
+    }
+
+    input.remove_prefix(1);
+    input.remove_suffix(1);
+
+    while (!input.empty()) {
+
+    }
+
+}
+
+// std::pair<GetArgsReturnTypes>
 
 parse_res<String> ParseString(std::string_view input);
 

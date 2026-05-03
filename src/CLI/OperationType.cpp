@@ -402,6 +402,12 @@ void SkipSpaces(std::string_view &view) {
     }
 }
 
+void RemoveTrailingSpaces(std::string_view &view) {
+    while (std::isspace(view.back())) {
+        view.remove_suffix(1);
+    }
+}
+
 std::pair<bool, std::vector<std::string> > parseLine(const std::string &line) {
     std::vector<std::string> tokens;
     std::string_view view(line.begin(), line.end());
