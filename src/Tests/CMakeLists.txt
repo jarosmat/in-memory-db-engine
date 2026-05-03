@@ -31,7 +31,7 @@ target_link_libraries(TimepointTest Timepoint Catch2::Catch2WithMain)
 add_test(NAME TimepointTest COMMAND TimepointTest)
 
 add_executable(DBEntryTest DBEntryTest.cpp)
-target_link_libraries(DBEntryTest DBEntry Catch2::Catch2WithMain)
+target_link_libraries(DBEntryTest PUBLIC DBEntry Catch2::Catch2WithMain TTL_QueueEntry)
 add_test(NAME DBEntryTest COMMAND DBEntryTest)
 
 add_executable(ParserTest ParserTest.cpp)
