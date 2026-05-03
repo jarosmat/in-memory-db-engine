@@ -3,6 +3,7 @@
 #include <chrono>
 #include "DBEntry.hpp"
 #include "SipHash.hpp"
+#include "ValueTypes.hpp"
 
 enum class DBTypes {
     INTEGER,

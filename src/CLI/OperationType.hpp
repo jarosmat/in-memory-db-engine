@@ -6,7 +6,7 @@
 #include "Nodes.hpp"
 #include "DBType.hpp"
 #include "Vector.hpp"
-#include "../DBCore/DBEntry/ValueTypes.hpp"
+#include "ValueTypes.hpp"
 #include <fstream>
 #include <filesystem>
 #include <queue>
