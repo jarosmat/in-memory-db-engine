@@ -128,6 +128,13 @@ using get_arg_res = std::pair<GetArgsReturnTypes, NodePtr<T> >;
 template<typename T>
 using parse_res = std::pair<bool, T>;
 
+enum class ObjectFieldTypes {
+    INTEGER,
+    FLOAT,
+    STRING,
+    INVALID
+};
+
 parse_res<String> ParseString(std::string_view input);
 
 template<typename DB>
