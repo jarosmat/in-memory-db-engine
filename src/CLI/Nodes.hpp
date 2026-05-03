@@ -1,6 +1,7 @@
 #ifndef PROJECT_NODES_HPP
 #define PROJECT_NODES_HPP
 #include <ranges>
+#include <utility>
 
 #include "String.hpp"
 #include "SwissTable.hpp"
@@ -324,6 +325,33 @@ public:
     }
 
     explicit SizeNode(std::unique_ptr<VectNode<T> > &&vect) : vect(std::move(vect)) {
+    }
+};
+
+template<typename T>
+class ObjectGetNode : public Node<T> {
+    std::unique_ptr<Node<Object> > obj;
+    Key key;
+
+public:
+    T Execute() override {
+        return obj->Execute().get_member<T>(key);
+    }
+
+    ObjectGetNode(std::unique_ptr<Node<Object> > &&obj, Key key) : obj(std::move(obj)), key(std::move(key)) {
+    }
+};
+
+template<typename T>
+class ObjectSetNode : public Node<Object> {
+    std::unique_ptr<Node<Object>> obj;
+    Key key;
+    T value;
+public:
+    Object Execute() override {
+        auto res = obj.get()->Execute();
+        res.set_value<T>(key, std::move(value));
+
     }
 };
 
