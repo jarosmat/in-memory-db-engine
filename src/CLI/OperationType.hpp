@@ -432,6 +432,36 @@ std::pair<GetArgsReturnTypes, NodePtr<Object> > getObject(DB &db, args_parsed &&
     return {GetArgsReturnTypes::INVALID, {}};
 }
 
+template<typename DB>
+    requires (!std::is_reference_v<DB>)
+std::pair<GetArgsReturnTypes, NodePtr<Object> > getObjectFromDB(DB &db, args_parsed &&args) {
+    auto [type, val] = std::move(args);
+    if (type == ArgsType::EMPTY) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+    if (type == ArgsType::CONSTANT) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+
+    if constexpr (get_db_type<DB>::value == DBTypes::OBJECT) {
+        if (type == ArgsType::KEY_FROM_CONSTANT) {
+            auto key = stringBytes(std::move(val));
+            auto res = std::make_unique<FromDB<Object > >(db, std::move(key));
+            return {GetArgsReturnTypes::VALID, std::move(res)};
+        }
+
+        if (type == ArgsType::KEY_FROM_FILE) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+                auto resPtr = std::make_unique<FromDB<Object > >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(resPtr)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
+        }
+    }
+
+    return {GetArgsReturnTypes::INVALID, {}};
+}
+
 enum class ParseOperationRes {
     VALID,
     INVALID_ARG_C,
