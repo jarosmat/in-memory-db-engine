@@ -399,6 +399,41 @@ std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DB &db, args_parsed &
 
 parse_res<Object> ParseObject(std::string_view input, Object referenceObject, const object_reference &reference);
 
+template<typename DB>
+    requires (!std::is_reference_v<DB>)
+std::pair<GetArgsReturnTypes, NodePtr<Object> > getObject(DB &db, args_parsed &&args, const Object &referenceObject,
+                                                          const object_reference &reference) {
+    auto [type, val] = std::move(args);
+    if (type == ArgsType::EMPTY) {
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+    if (type == ArgsType::CONSTANT) {
+        if (auto [res, valVect] = ParseObject(std::string_view(val.begin(), val.end()), referenceObject, reference);
+            res) {
+            auto resPtr = std::make_unique<ConstantNode<Object> >(std::move(valVect));
+            return {GetArgsReturnTypes::VALID, std::move(resPtr)};
+        }
+        return {GetArgsReturnTypes::INVALID, {}};
+    }
+
+    if constexpr (get_db_type<DB>::value == DBTypes::OBJECT) {
+        if (type == ArgsType::KEY_FROM_CONSTANT) {
+            auto key = stringBytes(std::move(val));
+            auto res = std::make_unique<FromDB<Object> >(db, std::move(key));
+        }
+
+        if (type == ArgsType::KEY_FROM_FILE) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+                auto resPtr = std::make_unique<FromDB<Object> >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(resPtr)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
+        }
+    }
+
+    return {GetArgsReturnTypes::INVALID, {}};
+}
+
 enum class ParseOperationRes {
     VALID,
     INVALID_ARG_C,
