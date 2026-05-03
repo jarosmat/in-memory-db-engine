@@ -346,17 +346,17 @@ template<typename T>
 class ObjectSetNode : public Node<Object> {
     std::unique_ptr<Node<Object> > obj;
     Key key;
-    T value;
+    std::unique_ptr<Node<T>> value;
 
 public:
     Object Execute() override {
         auto res = obj->Execute();
-        res.set_value<T>(key, std::move(value));
+        res.set_value<T>(key, std::move(value.get()->Execute()));
 
         return res;
     }
 
-    ObjectSetNode(std::unique_ptr<Node<Object> > &&obj, Key key, T value) : obj(std::move(obj)), key(std::move(key)),
+    ObjectSetNode(std::unique_ptr<Node<Object> > &&obj, Key key, std::unique_ptr<Node<T>>&& value) : obj(std::move(obj)), key(std::move(key)),
                                                                             value(value) {
     }
 };
