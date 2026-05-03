@@ -55,6 +55,28 @@ public:
     auto has_member(const Key &name) const -> bool;
 
     std::size_t MemberCount() const;
+
+
+    friend std::ostream &operator<<(std::ostream &os, const Object &obj) {
+        auto visitor = [&os](const auto &value) {
+            os << value;
+        };
+        if (obj.MemberCount() == 0) {
+            os << "{}";
+            return os;
+        }
+        os << '{';
+        auto iter = obj.members.begin();
+        os << iter->first << ": ";
+        std::visit(visitor, iter->second);
+        ++iter;
+        for (; iter != obj.members.end(); ++iter) {
+            os << ", " << iter->first << ": ";
+            std::visit(visitor, iter->second);
+        }
+        os << '}';
+        return os;
+    }
 };
 
 #endif //PROJECT_VALUETYPES_HPP
