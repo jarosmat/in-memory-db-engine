@@ -134,7 +134,8 @@ enum class ObjectFieldTypes {
     INTEGER,
     FLOAT,
     STRING,
-    INVALID
+    INVALID_TYPE,
+    INVALID_FIELD
 };
 
 using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
