@@ -1094,10 +1094,11 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else if (msg == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Vector<Integer> > > toExec = std::make_unique<ToStreamNode<T,
                             Vector<Integer> > >(outFile, std::move(ptr), db);
-                        toExec.get()->Execute();
+                        toExec->Execute();
                         continue;
+                    }else {
+                        resMsg = msg;
                     }
-                    resMsg = msg;
                 } else {
                     resMsg = ParseOperationRes::INVALID_ARGS;
                 }
@@ -1180,7 +1181,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else if (msgGet == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Float> > toExec =
                                 std::make_unique<ToStreamNode<T, Float> >(outFile, std::move(resGet), db);
-                        toExec.get()->Execute();
+                        toExec->Execute();
                         continue;
                     }
                 } else if (type == OPType::SIZE) {
@@ -1203,7 +1204,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else if (msgSize == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Integer> > toExec =
                                 std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
-                        toExec.get()->Execute();
+                        toExec->Execute();
                         continue;
                     }
                 } else {
@@ -1287,7 +1288,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else if (msgGet == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Integer> > toExec =
                                 std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resGet), db);
-                        toExec.get()->Execute();
+                        toExec->Execute();
                         continue;
                     }
                 } else if (type == OPType::SIZE) {
@@ -1310,7 +1311,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else if (msgSize == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Integer> > toExec =
                                 std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
-                        toExec.get()->Execute();
+                        toExec->Execute();
                         continue;
                     }
                 } else {
@@ -1393,7 +1394,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else if (msgGet == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, String> > toExec =
                                 std::make_unique<ToStreamNode<T, String> >(outFile, std::move(resGet), db);
-                        toExec.get()->Execute();
+                        toExec->Execute();
                         continue;
                     }
                 } else if (type == OPType::SIZE) {
@@ -1416,7 +1417,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) 
                     } else if (msgSize == ParseOperationRes::VALID) {
                         std::unique_ptr<ToStreamNode<T, Integer> > toExec =
                                 std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
-                        toExec.get()->Execute();
+                        toExec->Execute();
                         continue;
                     }
                 } else {
