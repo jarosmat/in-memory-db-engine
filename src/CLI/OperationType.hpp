@@ -1585,6 +1585,103 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                 } else {
                     resMsg = ParseOperationRes::INVALID_ARGS;
                 }
+            } else if constexpr (get_db_type<T>::value == DBTypes::OBJECT) {
+                if (type == OPType::GET) {
+                    auto [msg, ptr] = ParseOneKeyOP<T, GetNode<T> >(view, outstream, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::DELETE) {
+                    auto [msg, ptr] = ParseDelete<T>(view, db);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::INSERT) {
+                    auto [msg, ptr] = ParseInsert(view, db, ttl, ttlQueue, reference, referenceObject);
+                    if (msg == ParseOperationRes::VALID) {
+                        ptr.get()->Execute();
+                        continue;
+                    }
+                    resMsg = msg;
+                } else if (type == OPType::OGET) {
+                    if (targetType == TargetType::KEY || targetType == TargetType::INVALID) {
+                        resMsg = ParseOperationRes::INVALID_ARGS;
+                    } else if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                        resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                    } else {
+                        auto [msg, ptr] = ParseObjectGet<DBType<T> >(view, db, reference, outFile);
+                        if (msg == ParseOperationRes::VALID) {
+                            ptr.get()->Execute();
+                            continue;
+                        }
+                        resMsg = msg;
+                    }
+                } else if (type == OPType::OSET) {
+                    auto [resMsgParse, ptrObject, fieldT, fieldN] = ParseObjectSet(view, db, reference);
+                    auto parseValue = ParseArg(view);
+                    std::unique_ptr<DBopsNodeBase> ptrOp;
+
+                    if (resMsgParse != ParseOperationRes::VALID) {
+                        resMsg = resMsgParse;
+                    } else if (fieldT == ObjectFieldTypes::INTEGER) {
+                        auto [valMsg, valPtr] = getInteger(db, std::move(parseValue));
+
+                        if (valMsg != GetArgsReturnTypes::VALID) {
+                            resMsg = ParseOperationRes::INVALID_ARGS;
+                        } else if (targetType == TargetType::KEY) {
+                            auto keyBytes = stringBytes(std::move(targetValue));
+                            auto ptrEval = std::make_unique<ObjectSetNode<Integer> >(
+                                std::move(ptrObject), fieldN, std::move(valPtr));
+                            if (ttl.second == TTLTypes::IMMORTAL) {
+                                ptrOp = std::make_unique<InsertNode<T, ImmortalSentinel, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval), std::move(ImmortalSentinel()),
+                                    ttlQueue);
+                                ptrOp.get()->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::MILLISECONDS) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::milliseconds, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::milliseconds>(ttl.first)), ttlQueue);
+                                ptrOp.get()->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::SECONDS) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::seconds, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::seconds>(ttl.first)), ttlQueue);
+                                ptrOp.get()->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::MINUTES) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::minutes, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::minutes>(ttl.first)), ttlQueue);
+                                ptrOp.get()->Execute();
+                                continue;
+                            }
+                        } else if (targetType == TargetType::FILE) {
+                            if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                                resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                            } else {
+                                auto ptrEval = std::make_unique<ObjectSetNode<Integer> >(
+                                    std::move(ptrObject), fieldN, std::move(valPtr));
+
+                                ptrOp = std::make_unique<ToStreamNode<T, Object> >(
+                                    outFile, std::move(ptrEval), db);
+
+                                ptrOp.get()->Execute();
+                                continue;
+                            }
+                        }
+                    }
+                } else {
+                    resMsg = ParseOperationRes::INVALID_ARGS;
+                }
             }
 
 
