@@ -407,6 +407,79 @@ parse_res<Float> ParseFloat(std::string_view input) {
     return {success, result};
 }
 
+parse_res<Object> ParseObject(std::string_view input, Object referenceObject, const object_reference &reference) {
+    RemoveTrailingSpaces(input);
+    SkipSpaces(input);
+    if (input.size() < 2 || input.front() != '{' || input.back() != '}') {
+        return {false, {}};
+    }
+
+    input.remove_prefix(1);
+    input.remove_suffix(1);
+
+    while (!input.empty()) {
+        auto itNext = input.begin();
+        while (*itNext != ',' && itNext != input.end()) {
+            ++itNext;
+        }
+
+        std::string_view fieldView(input.begin(), itNext);
+
+        auto [name, type, value] = ParseField(fieldView);
+
+        if (type == ObjectFieldTypes::INVALID_FIELD || type == ObjectFieldTypes::INVALID_TYPE) {
+            return {false, {}};
+        }
+
+        auto lookUp = reference.find(name);
+
+        if (lookUp == reference.end()) {
+            return {false, {}};
+        }
+
+        std::string_view valView(value.begin(), value.end());
+        if (lookUp->second == ObjectFieldTypes::INTEGER) {
+            auto [resMsg, valueParsed] = ParseInt(valView);
+            if (!resMsg) {
+                return {false, {}};
+            }
+            referenceObject.set_value(name, valueParsed);
+        }
+
+        if (lookUp->second == ObjectFieldTypes::FLOAT) {
+            auto [resMsg, valueParsed] = ParseFloat(valView);
+            if (!resMsg) {
+                return {false, {}};
+            }
+            referenceObject.set_value(name, valueParsed);
+        }
+
+        if (lookUp->second == ObjectFieldTypes::STRING) {
+            auto [resMsg, valueParsed] = ParseString(valView);
+            if (!resMsg) {
+                return {false, {}};
+            }
+            referenceObject.set_value(name, valueParsed);
+        }
+
+        while (itNext != input.begin()) {
+            input.remove_prefix(1);
+        }
+
+        if (!input.empty()) {
+            input.remove_prefix(1);
+        }
+    }
+    auto c = referenceObject.MemberCount();
+    auto cr = reference.size();
+
+    if (referenceObject.MemberCount() != reference.size()) {
+        return {false , {}};
+    }
+
+    return {true, std::move(referenceObject)};
+}
+
 key_parse ParseKey(view_t &view) {
     if (view.empty()) {
         return {KeyType::INVALID, {}};

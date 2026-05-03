@@ -400,6 +400,8 @@ std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DB &db, args_parsed &
     return {GetArgsReturnTypes::INVALID, {}};
 }
 
+parse_res<Object> ParseObject(std::string_view input, Object referenceObject, const object_reference &reference);
+
 enum class ParseOperationRes {
     VALID,
     INVALID_ARG_C,

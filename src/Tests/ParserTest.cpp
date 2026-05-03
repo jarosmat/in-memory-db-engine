@@ -991,3 +991,58 @@ TEST_CASE("Parse Field") {
 
 
 }
+
+TEST_CASE("Parse Object") {
+
+    SECTION("Valid object") {
+        object_reference reference;
+        reference.insert({"f1", ObjectFieldTypes::INTEGER});
+        reference.insert({"f2", ObjectFieldTypes::STRING});
+        reference.insert({"f3", ObjectFieldTypes::FLOAT});
+
+        std::string val = " {f1: 1, f2: \'xd\', f3 : 1.8} ";
+        std::string_view view(val.begin(),val.end());
+
+        auto [res, obj] = ParseObject(view, {}, reference);
+
+        REQUIRE(res);
+        REQUIRE(obj.get_member<Integer>("f1") == 1);
+        REQUIRE(obj.get_member<String>("f2") == String("xd"));
+        REQUIRE(obj.get_member<Float>("f3") == 1.8);
+    }
+
+    SECTION("Invalid object") {
+        object_reference reference;
+        reference.insert({"f1", ObjectFieldTypes::INTEGER});
+        reference.insert({"f2", ObjectFieldTypes::STRING});
+        reference.insert({"f3", ObjectFieldTypes::FLOAT});
+
+        std::string val = " {f1: \'xd\', f2: \'xd\', f3 : 1.8} ";
+        std::string_view view(val.begin(),val.end());
+
+        auto [res, obj] = ParseObject(view, {}, reference);
+
+        REQUIRE_FALSE(res);
+    }
+
+    SECTION("Default Values") {
+        Object referenceObject;
+        referenceObject.set_value("f1", Null());
+
+        object_reference reference;
+        reference.insert({"f1", ObjectFieldTypes::INTEGER});
+        reference.insert({"f2", ObjectFieldTypes::STRING});
+        reference.insert({"f3", ObjectFieldTypes::FLOAT});
+
+        std::string val = " {f2: \'xd\', f3 : 1.8} ";
+        std::string_view view(val.begin(),val.end());
+
+        auto [res, obj] = ParseObject(view, referenceObject, reference);
+
+        REQUIRE(res);
+
+        REQUIRE(obj.get_member<Null>("f1") == Null());
+        REQUIRE(obj.get_member<String>("f2") == String("xd"));
+        REQUIRE(obj.get_member<Float>("f3") == 1.8);
+    }
+}
