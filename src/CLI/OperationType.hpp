@@ -927,7 +927,6 @@ std::pair<bool, std::string> parseQuote(std::string_view &view);
 
 std::string parseUnquote(std::string_view &view);
 
-void SkipSpaces(std::string_view &view);
 
 std::pair<bool, std::vector<std::string> > parseLine(const std::string &line);
 
