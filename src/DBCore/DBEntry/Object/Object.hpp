@@ -23,6 +23,8 @@ class Object {
 public:
     Object(TypeForConstructIt first, TypeForConstructIt last);
 
+    Object() = default;
+
     template<typename T>
     auto get_member(const Key &name) const -> T {
         return std::get<T>(members.at(name));
@@ -39,6 +41,8 @@ public:
     }
 
     auto has_member(const Key &name) const -> bool;
+
+    std::size_t MemberCount() const;
 };
 
 
