@@ -59,6 +59,8 @@ enum class OPType {
     SET,
     VGET,
     SIZE,
+    OGET,
+    OSET,
     INVALID
 };
 

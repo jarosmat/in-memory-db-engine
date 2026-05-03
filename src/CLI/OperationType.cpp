@@ -185,6 +185,12 @@ OPType GetOPType(view_t &args) {
     if (val == "SIZE") {
         return OPType::SIZE;
     }
+    if (val == "OGET") {
+        return OPType::OGET;
+    }
+    if (val == "OSET") {
+        return OPType::OSET;
+    }
 
     return OPType::INVALID;
 }
