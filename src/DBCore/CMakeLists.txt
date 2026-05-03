@@ -16,7 +16,7 @@ set(VALUE_TYPES_DIR "${PROJECT_SOURCE_DIR}/DBEntry")
 add_library(Timepoint "${TIMEPOINT_DIR}/Timepoint.cpp")
 target_include_directories(Timepoint PUBLIC "${TIMEPOINT_DIR}")
 
-add_library(Entries "${STRING_DIR}/String.cpp" "${STRING_DIR}/PrefixAut.cpp" "${OBJECT_DIR}/Object.cpp")
+add_library(Entries "${STRING_DIR}/String.cpp" "${STRING_DIR}/PrefixAut.cpp" "${OBJECT_DIR}/Object.cpp" "${DBENTRY_DIR}/Null.cpp")
 target_include_directories(Entries PUBLIC "${STRING_DIR}" "${PROJECT_SOURCE_DIR}/DBEntry" "${OBJECT_DIR}" "${VECTOR_DIR}")
 
 add_library(SwissTable "${GROUP_DIR}/Group.cpp")
