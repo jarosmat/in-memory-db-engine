@@ -5,6 +5,7 @@
 struct Null {
 };
 
+bool operator==(const Null&, const Null&);
 
 std::ostream &operator<<(std::ostream &os, const Null&);
 
