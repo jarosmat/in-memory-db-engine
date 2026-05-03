@@ -131,4 +131,11 @@ vectors only keys are accepted.
   - operation returns value corresponding to type of vector
 - `SIZE [VECT]`
   - returns number of values in `[VECT]`
-   
+  
+
+## Operations on objects
+
+- `GET [OBJECT] [FIELD]`
+  - gets the value of field named `[FIELD]` from object `[OBJECT]`
+- `SET [OBJECT] [FIELD] [VALUE]`
+  - sets the value of field `[FIELD]` in object `[OBJECT]` to value `[VALUE]`

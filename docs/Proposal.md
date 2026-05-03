@@ -1,6 +1,6 @@
 # In memory Database engine
 
-The semestral project will be a in memory database engine. The engine will be key/value system supporting CRUD operations.
+The semestral project will be an in memory database engine. The engine will be key/value system supporting CRUD operations.
 
 All the most important data structures will be self implemented. This includes the hash table along with the hash function.
 The hash function will support byte sequences for possible usage with different types of keys.
