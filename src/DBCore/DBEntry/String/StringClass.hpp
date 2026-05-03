@@ -35,6 +35,8 @@ public:
 
     [[nodiscard]] size_t Size() const;
 
+    explicit operator std::string();
+
     friend std::ostream &operator<<(std::ostream &out, const String &value) {
         return (out << value.val);
     }

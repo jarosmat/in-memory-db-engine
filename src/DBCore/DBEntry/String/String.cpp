@@ -83,3 +83,7 @@ bool String::operator==(const String &other) const {
 size_t String::Size() const {
     return val.size();
 }
+
+String::operator string() {
+    return val;
+}
