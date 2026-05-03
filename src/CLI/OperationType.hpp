@@ -990,7 +990,8 @@ bool HasTarget(OPType op);
 
 
 template<typename T>
-void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream) {
+void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, Object &referenceObject,
+           object_reference &reference) {
     constexpr DBTypes dbType = get_db_type<T>::value;
     const auto seed = static_cast<uint64_t>(std::time(nullptr));
     auto [k1,k2] = sampleKey(seed);
