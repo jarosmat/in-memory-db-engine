@@ -792,6 +792,29 @@ std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
     return {ParseOperationRes::INVALID_ARGS, {}};
 }
 
+template<typename DB>
+std::tuple<ParseOperationRes, NodePtr<Object>, ObjectFieldTypes, std::string> ParseObjectSet(
+    view_t &view, DB &db, object_reference &reference) {
+    if (view.size() != 3) {
+        std::unique_ptr<Node<Object> > ptr;
+        return {ParseOperationRes::INVALID_ARG_C, std::move(ptr), ObjectFieldTypes::INVALID_FIELD, std::string()};
+    }
+    auto parse = ParseArg(view);
+    auto [type, ptr] = getObjectFromDB(db, std::move(parse));
+    auto parseField = ParseArg(view);
+    auto [typeField, ptrField] = getString(db, std::move(parseField));
+    const auto fieldName = static_cast<std::string>(ptrField.get()->Execute());
+
+    auto findRes = reference.find(fieldName);
+
+    if (findRes == reference.end()) {
+        return {ParseOperationRes::INVALID_ARGS, std::move(ptr), ObjectFieldTypes::INVALID_FIELD, std::string()};
+    }
+
+    return {ParseOperationRes::VALID, std::move(ptr), findRes->second, fieldName};
+}
+
+
 enum class KeyType {
     INVALID,
     CONSTANT,
