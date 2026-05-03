@@ -74,5 +74,5 @@ bool Group::Used(const pos pos) const {
         throw exception;
     }
 
-    return metadata[pos - start] != EMPTY && metadata[pos] != DELETED;
+    return metadata[pos - start] != EMPTY && metadata[pos - start] != DELETED;
 }
