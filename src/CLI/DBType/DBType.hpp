@@ -108,7 +108,7 @@ using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
 
 auto GetOptionToken(view_t &args) -> StartupTokens;
 
-auto GetDBType(view_t &args) -> std::pair<DBTypes, ttl_t>;
+auto GetDBType(view_t &args) -> std::tuple<DBTypes, ttl_t, Object, object_reference>;
 
 auto GetTTL(view_t &args) -> ttl_t;
 

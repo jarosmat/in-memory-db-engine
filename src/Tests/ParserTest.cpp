@@ -1210,3 +1210,118 @@ TEST_CASE("Parse default object") {
         REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
     }
 }
+
+TEST_CASE("get DB type test") {
+    SECTION("Valid input int milliseconds") {
+        std::vector<std::string> args = {"--ttl", "20ms", "--value", "int"};
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::INTEGER);
+        REQUIRE(ttl.second == TTLTypes::MILLISECONDS);
+        REQUIRE(std::get<std::chrono::milliseconds>(ttl.first) == std::chrono::milliseconds(20));
+    }
+
+    SECTION("Valid input string minutes") {
+        std::vector<std::string> args = {"--value", "string", "--ttl", "20m"};
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::STRING);
+        REQUIRE(ttl.second == TTLTypes::MINUTES);
+        REQUIRE(std::get<std::chrono::minutes>(ttl.first) == std::chrono::minutes(20));
+    }
+
+    SECTION("Valid input float seconds") {
+        std::vector<std::string> args = {"--value", "float", "--ttl", "20s"};
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::FLOAT);
+        REQUIRE(ttl.second == TTLTypes::SECONDS);
+        REQUIRE(std::get<std::chrono::seconds>(ttl.first) == std::chrono::seconds(20));
+    }
+
+    SECTION("Valid input object seconds") {
+        std::vector<std::string> args = {
+            "--value", "object", "--ttl", "20s", "--struct", "{f1:string, f2:float, f3:int-O}"
+        };
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::OBJECT);
+        REQUIRE(ttl.second == TTLTypes::SECONDS);
+        REQUIRE(std::get<std::chrono::seconds>(ttl.first) == std::chrono::seconds(20));
+        REQUIRE(obj.has_member("f3"));
+        REQUIRE(ref.find("f1")->second == ObjectFieldTypes::STRING);
+        REQUIRE(ref.find("f3")->second == ObjectFieldTypes::INTEGER);
+        REQUIRE(ref.find("f2")->second == ObjectFieldTypes::FLOAT);
+    }
+
+    SECTION("Invalid input multi value") {
+        std::vector<std::string> args = {"--value", "float", "--ttl", "20s", "--value", "int"};
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::INVALID);
+    }
+
+    SECTION("Invalid input multi ttl") {
+        std::vector<std::string> args = {"--value", "float", "--ttl", "20s", "--ttl", "20ms"};
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::INVALID);
+    }
+
+    SECTION("Invalid input multi struct") {
+        std::vector<std::string> args = {
+            "--struct", "{f1:string, f2:float, f3:int-O}", "--ttl", "20s", "--struct", "{f1:string, f2:float, f3:int-O}"
+        };
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::INVALID);
+    }
+
+    SECTION("Invalid input struct with non object type") {
+        std::vector<std::string> args = {
+            "--value", "int", "--ttl", "20s", "--struct", "{f1:string, f2:float, f3:int-O}"
+        };
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::INVALID);
+    }
+
+    SECTION("Invalid tokens option") {
+        std::vector<std::string> args = {
+            "--val", "int", "--ttl", "20s"
+        };
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::INVALID);
+    }
+
+
+    SECTION("Invalid tokens type") {
+        std::vector<std::string> args = {
+            "--value", "inttt", "--ttl", "20s"
+        };
+        view_t view(args.begin(), args.end());
+
+        auto [msg, ttl, obj, ref] = GetDBType(view);
+
+        REQUIRE(msg == DBTypes::INVALID);
+    }
+}

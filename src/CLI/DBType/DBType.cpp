@@ -77,22 +77,64 @@ auto GetOptionToken(view_t &args) -> StartupTokens {
     return StartupTokens::INVALID;
 }
 
-auto GetDBType(view_t &args) -> std::pair<DBTypes, ttl_t> {
-    std::pair res = {DBTypes::INVALID, ttl_t(ImmortalSentinel(), TTLTypes::IMMORTAL)};
+auto GetDBType(view_t &args) -> std::tuple<DBTypes, ttl_t, Object, object_reference> {
+    auto resType = DBTypes::INVALID;
+    auto resTTL = ttl_t(ImmortalSentinel(), TTLTypes::IMMORTAL);
+    Object resObject;
+    object_reference resRef;
+
+    bool gotStruct = false;
+    bool gotValue = false;
+    bool gotTTL = false;
+
 
     while (!args.empty()) {
         const StartupTokens val = GetOptionToken(args);
         if (val == StartupTokens::INVALID) {
-            return {DBTypes::INVALID, ttl_t{}};
+            return {DBTypes::INVALID, ttl_t{}, {}, {}};
         }
         if (val == StartupTokens::VALUE) {
-            res.first = GetType(args);
+            if (gotValue) {
+                return {DBTypes::INVALID, ttl_t{}, {}, {}};
+            }
+
+            const auto res = GetType(args);
+            if (gotStruct && res != DBTypes::OBJECT) {
+                return {DBTypes::INVALID, ttl_t{}, {}, {}};
+            }
+
+            resType = res;
+            gotValue = true;
         }
         if (val == StartupTokens::TTL) {
-            res.second = GetTTL(args);
+            if (gotTTL) {
+                return {DBTypes::INVALID, ttl_t{}, {}, {}};
+            }
+            resTTL = GetTTL(args);
+            gotTTL = true;
+        }
+
+        if (val == StartupTokens::STRUCT) {
+            if (gotValue && resType != DBTypes::OBJECT) {
+                return {DBTypes::INVALID, ttl_t{}, {}, {}};
+            }
+
+            if (gotStruct) {
+                return {DBTypes::INVALID, ttl_t{}, {}, {}};
+            }
+            auto [msg, obj, ref] = ParseObjectStructure(args);
+            if (msg != ObjectParseRes::VALID) {
+                return {DBTypes::INVALID, ttl_t{}, {}, {}};
+            }
+
+            gotStruct = true;
+
+            resType = DBTypes::OBJECT;
+            resObject = std::move(obj);
+            resRef = std::move(ref);
         }
     }
-    return res;
+    return {resType, resTTL, std::move(resObject), std::move(resRef)};
 }
 
 auto GetTTL(view_t &args) -> ttl_t {
