@@ -1,55 +1,37 @@
 #include <iostream>
 #include <ranges>
 
-#include "DBCore/DBEntry/String/String.hpp"
-#include "DBCore/SwissTable/SwissTable.hpp"
+#include "Runner.hpp"
 
 using namespace std;
 
-int main() {
-    SwissTable<std::hash<string>, String, string> table;
+int run(vector<string> &args) {
+    view_t view(args.begin(), args.end());
 
-    string line;
-    const string insert = "INSERT";
-    const string get = "GET";
-    const string del = "DELETE";
-    const string terminate = "TERMINATE";
-    const string invalid =
-            "Invalid input, input must have structure: [ACTION] [KEY] [VALUE]; actions are INSERT, GET or DELETE, [VALUE] needs to be specified only for INSERT, otherwise it is ignored. To shut down, type TERMINATE";
-    const string notFound = "There does not exist a value associated with key: ";
-    const string invalidAction = "Invalid action specified, valid actions are: INSERT, GET, DELETE or TERMINATE";
-
-    getline(cin, line);
-    while (line != terminate) {
-        auto words = line | views::split(' ') | std::views::filter([](auto &&r) { return !r.empty(); }) | ranges::to<
-                         vector<string> >();
-        if (words.size() > 3 or words.size() < 2) {
-            cout << invalid << endl;
-            getline(cin, line);
-            continue;
-        }
-
-        auto &action = words[0];
-        auto &key = words[1];
-
-        auto entry = table.LookUp(key);
-
-        if (action == get) {
-            if (entry.GetResult() == USED) {
-                cout << "Value for key: " << key << " is: " << entry.GetValue() << endl;
-            } else {
-                cout << notFound << key << endl;
-            }
-        } else if (action == insert) {
-            auto &value = words[2];
-            entry.SetValue(String(value));
-        } else if (action == del) {
-            entry.DeleteEntry();
-        } else {
-            cout << invalidAction << endl;
-        }
-        getline(cin, line);
+    if (auto [msg, ttl, obj, ref] = GetDBType(view); msg == DBTypes::OBJECT) {
+        RunDB<Object>(std::move(ttl), cin, cout, obj, ref);
+    } else if (msg == DBTypes::STRING) {
+        RunDB<String>(std::move(ttl), cin, cout, obj, ref);
+    } else if (msg == DBTypes::FLOAT) {
+        RunDB<Float>(std::move(ttl), cin, cout, obj, ref);
+    } else if (msg == DBTypes::INTEGER) {
+        RunDB<Integer>(std::move(ttl), cin, cout, obj, ref);
+    } else if (msg == DBTypes::VECTOR_FLOAT) {
+        RunDB<Vector<Float> >(std::move(ttl), cin, cout, obj, ref);
+    } else if (msg == DBTypes::VECTOR_INT) {
+        RunDB<Vector<Integer> >(std::move(ttl), cin, cout, obj, ref);
+    } else if (msg == DBTypes::VECTOR_STRING) {
+        RunDB<Vector<String> >(std::move(ttl), cin, cout, obj, ref);
+    } else {
+        cout << "Invalid options" << std::endl;
     }
 
     return 0;
+}
+
+int main(const int argc, char *argv[]) {
+
+    vector<string> args(argv + 1, argv + argc);
+
+    return run(args);
 }
