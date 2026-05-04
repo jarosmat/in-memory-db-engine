@@ -256,8 +256,9 @@ std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(view_t
     if (viewIn.empty()) {
         return {ObjectParseRes::INVALID_STRUCTURE, {}, {}};
     }
-
-    const std::string_view view(viewIn.front().begin(), viewIn.front().end());
+    auto val = viewIn.front();
+    viewIn.advance(1);
+    const std::string_view view(val.begin(), val.end());
     auto [msg, res] = SplitToFields(view);
 
     if (msg == SplitFieldRes::INVALID_PARENTHESIS || msg == SplitFieldRes::EMPTY_STRING) {
