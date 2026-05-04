@@ -123,7 +123,7 @@ enum class ObjectParseRes {
 
 using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
 
-std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(std::string_view view);
+std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(view_t &viewIn);
 
 
 #endif //PROJECT_DBTYPE_HPP

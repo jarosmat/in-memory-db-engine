@@ -1120,7 +1120,8 @@ TEST_CASE("SplitToFields handles invalid inputs") {
 
 TEST_CASE("Parse default object") {
     SECTION("Valid input with multiple fields") {
-        std::string_view input = "{f1: int, f2: string, f3: float-O}";
+        std::vector<std::string> inputS = {"{f1: int, f2: string, f3: float-O}"};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
         REQUIRE(msg == ObjectParseRes::VALID);
@@ -1134,7 +1135,8 @@ TEST_CASE("Parse default object") {
     }
 
     SECTION("Valid input with single field") {
-        std::string_view input = "{Age: int}";
+        std::vector<std::string> inputS = {"{Age: int}"};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
         REQUIRE(msg == ObjectParseRes::VALID);
@@ -1145,7 +1147,8 @@ TEST_CASE("Parse default object") {
     }
 
     SECTION("Valid input with spaces") {
-        std::string_view input = "{ Age: int , Name: string , College: string-O }";
+        std::vector<std::string> inputS = {"{ Age: int , Name: string , College: string-O }"};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
         REQUIRE(msg == ObjectParseRes::VALID);
@@ -1159,7 +1162,8 @@ TEST_CASE("Parse default object") {
     }
 
     SECTION("Empty object") {
-        std::string_view input = "{   }";
+        std::vector<std::string> inputS = {"{   }"};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
         REQUIRE(msg == ObjectParseRes::VALID);
@@ -1168,34 +1172,39 @@ TEST_CASE("Parse default object") {
     }
 
     SECTION("Empty string") {
-        std::string_view input = "";
+        std::vector<std::string> inputS = {""};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
         REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
     }
 
     SECTION("String with only spaces") {
-        std::string_view input = "   ";
+        std::vector<std::string> inputS = {"   "};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
         REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
     }
 
     SECTION("Invalid parentheses - missing opening brace") {
-        std::string_view input = "Age: int, Name: string}";
+        std::vector<std::string> inputS = {"Age: int, Name: string}"};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
         REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
     }
 
     SECTION("Invalid parentheses - missing closing brace") {
-        std::string_view input = "{Age: int, Name: string";
+        std::vector<std::string> inputS = {"{Age: int, Name: string"};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
         REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
     }
 
     SECTION("Invalid parentheses - both braces missing") {
-        std::string_view input = "Age: int, Name: string";
+        std::vector<std::string> inputS = {"Age: int, Name: string"};
+        view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
         REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);

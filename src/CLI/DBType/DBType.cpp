@@ -251,7 +251,12 @@ std::pair<SplitFieldRes, std::vector<std::string>> SplitToFields(std::string_vie
     return {SplitFieldRes::VALID, std::move(res)};
 }
 
-std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(const std::string_view view) {
+std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(view_t &viewIn) {
+    if (viewIn.empty()) {
+        return {ObjectParseRes::INVALID_STRUCTURE, {}, {}};
+    }
+
+    const std::string_view view(viewIn.front().begin(), viewIn.front().end());
     auto [msg, res] = SplitToFields(view);
 
     if (msg == SplitFieldRes::INVALID_PARENTHESIS || msg == SplitFieldRes::EMPTY_STRING) {
