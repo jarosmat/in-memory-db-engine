@@ -3,7 +3,7 @@ project(project)
 
 set(CMAKE_CXX_STANDARD 23)
 
-set(DBTYPE_DIR "${PROJECT_SOURCE_DIR}")
+set(DBTYPE_DIR "${PROJECT_SOURCE_DIR}/DBType")
 set(PARSER_DIR "${PROJECT_SOURCE_DIR}/Parser")
 set(TTL_QUEUE_ENTRY_DIR "${PROJECT_SOURCE_DIR}/QueueEntry")
 set(ERROR_DIR "${PROJECT_SOURCE_DIR}/Error")
@@ -25,12 +25,12 @@ target_include_directories(Utils PUBLIC "${UTILS_DIR}")
 add_library(Error "${ERROR_DIR}/Error.cpp")
 target_include_directories(Error PUBLIC "${ERROR_DIR}")
 
-add_library(DBType "${DBTYPE_DIR}/DBType.cpp" "${DBTYPE_DIR}/DBType.hpp")
+add_library(DBType "${DBTYPE_DIR}/DBType.cpp")
 target_include_directories(DBType PUBLIC "${SWISS_TABLE_DIR}" "${HASH_FUNCTION_DIR}" "${DBENTRY_DIR}" "${TIMEPOINT_DIR}")
 target_link_libraries(DBType PUBLIC DBEntry SwissTable HashFunc Timepoint Utils)
 
 add_library(OperationType "${OPERATION_TYPE_DIR}/OperationType.cpp")
-target_include_directories(OperationType PUBLIC "${OPERATION_TYPE_DIR}" "${NODE_DIR}")
+target_include_directories(OperationType PUBLIC "${OPERATION_TYPE_DIR}" "${NODE_DIR}" "${DBTYPE_DIR}")
 target_link_libraries(OperationType PUBLIC Nodes DBType Error)
 
 add_library(Parser "${PARSER_DIR}/OperationsParser.cpp")
