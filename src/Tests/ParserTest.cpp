@@ -890,7 +890,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypesParse::INTEGER);
+        REQUIRE(type == ObjectFieldTypes::INTEGER);
         REQUIRE_FALSE(optional);
     }
 
@@ -901,7 +901,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypesParse::FLOAT);
+        REQUIRE(type == ObjectFieldTypes::FLOAT);
         REQUIRE_FALSE(optional);
     }
 
@@ -912,7 +912,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypesParse::STRING);
+        REQUIRE(type == ObjectFieldTypes::STRING);
         REQUIRE_FALSE(optional);
     }
 
@@ -924,7 +924,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypesParse::INTEGER);
+        REQUIRE(type == ObjectFieldTypes::INTEGER);
         REQUIRE(optional);
     }
 
@@ -935,7 +935,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypesParse::FLOAT);
+        REQUIRE(type == ObjectFieldTypes::FLOAT);
         REQUIRE(optional);
     }
 
@@ -946,7 +946,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypesParse::STRING);
+        REQUIRE(type == ObjectFieldTypes::STRING);
         REQUIRE(optional);
     }
 
@@ -955,7 +955,7 @@ TEST_CASE("Parse Field Startup") {
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
-        REQUIRE(type == ObjectFieldTypesParse::INVALID_FIELD);
+        REQUIRE(type == ObjectFieldTypes::INVALID_FIELD);
     }
 
 
@@ -964,7 +964,7 @@ TEST_CASE("Parse Field Startup") {
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
-        REQUIRE(type == ObjectFieldTypesParse::INVALID_TYPE);
+        REQUIRE(type == ObjectFieldTypes::INVALID_TYPE);
     }
 }
 
@@ -988,12 +988,9 @@ TEST_CASE("Parse Field") {
         auto [name, type, value] = ParseField(view);
         REQUIRE(type == ObjectFieldTypes::INVALID_FIELD);
     }
-
-
 }
 
 TEST_CASE("Parse Object") {
-
     SECTION("Valid object") {
         object_reference reference;
         reference.insert({"f1", ObjectFieldTypes::INTEGER});
@@ -1001,7 +998,7 @@ TEST_CASE("Parse Object") {
         reference.insert({"f3", ObjectFieldTypes::FLOAT});
 
         std::string val = " {f1: 1, f2: \'xd\', f3 : 1.8} ";
-        std::string_view view(val.begin(),val.end());
+        std::string_view view(val.begin(), val.end());
 
         auto [res, obj] = ParseObject(view, {}, reference);
 
@@ -1018,7 +1015,7 @@ TEST_CASE("Parse Object") {
         reference.insert({"f3", ObjectFieldTypes::FLOAT});
 
         std::string val = " {f1: \'xd\', f2: \'xd\', f3 : 1.8} ";
-        std::string_view view(val.begin(),val.end());
+        std::string_view view(val.begin(), val.end());
 
         auto [res, obj] = ParseObject(view, {}, reference);
 
@@ -1035,7 +1032,7 @@ TEST_CASE("Parse Object") {
         reference.insert({"f3", ObjectFieldTypes::FLOAT});
 
         std::string val = " {f2: \'xd\', f3 : 1.8} ";
-        std::string_view view(val.begin(),val.end());
+        std::string_view view(val.begin(), val.end());
 
         auto [res, obj] = ParseObject(view, referenceObject, reference);
 
@@ -1050,74 +1047,74 @@ TEST_CASE("Parse Object") {
 TEST_CASE("SplitToFields handles valid inputs") {
     SECTION("Valid input with multiple fields") {
         std::string_view input = "{Age: int, Name: string, College: string-O}";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::VALID);
-        REQUIRE(result.second.size() == 3);
-        REQUIRE(result.second[0] == "Age: int");
-        REQUIRE(result.second[1] == " Name: string");
-        REQUIRE(result.second[2] == " College: string-O");
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::VALID);
+        REQUIRE(val.size() == 3);
+        REQUIRE(val[0] == "Age: int");
+        REQUIRE(val[1] == " Name: string");
+        REQUIRE(val[2] == " College: string-O");
     }
 
     SECTION("Valid input with single field") {
         std::string_view input = "{Age: int}";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::VALID);
-        REQUIRE(result.second.size() == 1);
-        REQUIRE(result.second[0] == "Age: int");
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::VALID);
+        REQUIRE(val.size() == 1);
+        REQUIRE(val[0] == "Age: int");
     }
 
     SECTION("Valid input with spaces") {
         std::string_view input = "{ Age: int , Name: string , College: string-O }";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::VALID);
-        REQUIRE(result.second.size() == 3);
-        REQUIRE(result.second[0] == "Age: int ");
-        REQUIRE(result.second[1] == " Name: string ");
-        REQUIRE(result.second[2] == " College: string-O");
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::VALID);
+        REQUIRE(val.size() == 3);
+        REQUIRE(val[0] == "Age: int ");
+        REQUIRE(val[1] == " Name: string ");
+        REQUIRE(val[2] == " College: string-O");
     }
 
     SECTION("Empty object") {
         std::string_view input = "{   }";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::VALID);
-        REQUIRE(result.second.size() == 0);
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::VALID);
+        REQUIRE(val.size() == 0);
     }
 }
 
 TEST_CASE("SplitToFields handles invalid inputs") {
     SECTION("Empty string") {
         std::string_view input = "";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::EMPTY_STRING);
-        REQUIRE(result.second.empty());
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::EMPTY_STRING);
+        REQUIRE(val.empty());
     }
 
     SECTION("String with only spaces") {
         std::string_view input = "   ";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::EMPTY_STRING);
-        REQUIRE(result.second.empty());
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::EMPTY_STRING);
+        REQUIRE(val.empty());
     }
 
     SECTION("Invalid parentheses - missing opening brace") {
         std::string_view input = "Age: int, Name: string}";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::INVALID_PARENTHESIS);
-        REQUIRE(result.second.empty());
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::INVALID_PARENTHESIS);
+        REQUIRE(val.empty());
     }
 
     SECTION("Invalid parentheses - missing closing brace") {
         std::string_view input = "{Age: int, Name: string";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::INVALID_PARENTHESIS);
-        REQUIRE(result.second.empty());
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::INVALID_PARENTHESIS);
+        REQUIRE(val.empty());
     }
 
     SECTION("Invalid parentheses - both braces missing") {
         std::string_view input = "Age: int, Name: string";
-        auto result = SplitToFields(input);
-        REQUIRE(result.first == SplitFieldRes::INVALID_PARENTHESIS);
-        REQUIRE(result.second.empty());
+        auto [msg, val] = SplitToFields(input);
+        REQUIRE(msg == SplitFieldRes::INVALID_PARENTHESIS);
+        REQUIRE(val.empty());
     }
 }
 
