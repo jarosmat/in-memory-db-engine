@@ -13,11 +13,15 @@ public:
 
     explicit String(std::string &&val);
 
+    explicit String(char ch);
+
     String();
 
     static String Concatenate(const std::string &valLeft, const std::string &valRight);
 
     static String Concatenate(std::string &&valLeft, std::string &&valRight);
+
+    static String Concatenate(String &&valLeft, String &&valRight);
 
     char operator[](size_t i) const;
 
@@ -31,7 +35,9 @@ public:
 
     [[nodiscard]] size_t Size() const;
 
-    friend std::ostream& operator<<(std::ostream& out, const String& value) {
+    explicit operator std::string();
+
+    friend std::ostream &operator<<(std::ostream &out, const String &value) {
         return (out << value.val);
     }
 };

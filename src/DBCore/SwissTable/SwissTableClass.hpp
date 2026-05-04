@@ -27,9 +27,12 @@ class SwissTable {
 
     void Delete(size_t pos);
 
-    void SetValue(size_t pos, const D& val, size_t hash, K&& key);
+    template<typename DS, typename KS>
+    void SetValue(size_t pos, DS&& val, size_t hash, KS&& key);
 
-    void SetValue(size_t pos, D&& val, size_t hash, K&& key);
+    // void SetValue(size_t pos, D&& val, size_t hash, K&& key);
+    //
+    // void SetValue(size_t pos, const D &val, size_t hash, K &&key);
 
     D& GetValue(size_t pos);
 

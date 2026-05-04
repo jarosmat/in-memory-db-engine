@@ -21,7 +21,7 @@ void SwissTable<F, D, K>::Rehash() {
         for (size_t i = 0; i < groupSize; i++, dataIndex++) {
             if (oldMetadata[group].Used(dataIndex)) {
                 auto res = LookUp(oldKeys[dataIndex]);
-                res.SetValue(oldData[dataIndex]);
+                res.SetValue(std::move(oldData[dataIndex]));
             }
         }
     }
@@ -50,7 +50,8 @@ void SwissTable<F, D, K>::Delete(const size_t pos) {
 }
 
 template<typename F, typename D, typename K>
-void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash, K &&key) {
+template<typename DS, typename KS>
+void SwissTable<F, D, K>::SetValue(size_t pos, DS &&val, size_t hash, KS &&key) {
     EnsureNotMaxload();
     const auto group = pos / groupSize;
 
@@ -58,24 +59,38 @@ void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash, 
         dataCount++;
     }
 
-    keys[pos] = std::move(key);
-    data[pos] = val;
+    keys[pos] = std::forward<KS>(key);
+    data[pos] = std::forward<DS>(val);
     metadata[group].SetVal(hash, pos);
 }
 
-template<typename F, typename D, typename K>
-void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash, K &&key) {
-    EnsureNotMaxload();
-    const auto group = pos / groupSize;
-
-    if (!metadata[group].Used(pos)) {
-        dataCount++;
-    }
-
-    keys[pos] = std::move(key);
-    data[pos] = std::move(val);
-    metadata[group].SetVal(hash, pos);
-}
+// template<typename F, typename D, typename K>
+// void SwissTable<F, D, K>::SetValue(size_t pos, const D &val, const size_t hash, K &&key) {
+//     EnsureNotMaxload();
+//     const auto group = pos / groupSize;
+//
+//     if (!metadata[group].Used(pos)) {
+//         dataCount++;
+//     }
+//
+//     keys[pos] = std::move(key);
+//     data[pos] = val;
+//     metadata[group].SetVal(hash, pos);
+// }
+//
+// template<typename F, typename D, typename K>
+// void SwissTable<F, D, K>::SetValue(size_t pos, D &&val, const size_t hash, K &&key) {
+//     EnsureNotMaxload();
+//     const auto group = pos / groupSize;
+//
+//     if (!metadata[group].Used(pos)) {
+//         dataCount++;
+//     }
+//
+//     keys[pos] = std::move(key);
+//     data[pos] = std::move(val);
+//     metadata[group].SetVal(hash, pos);
+// }
 
 template<typename F, typename D, typename K>
 D &SwissTable<F, D, K>::GetValue(size_t pos) {
@@ -123,7 +138,7 @@ SwissTable<F, D, K>::SwissTable(F hash_func) : dataCount(0), metadata(initialGro
 
 template<typename F, typename D, typename K>
 SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
-    const hash hKey = hashFunc(key);
+    const hash hKey = hashFunc(std::move(key));
     const hash h1 = hKey >> h1ShiftCoef;
     const hash h2 = hKey & h2Mask;
 

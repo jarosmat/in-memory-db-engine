@@ -3,7 +3,7 @@
 #include "ValueTypes.hpp"
 #include "SwissTable.hpp"
 #include "Timepoint.hpp"
-
+#include "QueueEntry.hpp"
 
 
 class ImmortalSentinel {
@@ -15,12 +15,15 @@ class DBEntry_t {
     E payload;
     Timepoint timepoint_{};
     T ttl;
+    QueueEntry *entryPointer;
 
 public:
     template<typename EC, typename TC>
         requires (std::is_convertible_v<std::remove_reference_t<EC>, E> &&
                   std::is_convertible_v<std::remove_reference_t<TC>, T>)
-    explicit DBEntry_t(EC &&payload, TC &&ttl) : payload(std::forward<EC>(payload)), ttl(std::forward<TC>(ttl)) {
+    explicit DBEntry_t(EC &&payload, TC &&ttl, QueueEntry *pointer) : payload(std::forward<EC>(payload)),
+                                                                      ttl(std::forward<TC>(ttl)),
+                                                                      entryPointer(pointer) {
     }
 
     auto GetRef() -> E & {
@@ -40,21 +43,29 @@ public:
     T RemainingTime() {
         return timepoint_.RemainingTime(ttl);
     }
+
+    void Invalidate() const {
+        if (entryPointer != nullptr) {
+            entryPointer->invalid = true;
+        }
+    }
 };
 
 template<typename E>
 class DBEntry_t<E, ImmortalSentinel> {
     E payload;
+    QueueEntry *entryPointer;
 
 public:
     template<typename EC, typename TC>
         requires (std::is_convertible_v<std::remove_reference_t<EC>, E>)
-    explicit DBEntry_t(EC &&payload, TC) : payload(std::forward<EC>(payload)) {
+    explicit DBEntry_t(EC &&payload, TC, QueueEntry *pointer) : payload(std::forward<EC>(payload)),
+                                                                entryPointer(pointer) {
     }
 
     template<typename EC>
         requires (std::is_convertible_v<std::remove_reference_t<EC>, E>)
-    explicit DBEntry_t(EC &&payload) : payload(std::forward<EC>(payload)) {
+    explicit DBEntry_t(EC &&payload, QueueEntry *pointer) : payload(std::forward<EC>(payload)), entryPointer(pointer) {
     }
 
     auto GetRef() -> E & {
@@ -74,6 +85,12 @@ public:
     std::chrono::milliseconds RemainingTime() {
         return std::chrono::milliseconds::max();
     }
+
+    void Invalidate() const {
+        if (entryPointer != nullptr) {
+            entryPointer->invalid = true;
+        }
+    }
 };
 
 template<typename E>
@@ -91,6 +108,8 @@ public:
         virtual bool Expired() = 0;
 
         virtual auto RemainingTime() -> std::chrono::milliseconds = 0;
+
+        virtual auto Invalidate() -> void = 0;
     };
 
     template<typename T>
@@ -112,6 +131,10 @@ public:
 
         auto RemainingTime() -> std::chrono::milliseconds override {
             return std::chrono::duration_cast<std::chrono::milliseconds>(obj.RemainingTime());
+        }
+
+        void Invalidate() override {
+            obj.Invalidate();
         }
 
     private:
@@ -149,6 +172,10 @@ public:
         return entry->RemainingTime();
     }
 
+    void Invalidate() {
+        entry->Invalidate();
+    }
+
 private:
     std::unique_ptr<HolderBase> entry;
 };
@@ -174,4 +201,16 @@ public:
         payload = std::forward<ES>(val);
     }
 };
+
+template<typename E, typename T>
+DBEntry<E> GetEntry(E &&val, T &&ttl, QueueEntry *entryPointer) {
+    DBEntry_t<E, T> entry_t(std::forward<E>(val), std::forward<T>(ttl), entryPointer);
+    return DBEntry<E>(std::move(entry_t));
+}
+
+template<typename E>
+std::ostream &operator<<(std::ostream &os, DBEntry<E> &obj) {
+    os << obj.GetRef();
+    return os;
+}
 #endif //PROJECT_DBENTRY_HPP

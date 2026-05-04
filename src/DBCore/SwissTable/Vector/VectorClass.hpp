@@ -39,6 +39,10 @@ public:
 
     void Remove(size_t i);
 
+    void Insert(size_t i, T &&val);
+
+    void Insert(size_t i, const T &val);
+
     const T &CLastEntry() const;
 
     T &LastEntry();
@@ -49,6 +53,9 @@ public:
 
     [[nodiscard]] size_t Count() const;
 };
+
+template<typename T>
+std::ostream &operator<<(std::ostream &os, const Vector<T> &obj);
 
 
 #endif //PROJECT_ARRAY_HPP

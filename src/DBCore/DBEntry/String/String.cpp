@@ -8,7 +8,11 @@ String::String(const string &val) : val(val) {
 String::String(string &&val) : val(std::move(val)) {
 }
 
-String::String(){
+String::String(const char ch) {
+    val.push_back(ch);
+}
+
+String::String() {
 }
 
 String String::Concatenate(const string &valLeft, const string &valRight) {
@@ -24,6 +28,14 @@ String String::Concatenate(string &&valLeft, string &&valRight) {
     return String(std::move(result));
 }
 
+String String::Concatenate(String &&valLeft, String &&valRight) {
+    string result(std::move(valLeft.val));
+
+    result += valRight.val;
+
+    return String(std::move(result));
+}
+
 char String::operator[](const size_t i) const {
     if (i < val.size())
         return val[i];
@@ -34,8 +46,7 @@ char String::operator[](const size_t i) const {
 void String::RemovePrefix(const size_t n) {
     if (n >= val.size()) {
         val.clear();
-    }
-    else {
+    } else {
         val.erase(val.begin(), val.begin() + n);
     }
 }
@@ -43,8 +54,7 @@ void String::RemovePrefix(const size_t n) {
 void String::RemoveSuffix(const size_t n) {
     if (n >= val.size()) {
         val.clear();
-    }
-    else {
+    } else {
         val.erase(val.end() - n, val.end());
     }
 }
@@ -72,4 +82,8 @@ bool String::operator==(const String &other) const {
 
 size_t String::Size() const {
     return val.size();
+}
+
+String::operator string() {
+    return val;
 }

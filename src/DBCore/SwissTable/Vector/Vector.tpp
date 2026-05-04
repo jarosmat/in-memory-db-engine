@@ -88,6 +88,42 @@ void Vector<T>::Remove(const size_t i) {
 }
 
 template<typename T>
+void Vector<T>::Insert(size_t i, T &&val) {
+    EnsureNotEmpty();
+    if (i > Count()) {
+        throw "Index out of bounds Error";
+    }
+    if (i == Count()) {
+        Append(std::move(val));
+    }
+    else {
+        Append(std::move(data.get()[Count() - 1]));
+        for (size_t j = Count() - 1; i < j; --j) {
+           data.get()[j] = std::move(data.get()[j - 1]);
+        }
+        data.get()[i] = std::move(val);
+    }
+}
+
+template<typename T>
+void Vector<T>::Insert(size_t i, const T &val) {
+    EnsureNotEmpty();
+    if (i > Count()) {
+        throw "Index out of bounds Error";
+    }
+    if (i == Count()) {
+        Append(val);
+    }
+    else {
+        Append(std::move(data.get()[Count() - 1]));
+        for (size_t j = Count() - 1; i < j; --j) {
+            data.get()[j] = std::move(data.get()[j - 1]);
+        }
+        data.get()[i] = val;
+    }
+}
+
+template<typename T>
 const T &Vector<T>::CLastEntry() const {
     return data.get()[count - 1];
 }
@@ -116,5 +152,19 @@ T &Vector<T>::operator[](const size_t i) {
 template<typename T>
 size_t Vector<T>::Count() const {
     return count;
+}
+
+template<typename T>
+std::ostream & operator<<(std::ostream &os, const Vector<T> &obj) {
+    if (!obj.Count() == 0) {
+        os << "{" << obj[0];
+        for (std::size_t i = 1; i < obj.Count(); ++i) {
+            os << ", " << obj[i];
+        }
+        os << "}";
+    } else {
+        os << "{}";
+    }
+    return os;
 }
 #endif // VECTOR_TPP

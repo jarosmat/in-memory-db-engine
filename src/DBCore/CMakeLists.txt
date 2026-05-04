@@ -11,12 +11,12 @@ set(HASH_FUNCTION_DIR "${PROJECT_SOURCE_DIR}/HashFunction")
 set(OBJECT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Object")
 set(TIMEPOINT_DIR "${PROJECT_SOURCE_DIR}/DBEntry/Timepoint")
 set(DBENTRY_DIR "${PROJECT_SOURCE_DIR}/DBEntry")
-set(DBTYPE_DIR "${PROJECT_SOURCE_DIR}")
+set(VALUE_TYPES_DIR "${PROJECT_SOURCE_DIR}/DBEntry")
 
 add_library(Timepoint "${TIMEPOINT_DIR}/Timepoint.cpp")
 target_include_directories(Timepoint PUBLIC "${TIMEPOINT_DIR}")
 
-add_library(Entries "${STRING_DIR}/String.cpp" "${STRING_DIR}/PrefixAut.cpp" "${OBJECT_DIR}/Object.cpp")
+add_library(Entries "${STRING_DIR}/String.cpp" "${STRING_DIR}/PrefixAut.cpp" "${OBJECT_DIR}/Object.cpp" "${DBENTRY_DIR}/Null.cpp")
 target_include_directories(Entries PUBLIC "${STRING_DIR}" "${PROJECT_SOURCE_DIR}/DBEntry" "${OBJECT_DIR}" "${VECTOR_DIR}")
 
 add_library(SwissTable "${GROUP_DIR}/Group.cpp")
@@ -26,9 +26,6 @@ add_library(HashFunc "${HASH_FUNCTION_DIR}/SipHash.cpp")
 target_include_directories(HashFunc PUBLIC "${HASH_FUNCTION_DIR}")
 
 add_library(DBEntry INTERFACE "${DBENTRY_DIR}/DBEntry.hpp")
-target_include_directories(DBEntry INTERFACE "${TIMEPOINT_DIR}" "${SWISS_TABLE_DIR}")
-target_link_libraries(DBEntry INTERFACE Entries SwissTable Timepoint)
+target_include_directories(DBEntry INTERFACE "${TIMEPOINT_DIR}" "${SWISS_TABLE_DIR}" "${TTL_QUEUE_ENTRY_DIR}")
+target_link_libraries(DBEntry INTERFACE Entries SwissTable Timepoint TTL_QueueEntry)
 
-add_library(DBType "${DBTYPE_DIR}/DBType.cpp")
-target_include_directories(DBType PUBLIC "${SWISS_TABLE_DIR}" "${HASH_FUNCTION_DIR}" "${DBENTRY_DIR}" "${TIMEPOINT_DIR}")
-target_link_libraries(DBEntry INTERFACE DBEntry SwissTable HashFunc Timepoint)

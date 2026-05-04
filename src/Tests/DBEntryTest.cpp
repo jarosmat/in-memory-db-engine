@@ -31,15 +31,19 @@ bool CompareVec(const Vector<Integer> &left, const Vector<Integer> &right) {
 }
 
 TEST_CASE("DBEntry_t: Basic Construction and Value Access with std::chrono::duration TTL", "[dbentry_t]") {
+    std::vector<uint8_t> key = {};
+    auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    auto qentryPtr = Qentry.get();
+
     SECTION("Construct with int payload and seconds TTL") {
         constexpr Integer payload = 42;
-        DBEntry_t<Integer, seconds> entry(payload, GetTTL<seconds>(10));
+        DBEntry_t<Integer, seconds> entry(payload, GetTTL<seconds>(10), qentryPtr);
         REQUIRE(entry.GetRef() == payload);
     }
 
     SECTION("Construct with string payload and milliseconds TTL") {
         auto val = string("hello");
-        DBEntry_t<String, milliseconds> entry(String(val), GetTTL<seconds>(500));
+        DBEntry_t<String, milliseconds> entry(String(val), GetTTL<seconds>(500), qentryPtr);
         REQUIRE(entry.GetRef() == String(val));
     }
 
@@ -47,18 +51,18 @@ TEST_CASE("DBEntry_t: Basic Construction and Value Access with std::chrono::dura
         Vector<Integer> vec;
         constexpr Integer size = 6;
         InitVec(vec, size);
-        DBEntry_t<Vector<Integer>, seconds> entry(vec, GetTTL<seconds>(5));
+        DBEntry_t<Vector<Integer>, seconds> entry(vec, GetTTL<seconds>(5), qentryPtr);
         REQUIRE(CompareVec(vec, entry.GetRef()));
     }
 
     SECTION("SetVal with rvalue") {
-        DBEntry_t<Integer, seconds> entry(0, GetTTL<seconds>(10));
+        DBEntry_t<Integer, seconds> entry(0, GetTTL<seconds>(10), qentryPtr);
         entry.SetVal(123);
         REQUIRE(entry.GetRef() == 123);
     }
 
     SECTION("SetVal with lvalue") {
-        DBEntry_t<Integer, seconds> entry(0, GetTTL<seconds>(10));
+        DBEntry_t<Integer, seconds> entry(0, GetTTL<seconds>(10), qentryPtr);
         Integer val = 456;
         entry.SetVal(val);
         REQUIRE(entry.GetRef() == 456);
@@ -66,28 +70,37 @@ TEST_CASE("DBEntry_t: Basic Construction and Value Access with std::chrono::dura
 }
 
 TEST_CASE("DBEntry_t: Expiration with std::chrono::duration TTL", "[dbentry_t][expiration]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Expired with zero TTL") {
-        const DBEntry_t<Integer, seconds> entry(42, GetTTL<seconds>(0));
+        const DBEntry_t<Integer, seconds> entry(42, GetTTL<seconds>(0), qentryPtr);
         REQUIRE(entry.Expired());
     }
 
     SECTION("Not expired with large TTL") {
-        const DBEntry_t<Integer, seconds> entry(42, GetTTL<seconds>(1000000));
+        const DBEntry_t<Integer, seconds> entry(42, GetTTL<seconds>(1000000), qentryPtr);
         REQUIRE_FALSE(entry.Expired());
     }
 }
 
 TEST_CASE("DBEntry: Type Erasure and Value Access with std::chrono::duration TTL", "[dbentry]") {
+    std::vector<uint8_t> key = {};
+    auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    auto qentryPtr = Qentry.get();
+
+
     SECTION("Construct with Integer payload and seconds TTL") {
         constexpr Integer val = 42;
-        DBEntry_t<Integer, seconds> entry_t(val, GetTTL<seconds>(10));
+        DBEntry_t<Integer, seconds> entry_t(val, GetTTL<seconds>(10), qentryPtr);
         DBEntry<Integer> entry(entry_t);
         REQUIRE(entry.GetRef() == val);
     }
 
     SECTION("Construct with string payload and milliseconds TTL") {
         auto val = string("hello");
-        DBEntry_t<String, milliseconds> entry_t(String(val), GetTTL<seconds>(500));
+        DBEntry_t<String, milliseconds> entry_t(String(val), GetTTL<seconds>(500), qentryPtr);
         DBEntry<String> entry(entry_t);
         REQUIRE(entry.GetRef() == String(val));
     }
@@ -96,7 +109,7 @@ TEST_CASE("DBEntry: Type Erasure and Value Access with std::chrono::duration TTL
         constexpr size_t size = 6;
         Vector<Integer> vec;
         InitVec(vec, size);
-        DBEntry_t<Vector<Integer>, seconds> entry_t(vec, GetTTL<seconds>(5));
+        DBEntry_t<Vector<Integer>, seconds> entry_t(vec, GetTTL<seconds>(5), qentryPtr);
         DBEntry<Vector<Integer> > entry(entry_t);
         REQUIRE(CompareVec(vec, entry.GetRef()));
     }
@@ -105,7 +118,7 @@ TEST_CASE("DBEntry: Type Erasure and Value Access with std::chrono::duration TTL
         constexpr size_t size = 6;
         Vector<Integer> vec;
         InitVec(vec, size);
-        DBEntry_t<Vector<Integer>, seconds> entry_t(Vector<Integer>(), GetTTL<seconds>(10));
+        DBEntry_t<Vector<Integer>, seconds> entry_t(Vector<Integer>(), GetTTL<seconds>(10), qentryPtr);
         DBEntry<Vector<Integer> > entry(entry_t);
         entry.SetVal(std::move(vec));
         Vector<Integer> vecNew;
@@ -114,7 +127,7 @@ TEST_CASE("DBEntry: Type Erasure and Value Access with std::chrono::duration TTL
     }
 
     SECTION("SetVal with lvalue") {
-        DBEntry_t<Integer, seconds> entry_t(0, GetTTL<seconds>(10));
+        DBEntry_t<Integer, seconds> entry_t(0, GetTTL<seconds>(10), qentryPtr);
         DBEntry<Integer> entry(entry_t);
         Integer val = 456;
         entry.SetVal(val);
@@ -123,40 +136,52 @@ TEST_CASE("DBEntry: Type Erasure and Value Access with std::chrono::duration TTL
 }
 
 TEST_CASE("DBEntry: Expiration with std::chrono::duration TTL", "[dbentry][expiration]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Expired with zero TTL") {
-        const DBEntry_t<Integer, seconds> entry_t(42, GetTTL<seconds>(0));
+        const DBEntry_t<Integer, seconds> entry_t(42, GetTTL<seconds>(0), qentryPtr);
         DBEntry<Integer> entry(entry_t);
         REQUIRE(entry.Expired());
     }
 
     SECTION("Not expired with large TTL") {
-        const DBEntry_t<Integer, seconds> entry_t(42, GetTTL<seconds>(1000000));
+        const DBEntry_t<Integer, seconds> entry_t(42, GetTTL<seconds>(1000000), qentryPtr);
         DBEntry<Integer> entry(entry_t);
         REQUIRE_FALSE(entry.Expired());
     }
 }
 
 TEST_CASE("DBEntry: Move Semantics with std::chrono::duration TTL", "[dbentry][move]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Construct with rvalue") {
         constexpr size_t size = 6;
         Vector<Integer> vec;
         InitVec(vec, size);
-        DBEntry_t<Vector<Integer>, seconds> entry_t(vec, GetTTL<seconds>(10));
+        DBEntry_t<Vector<Integer>, seconds> entry_t(vec, GetTTL<seconds>(10), qentryPtr);
         DBEntry<Vector<Integer> > entry(std::move(entry_t));
         REQUIRE(CompareVec(vec, entry.GetRef()));
     }
 }
 
 TEST_CASE("DBEntry_t: RemainingTime with std::chrono::milliseconds", "[dbentry_t][remaining][milliseconds]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Time remaining (not expired)") {
-        DBEntry_t<Integer, milliseconds> entry(42, 100ms);
+        DBEntry_t<Integer, milliseconds> entry(42, 100ms, qentryPtr);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining >= 95ms);
         REQUIRE(remaining <= 100ms);
     }
 
     SECTION("Expired (zero remaining)") {
-        DBEntry_t<Integer, milliseconds> entry(42, 100ms);
+        DBEntry_t<Integer, milliseconds> entry(42, 100ms, qentryPtr);
         std::this_thread::sleep_for(150ms);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining == 0ms);
@@ -164,15 +189,19 @@ TEST_CASE("DBEntry_t: RemainingTime with std::chrono::milliseconds", "[dbentry_t
 }
 
 TEST_CASE("DBEntry_t: RemainingTime with std::chrono::seconds", "[dbentry_t][remaining][seconds]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Time remaining (not expired)") {
-        DBEntry_t<Integer, seconds> entry(42, 2s);
+        DBEntry_t<Integer, seconds> entry(42, 2s, qentryPtr);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining >= 1s);
         REQUIRE(remaining <= 2s);
     }
 
     SECTION("Expired (zero remaining)") {
-        DBEntry_t<Integer, seconds> entry(42, 2s);
+        DBEntry_t<Integer, seconds> entry(42, 2s, qentryPtr);
         std::this_thread::sleep_for(2100ms);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining == 0s);
@@ -180,15 +209,19 @@ TEST_CASE("DBEntry_t: RemainingTime with std::chrono::seconds", "[dbentry_t][rem
 }
 
 TEST_CASE("DBEntry_t: RemainingTime with std::chrono::minutes", "[dbentry_t][remaining][minutes]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Time remaining (not expired)") {
-        DBEntry_t<Integer, minutes> entry(42, 1min);
+        DBEntry_t<Integer, minutes> entry(42, 1min, qentryPtr);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining >= 59s);
         REQUIRE(remaining <= 60s);
     }
 
     SECTION("Expired (zero remaining)") {
-        DBEntry_t<Integer, minutes> entry(42, 1min);
+        DBEntry_t<Integer, minutes> entry(42, 1min, qentryPtr);
         std::this_thread::sleep_for(61s);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining == 0min);
@@ -197,16 +230,20 @@ TEST_CASE("DBEntry_t: RemainingTime with std::chrono::minutes", "[dbentry_t][rem
 
 
 TEST_CASE("DBEntry: RemainingTime with std::chrono::milliseconds", "[dbentry][remaining][milliseconds]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Time remaining (not expired)") {
-        const DBEntry_t<Integer, milliseconds> entry_t(42, 100ms);
-        DBEntry<Integer> entry(entry_t);
+        Integer val = 42;
+        DBEntry<Integer> entry = GetEntry<Integer, milliseconds>(std::move(val), 100ms, qentryPtr);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining >= 95ms);
         REQUIRE(remaining <= 100ms);
     }
 
     SECTION("Expired (zero remaining)") {
-        DBEntry_t<Integer, milliseconds> entry_t(42, 100ms);
+        DBEntry_t<Integer, milliseconds> entry_t(42, 100ms, qentryPtr);
         DBEntry<Integer> entry(entry_t);
         std::this_thread::sleep_for(150ms);
         auto remaining = entry.RemainingTime();
@@ -215,15 +252,19 @@ TEST_CASE("DBEntry: RemainingTime with std::chrono::milliseconds", "[dbentry][re
 }
 
 TEST_CASE("DBEntry: RemainingTime with std::chrono::seconds", "[dbentry][remaining][seconds]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Time remaining (not expired)") {
-        DBEntry_t<Integer, seconds> entry(42, 2s);
+        DBEntry_t<Integer, seconds> entry(42, 2s, qentryPtr);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining >= 1s);
         REQUIRE(remaining <= 2s);
     }
 
     SECTION("Expired (zero remaining)") {
-        DBEntry_t<Integer, seconds> entry(42, 2s);
+        DBEntry_t<Integer, seconds> entry(42, 2s, qentryPtr);
         std::this_thread::sleep_for(2100ms);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining == 0s);
@@ -231,15 +272,19 @@ TEST_CASE("DBEntry: RemainingTime with std::chrono::seconds", "[dbentry][remaini
 }
 
 TEST_CASE("DBEntry: RemainingTime with std::chrono::minutes", "[dbentry][remaining][minutes]") {
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
     SECTION("Time remaining (not expired)") {
-        DBEntry_t<Integer, minutes> entry(42, 1min);
+        DBEntry_t<Integer, minutes> entry(42, 1min, qentryPtr);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining >= 59s);
         REQUIRE(remaining <= 60s);
     }
 
     SECTION("Expired (zero remaining)") {
-        DBEntry_t<Integer, minutes> entry(42, 1min);
+        DBEntry_t<Integer, minutes> entry(42, 1min, qentryPtr);
         std::this_thread::sleep_for(61s);
         auto remaining = entry.RemainingTime();
         REQUIRE(remaining == 0min);
@@ -247,14 +292,18 @@ TEST_CASE("DBEntry: RemainingTime with std::chrono::minutes", "[dbentry][remaini
 }
 
 TEST_CASE("Appending multiple types of DBEntry_t into one Vector") {
+    std::vector<uint8_t> key = {};
+    auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    auto qentryPtr = Qentry.get();
+
     Vector<DBEntry<Integer> > vec;
-    const DBEntry_t<Integer, seconds> entry_t(0, GetTTL<seconds>(10));
+    const DBEntry_t<Integer, seconds> entry_t(0, GetTTL<seconds>(10), qentryPtr);
     DBEntry<Integer> entry(entry_t);
 
-    DBEntry_t<Integer, milliseconds> entry_milliseconds_t(0, GetTTL<seconds>(10));
+    DBEntry_t<Integer, milliseconds> entry_milliseconds_t(0, GetTTL<seconds>(10), qentryPtr);
     DBEntry<Integer> entry_milliseconds(entry_t);
 
-    const DBEntry_t<Integer, ImmortalSentinel> entry_imm_t(0);
+    const DBEntry_t<Integer, ImmortalSentinel> entry_imm_t(0, qentryPtr);
     DBEntry<Integer> entry_immortal(entry_imm_t);
 
     vec.Append(std::move(entry));
@@ -267,7 +316,11 @@ TEST_CASE("Appending multiple types of DBEntry_t into one Vector") {
 }
 
 TEST_CASE("Test immortal entry") {
-    const DBEntry_t<Integer, ImmortalSentinel> entry_imm_t(0);
+    std::vector<uint8_t> key = {};
+    const auto Qentry = std::make_unique<QueueEntry>(milliseconds(1), key);
+    const auto qentryPtr = Qentry.get();
+
+    const DBEntry_t<Integer, ImmortalSentinel> entry_imm_t(0, qentryPtr);
     DBEntry<Integer> entry_immortal(entry_imm_t);
 
     REQUIRE_FALSE(entry_immortal.Expired());
