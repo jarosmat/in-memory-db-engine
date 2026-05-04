@@ -76,10 +76,34 @@ enum class TTLTypes {
     INVALID
 };
 
+enum class ObjectFieldTypes {
+    INTEGER,
+    FLOAT,
+    STRING,
+    INVALID_TYPE,
+    INVALID_FIELD,
+    VALID
+};
+
+enum class SplitFieldRes {
+    VALID,
+    INVALID_PARENTHESIS,
+    EMPTY_STRING,
+};
+
+enum class ObjectParseRes {
+    VALID,
+    INVALID_TYPE,
+    INVALID_FIELD,
+    INVALID_STRUCTURE,
+};
+
 using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
 using variant_t = std::variant<std::chrono::milliseconds, std::chrono::seconds, std::chrono::minutes, ImmortalSentinel>;
 using ttl_t = std::pair<variant_t, TTLTypes>;
+
+using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
 
 auto GetOptionToken(view_t &args) -> StartupTokens;
 
@@ -93,35 +117,9 @@ auto ParseSignedTTL(std::string &val) -> ttl_t;
 
 auto ParseUnsignedTTL(std::string &val) -> ttl_t;
 
-
-enum class ObjectFieldTypes {
-    INTEGER,
-    FLOAT,
-    STRING,
-    INVALID_TYPE,
-    INVALID_FIELD,
-    VALID
-};
-
 std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_view view);
 
-enum class SplitFieldRes {
-    VALID,
-    INVALID_PARENTHESIS,
-    EMPTY_STRING,
-};
-
 std::pair<SplitFieldRes, std::vector<std::string> > SplitToFields(std::string_view view);
-
-enum class ObjectParseRes {
-    VALID,
-    INVALID_TYPE,
-    INVALID_FIELD,
-    INVALID_STRUCTURE,
-};
-
-
-using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
 
 std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(view_t &viewIn);
 
