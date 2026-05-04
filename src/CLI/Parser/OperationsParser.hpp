@@ -1,66 +1,9 @@
-#ifndef PROJECT_OPERATIONTYPE_HPP
-#define PROJECT_OPERATIONTYPE_HPP
-#include <functional>
-#include <ranges>
-#include <vector>
+#ifndef PROJECT_OPERATIONSPARSER_HPP
+#define PROJECT_OPERATIONSPARSER_HPP
+#include "OperationType.hpp"
 #include "Nodes.hpp"
-#include "DBType.hpp"
-#include "Vector.hpp"
-#include "ValueTypes.hpp"
-#include <fstream>
-#include <filesystem>
-#include <queue>
-#include <random>
-#include <stop_token>
-#include <thread>
-#include "QueueEntry.hpp"
-#include "DBEntry.hpp"
 #include "Error.hpp"
-#include "Utils.hpp"
-
-
-using ttlQueueType = std::priority_queue<std::unique_ptr<QueueEntry>, std::vector<std::unique_ptr<QueueEntry> >,
-    CompareQueueEntry>;
-
-template<typename T>
-struct vector_t {
-    using type = T;
-};
-
-template<typename T>
-struct vector_t<Vector<T> > {
-    using type = T;
-};
-
-enum class OPType {
-    INSERT,
-    GET,
-    DELETE,
-    TERMINATE,
-    ADD,
-    SUBTRACT,
-    DIVIDE,
-    MULTIPLY,
-    FADD,
-    FSUBTRACT,
-    FDIVIDE,
-    FMULTIPLY,
-    CONCAT,
-    SUFFIX,
-    PREFIX,
-    AT,
-    FIND,
-    APPEND,
-    POP,
-    VINSERT,
-    REMOVE,
-    SET,
-    VGET,
-    SIZE,
-    OGET,
-    OSET,
-    INVALID
-};
+#include <thread>
 
 enum class ArgsType {
     CONSTANT,
@@ -68,24 +11,6 @@ enum class ArgsType {
     KEY_FROM_CONSTANT,
     EMPTY
 };
-
-std::size_t GetArgCount(OPType op);
-
-using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
-
-OPType GetOPType(view_t &args);
-
-bool ValidateIntOp(OPType op);
-
-bool ValidateFloatOp(OPType op);
-
-bool ValidateStringOp(OPType op);
-
-bool ValidateVectorOP(OPType op);
-
-bool ValidateVectorIntOP(OPType op);
-
-bool ValidateOPType(OPType op, DBTypes dbType);
 
 using args_parsed = std::pair<ArgsType, std::string>;
 
@@ -728,7 +653,7 @@ std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
     auto [typeField, ptrField] = getString(db, std::move(parseField));
     const auto fieldName = static_cast<std::string>(ptrField.get()->Execute());
 
-    auto findRes = reference.find(fieldName);
+    const auto findRes = reference.find(fieldName);
 
     if (findRes == reference.end()) {
         auto errorPtr = std::make_unique<ErrorNode>(outstream, InvalidField(fieldName));
@@ -773,7 +698,7 @@ std::tuple<ParseOperationRes, NodePtr<Object>, ObjectFieldTypes, std::string> Pa
     auto [typeField, ptrField] = getString(db, std::move(parseField));
     const auto fieldName = static_cast<std::string>(ptrField.get()->Execute());
 
-    auto findRes = reference.find(fieldName);
+    const auto findRes = reference.find(fieldName);
 
     if (findRes == reference.end()) {
         return {ParseOperationRes::INVALID_ARGS, std::move(ptr), ObjectFieldTypes::INVALID_FIELD, std::string()};
@@ -969,4 +894,7 @@ void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueM
 
 bool HasTarget(OPType op);
 
-#endif //PROJECT_OPERATIONTYPE_HPP
+
+
+
+#endif //PROJECT_OPERATIONSPARSER_HPP

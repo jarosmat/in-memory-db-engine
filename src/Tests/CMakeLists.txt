@@ -35,7 +35,7 @@ target_link_libraries(DBEntryTest PUBLIC DBEntry Catch2::Catch2WithMain TTL_Queu
 add_test(NAME DBEntryTest COMMAND DBEntryTest)
 
 add_executable(ParserTest ParserTest.cpp)
-target_link_libraries(ParserTest Parser Catch2::Catch2WithMain)
+target_link_libraries(ParserTest Runner Catch2::Catch2WithMain)
 add_test(NAME ParserTest COMMAND ParserTest)
 
 
