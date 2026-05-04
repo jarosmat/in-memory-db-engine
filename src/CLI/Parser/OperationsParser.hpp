@@ -878,9 +878,6 @@ parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, ttl
 std::unique_ptr<ErrorNode> GetError(ParseOperationRes res, std::size_t expected, std::size_t actual,
                                     std::ostream &outstream, const std::string &file);
 
-void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueMutex,
-                std::queue<std::string> &dataQueue);
-
 bool HasTarget(OPType op);
 
 
