@@ -75,9 +75,9 @@ auto GetOptionToken(view_t &args) -> StartupTokens {
 }
 
 auto GetDBType(view_t &args) -> std::pair<DBTypes, ttl_t> {
-   std::pair<DBTypes, ttl_t> res = {DBTypes::INVALID, ttl_t(ImmortalSentinel(), TTLTypes::IMMORTAL)};
+    std::pair res = {DBTypes::INVALID, ttl_t(ImmortalSentinel(), TTLTypes::IMMORTAL)};
 
-   while (!args.empty()) {
+    while (!args.empty()) {
         const StartupTokens val = GetOptionToken(args);
         if (val == StartupTokens::INVALID) {
             return {DBTypes::INVALID, ttl_t{}};
@@ -99,9 +99,8 @@ auto GetTTL(view_t &args) -> ttl_t {
 
     std::string val = args.front();
     args.advance(1);
-    const auto size = val.size();
 
-    if (size < 2) {
+    if (const auto size = val.size(); size < 2) {
         return {variant_t{}, TTLTypes::INVALID};
     }
 
@@ -205,12 +204,11 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
     return {{}, ObjectFieldTypes::INVALID_TYPE, false};
 }
 
-std::pair<SplitFieldRes, std::vector<std::string>> SplitToFields(std::string_view view) {
+std::pair<SplitFieldRes, std::vector<std::string> > SplitToFields(std::string_view view) {
     SkipSpaces(view);
     RemoveTrailingSpaces(view);
 
     if (view.empty()) {
-
         return {SplitFieldRes::EMPTY_STRING, {}};
     }
 
@@ -232,7 +230,7 @@ std::pair<SplitFieldRes, std::vector<std::string>> SplitToFields(std::string_vie
 
     auto endIt = view.begin();
     auto startIt = view.begin();
-    auto end = view.end();
+    const auto end = view.end();
 
     std::vector<std::string> res;
 
@@ -241,7 +239,7 @@ std::pair<SplitFieldRes, std::vector<std::string>> SplitToFields(std::string_vie
             res.emplace_back(startIt, endIt);
             ++endIt;
             startIt = endIt;
-        }  else {
+        } else {
             ++endIt;
         }
     }
@@ -269,9 +267,7 @@ std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(view_t
     for (auto &&a: res) {
         const std::string_view fieldView(a.begin(), a.end());
 
-        auto [name, fieldMsg, optional] = ParseFieldStartup(fieldView);
-
-        if (fieldMsg == ObjectFieldTypes::FLOAT) {
+        if (auto [name, fieldMsg, optional] = ParseFieldStartup(fieldView); fieldMsg == ObjectFieldTypes::FLOAT) {
             if (optional) {
                 refObject.set_value(name, Null());
             }
@@ -295,4 +291,3 @@ std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(view_t
 
     return {ObjectParseRes::VALID, std::move(refObject), std::move(reference)};
 }
-
