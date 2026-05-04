@@ -105,5 +105,13 @@ enum class ObjectFieldTypesParse {
 
 std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::string_view view);
 
+enum class SplitFieldRes {
+    VALID,
+    INVALID_PARENTHESIS,
+    EMPTY_STRING,
+};
+
+std::pair<SplitFieldRes, std::vector<std::string> > SplitToFields(std::string_view view);
+
 
 #endif //PROJECT_DBTYPE_HPP

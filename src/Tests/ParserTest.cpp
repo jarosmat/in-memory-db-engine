@@ -1046,3 +1046,77 @@ TEST_CASE("Parse Object") {
         REQUIRE(obj.get_member<Float>("f3") == 1.8);
     }
 }
+
+TEST_CASE("SplitToFields handles valid inputs") {
+    SECTION("Valid input with multiple fields") {
+        std::string_view input = "{Age: int, Name: string, College: string-O}";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::VALID);
+        REQUIRE(result.second.size() == 3);
+        REQUIRE(result.second[0] == "Age: int");
+        REQUIRE(result.second[1] == " Name: string");
+        REQUIRE(result.second[2] == " College: string-O");
+    }
+
+    SECTION("Valid input with single field") {
+        std::string_view input = "{Age: int}";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::VALID);
+        REQUIRE(result.second.size() == 1);
+        REQUIRE(result.second[0] == "Age: int");
+    }
+
+    SECTION("Valid input with spaces") {
+        std::string_view input = "{ Age: int , Name: string , College: string-O }";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::VALID);
+        REQUIRE(result.second.size() == 3);
+        REQUIRE(result.second[0] == "Age: int ");
+        REQUIRE(result.second[1] == " Name: string ");
+        REQUIRE(result.second[2] == " College: string-O");
+    }
+
+    SECTION("Empty object") {
+        std::string_view input = "{   }";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::VALID);
+        REQUIRE(result.second.size() == 0);
+    }
+}
+
+TEST_CASE("SplitToFields handles invalid inputs") {
+    SECTION("Empty string") {
+        std::string_view input = "";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::EMPTY_STRING);
+        REQUIRE(result.second.empty());
+    }
+
+    SECTION("String with only spaces") {
+        std::string_view input = "   ";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::EMPTY_STRING);
+        REQUIRE(result.second.empty());
+    }
+
+    SECTION("Invalid parentheses - missing opening brace") {
+        std::string_view input = "Age: int, Name: string}";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::INVALID_PARENTHESIS);
+        REQUIRE(result.second.empty());
+    }
+
+    SECTION("Invalid parentheses - missing closing brace") {
+        std::string_view input = "{Age: int, Name: string";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::INVALID_PARENTHESIS);
+        REQUIRE(result.second.empty());
+    }
+
+    SECTION("Invalid parentheses - both braces missing") {
+        std::string_view input = "Age: int, Name: string";
+        auto result = SplitToFields(input);
+        REQUIRE(result.first == SplitFieldRes::INVALID_PARENTHESIS);
+        REQUIRE(result.second.empty());
+    }
+}

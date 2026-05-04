@@ -204,3 +204,50 @@ std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::stri
 
     return {{}, ObjectFieldTypesParse::INVALID_TYPE, false};
 }
+
+std::pair<SplitFieldRes, std::vector<std::string>> SplitToFields(std::string_view view) {
+    SkipSpaces(view);
+    RemoveTrailingSpaces(view);
+
+    if (view.empty()) {
+
+        return {SplitFieldRes::EMPTY_STRING, {}};
+    }
+
+    if (view.front() != '{' || view.back() != '}') {
+        return {SplitFieldRes::INVALID_PARENTHESIS, {}};
+    }
+
+
+    view.remove_prefix(1);
+    view.remove_suffix(1);
+
+    SkipSpaces(view);
+    RemoveTrailingSpaces(view);
+
+    if (view.empty()) {
+        return {SplitFieldRes::VALID, {}};
+    }
+
+
+    auto endIt = view.begin();
+    auto startIt = view.begin();
+    auto end = view.end();
+
+    std::vector<std::string> res;
+
+    while (endIt != end) {
+        if (*endIt == ',') {
+            res.emplace_back(startIt, endIt);
+            ++endIt;
+            startIt = endIt;
+        }  else {
+            ++endIt;
+        }
+    }
+
+    res.emplace_back(startIt, endIt);
+
+    return {SplitFieldRes::VALID, std::move(res)};
+}
+
