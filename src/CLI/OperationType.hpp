@@ -114,7 +114,6 @@ enum class ObjectFieldTypes {
 
 using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
 
-std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_view view);
 
 
 std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_view view);

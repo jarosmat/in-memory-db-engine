@@ -890,7 +890,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypes::INTEGER);
+        REQUIRE(type == ObjectFieldTypesParse::INTEGER);
         REQUIRE_FALSE(optional);
     }
 
@@ -901,7 +901,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypes::FLOAT);
+        REQUIRE(type == ObjectFieldTypesParse::FLOAT);
         REQUIRE_FALSE(optional);
     }
 
@@ -912,7 +912,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypes::STRING);
+        REQUIRE(type == ObjectFieldTypesParse::STRING);
         REQUIRE_FALSE(optional);
     }
 
@@ -924,7 +924,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypes::INTEGER);
+        REQUIRE(type == ObjectFieldTypesParse::INTEGER);
         REQUIRE(optional);
     }
 
@@ -935,7 +935,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypes::FLOAT);
+        REQUIRE(type == ObjectFieldTypesParse::FLOAT);
         REQUIRE(optional);
     }
 
@@ -946,7 +946,7 @@ TEST_CASE("Parse Field Startup") {
         auto [name, type, optional] = ParseFieldStartup(view);
 
         REQUIRE(name == "name");
-        REQUIRE(type == ObjectFieldTypes::STRING);
+        REQUIRE(type == ObjectFieldTypesParse::STRING);
         REQUIRE(optional);
     }
 
@@ -955,7 +955,7 @@ TEST_CASE("Parse Field Startup") {
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
-        REQUIRE(type == ObjectFieldTypes::INVALID_FIELD);
+        REQUIRE(type == ObjectFieldTypesParse::INVALID_FIELD);
     }
 
 
@@ -964,7 +964,7 @@ TEST_CASE("Parse Field Startup") {
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
-        REQUIRE(type == ObjectFieldTypes::INVALID_TYPE);
+        REQUIRE(type == ObjectFieldTypesParse::INVALID_TYPE);
     }
 }
 

@@ -4,6 +4,7 @@
 #include "DBEntry.hpp"
 #include "SipHash.hpp"
 #include "ValueTypes.hpp"
+#include "Utils.hpp"
 
 enum class DBTypes {
     INTEGER,
@@ -91,6 +92,18 @@ auto GetType(view_t &view) -> DBTypes;
 auto ParseSignedTTL(std::string &val) -> ttl_t;
 
 auto ParseUnsignedTTL(std::string &val) -> ttl_t;
+
+
+enum class ObjectFieldTypesParse {
+    INTEGER,
+    FLOAT,
+    STRING,
+    INVALID_TYPE,
+    INVALID_FIELD,
+    VALID
+};
+
+std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::string_view view);
 
 
 #endif //PROJECT_DBTYPE_HPP

@@ -26,7 +26,7 @@ target_include_directories(Error PUBLIC "${ERROR_DOR}")
 
 add_library(DBType "${DBTYPE_DIR}/DBType.cpp" "${DBTYPE_DIR}/DBType.hpp")
 target_include_directories(DBType PUBLIC "${SWISS_TABLE_DIR}" "${HASH_FUNCTION_DIR}" "${DBENTRY_DIR}" "${TIMEPOINT_DIR}")
-target_link_libraries(DBType PUBLIC DBEntry SwissTable HashFunc Timepoint)
+target_link_libraries(DBType PUBLIC DBEntry SwissTable HashFunc Timepoint Utils)
 
 add_library(Parser "${PARSER_DIR}/OperationType.cpp" "${PARSER_DIR}/OperationType.hpp")
 target_include_directories(Parser PUBLIC "${PARSER_DIR}" "${VALUE_TYPES_DIR}" "${VECTOR_DIR}" "${SWISS_TABLE_DIR}" "${DBENTRY_DIR}" "${NODE_DIR}")
