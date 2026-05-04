@@ -481,8 +481,8 @@ public:
     }
 };
 
-template<typename T, typename OPT>
-class ToStreamNode : public DBopsNode<T> {
+template<typename OPT>
+class ToStreamNode : public DBopsNodeBase {
     std::unique_ptr<Node<OPT> > op;
     std::ostream &stream;
 
@@ -491,9 +491,7 @@ public:
         stream << op->Execute() << std::endl;
     }
 
-    ToStreamNode(std::ostream &stream, std::unique_ptr<Node<OPT> > &&op, DBType<T> &db) : DBopsNode<T>(db),
-        op(std::move(op)),
-        stream(stream) {
+    ToStreamNode(std::ostream &stream, std::unique_ptr<Node<OPT> > &&op) : op(std::move(op)), stream(stream) {
     }
 };
 

@@ -245,8 +245,8 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                     if (std::ofstream outFile(targetValue); !outFile.is_open()) {
                         resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
                     } else if (msg == ParseOperationRes::VALID) {
-                        std::unique_ptr<ToStreamNode<T, Vector<Integer> > > toExec = std::make_unique<ToStreamNode<T,
-                            Vector<Integer> > >(outFile, std::move(ptr), db);
+                        std::unique_ptr<ToStreamNode<Vector<Integer>> > toExec = std::make_unique<ToStreamNode<Vector<Integer>> >(
+                            outFile, std::move(ptr));
                         toExec->Execute();
                         continue;
                     } else {
@@ -332,8 +332,8 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                     if (std::ofstream outFile(targetValue); !outFile.is_open()) {
                         resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
                     } else if (msgGet == ParseOperationRes::VALID) {
-                        std::unique_ptr<ToStreamNode<T, Float> > toExec =
-                                std::make_unique<ToStreamNode<T, Float> >(outFile, std::move(resGet), db);
+                        auto toExec =
+                                std::make_unique<ToStreamNode<Float> >(outFile, std::move(resGet));
                         toExec->Execute();
                         continue;
                     }
@@ -355,8 +355,8 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                     if (std::ofstream outFile(targetValue); !outFile.is_open()) {
                         resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
                     } else if (msgSize == ParseOperationRes::VALID) {
-                        std::unique_ptr<ToStreamNode<T, Integer> > toExec =
-                                std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
+                        auto toExec =
+                                std::make_unique<ToStreamNode<Integer> >(outFile, std::move(resSize));
                         toExec->Execute();
                         continue;
                     }
@@ -439,8 +439,8 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                     if (std::ofstream outFile(targetValue); !outFile.is_open()) {
                         resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
                     } else if (msgGet == ParseOperationRes::VALID) {
-                        std::unique_ptr<ToStreamNode<T, Integer> > toExec =
-                                std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resGet), db);
+                        auto toExec =
+                                std::make_unique<ToStreamNode<Integer> >(outFile, std::move(resGet));
                         toExec->Execute();
                         continue;
                     }
@@ -462,8 +462,8 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                     if (std::ofstream outFile(targetValue); !outFile.is_open()) {
                         resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
                     } else if (msgSize == ParseOperationRes::VALID) {
-                        std::unique_ptr<ToStreamNode<T, Integer> > toExec =
-                                std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
+                        auto toExec =
+                                std::make_unique<ToStreamNode<Integer> >(outFile, std::move(resSize));
                         toExec->Execute();
                         continue;
                     }
@@ -545,8 +545,8 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                     if (std::ofstream outFile(targetValue); !outFile.is_open()) {
                         resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
                     } else if (msgGet == ParseOperationRes::VALID) {
-                        std::unique_ptr<ToStreamNode<T, String> > toExec =
-                                std::make_unique<ToStreamNode<T, String> >(outFile, std::move(resGet), db);
+                        auto toExec =
+                                std::make_unique<ToStreamNode<String> >(outFile, std::move(resGet));
                         toExec->Execute();
                         continue;
                     }
@@ -568,8 +568,8 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                     if (std::ofstream outFile(targetValue); !outFile.is_open()) {
                         resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
                     } else if (msgSize == ParseOperationRes::VALID) {
-                        std::unique_ptr<ToStreamNode<T, Integer> > toExec =
-                                std::make_unique<ToStreamNode<T, Integer> >(outFile, std::move(resSize), db);
+                        auto toExec =
+                                std::make_unique<ToStreamNode<Integer> >(outFile, std::move(resSize));
                         toExec->Execute();
                         continue;
                     }
@@ -631,28 +631,28 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                                 ptrOp = std::make_unique<InsertNode<T, ImmortalSentinel, ttlQueueType> >(
                                     db, std::move(keyBytes), std::move(ptrEval), std::move(ImmortalSentinel()),
                                     ttlQueue);
-                                ptrOp.get()->Execute();
+                                ptrOp->Execute();
                                 continue;
                             }
                             if (ttl.second == TTLTypes::MILLISECONDS) {
                                 ptrOp = std::make_unique<InsertNode<T, std::chrono::milliseconds, ttlQueueType> >(
                                     db, std::move(keyBytes), std::move(ptrEval),
                                     std::move(std::get<std::chrono::milliseconds>(ttl.first)), ttlQueue);
-                                ptrOp.get()->Execute();
+                                ptrOp->Execute();
                                 continue;
                             }
                             if (ttl.second == TTLTypes::SECONDS) {
                                 ptrOp = std::make_unique<InsertNode<T, std::chrono::seconds, ttlQueueType> >(
                                     db, std::move(keyBytes), std::move(ptrEval),
                                     std::move(std::get<std::chrono::seconds>(ttl.first)), ttlQueue);
-                                ptrOp.get()->Execute();
+                                ptrOp->Execute();
                                 continue;
                             }
                             if (ttl.second == TTLTypes::MINUTES) {
                                 ptrOp = std::make_unique<InsertNode<T, std::chrono::minutes, ttlQueueType> >(
                                     db, std::move(keyBytes), std::move(ptrEval),
                                     std::move(std::get<std::chrono::minutes>(ttl.first)), ttlQueue);
-                                ptrOp.get()->Execute();
+                                ptrOp->Execute();
                                 continue;
                             }
                         } else if (targetType == TargetType::FILE) {
@@ -662,10 +662,10 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                                 auto ptrEval = std::make_unique<ObjectSetNode<Integer> >(
                                     std::move(ptrObject), fieldN, std::move(valPtr));
 
-                                ptrOp = std::make_unique<ToStreamNode<T, Object> >(
-                                    outFile, std::move(ptrEval), db);
+                                ptrOp = std::make_unique<ToStreamNode<Object> >(
+                                    outFile, std::move(ptrEval));
 
-                                ptrOp.get()->Execute();
+                                ptrOp->Execute();
                                 continue;
                             }
                         }
@@ -703,7 +703,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                     std::vector<std::string> err = {"Could not open file: ", targetValue};
                     opNode = std::make_unique<ErrorNode>(outstream, std::move(err));
                 } else {
-                    opNode = std::make_unique<ToStreamNode<T, T> >(outFile, std::move(toExecute), db);
+                    opNode = std::make_unique<ToStreamNode<T> >(outFile, std::move(toExecute));
                 }
             } else {
                 std::vector<std::string> err = {"Error"};
