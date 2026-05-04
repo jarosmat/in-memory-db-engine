@@ -261,16 +261,7 @@ std::unique_ptr<ErrorNode> GetError(const ParseOperationRes res, const std::size
     return {};
 }
 
-void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueMutex,
-                std::queue<std::string> &dataQueue) {
-    std::string line;
-    while (!stoken.stop_requested()) {
-        if (std::getline(stream, line)) {
-            std::lock_guard<std::mutex> lock(queueMutex);
-            dataQueue.push(line);
-        }
-    }
-}
+
 
 bool HasTarget(const OPType op) {
     return (op != OPType::INVALID && op != OPType::INSERT && op != OPType::GET && op != OPType::TERMINATE && op !=
