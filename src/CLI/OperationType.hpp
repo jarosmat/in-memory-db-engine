@@ -15,6 +15,7 @@
 #include <thread>
 #include "QueueEntry.hpp"
 #include "DBEntry.hpp"
+#include "Error.hpp"
 
 
 void SkipSpaces(std::string_view &view);
@@ -79,19 +80,6 @@ enum class BytesFromFileRes {
 
 std::size_t GetArgCount(OPType op);
 
-using err_t = std::vector<std::string>;
-
-err_t CouldNotOpenFileErr(const std::string &file);
-
-err_t CouldNotReadFileErr(const std::string &file);
-
-err_t InvalidArgs();
-
-err_t InvalidArgsCount(std::size_t expected, std::size_t actual);
-
-err_t InvalidOperation();
-
-err_t InvalidField(const std::string &field);
 
 using read_from_file_r = std::pair<BytesFromFileRes, std::vector<uint8_t> >;
 
