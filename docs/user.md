@@ -60,6 +60,9 @@ Defines that entry has 3 fields, one integer field Age, two string fields: Name,
 `INSERT` and `<OPERATION>` have also option `--ttl` that specifies the time to live for the value being stored. The option
 is used in similar fashion as is done at database startup, when this option is omitted, default value is used.
 
+Time to live must be specified as a first thing after operation, after time to live comes target and after that come
+operands of the operation.
+
 If operand is prefixed by `$`, instead of using the literal value of operand, value stored in database under that value,
 is used.
 
@@ -70,6 +73,13 @@ This notation is used also when specifying key under which to store a value.
 
 If you want to use any of these characters at the start of the operand, prefix the value by `\`. This value will always be
 ignored at the start of an operand (when the key starts with \, just put \\ at the start).
+
+Example op operation is:
+
+`ADD --ttl 20ms keyRes $key 20`
+
+this performs `ADD` operation, the result is to be saved under key `keyRes` nad operands are: value stored under key `key`
+and the number `20` 
 
 ## Operations on numbers
 
