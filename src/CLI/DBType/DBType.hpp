@@ -65,6 +65,7 @@ struct get_db_type<SwissTable<SipHash, DBEntry<T>, std::vector<uint8_t> > > {
 enum class StartupTokens {
     VALUE,
     TTL,
+    STRUCT,
     INVALID
 };
 

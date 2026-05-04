@@ -70,6 +70,9 @@ auto GetOptionToken(view_t &args) -> StartupTokens {
     if (val == "--ttl") {
         return StartupTokens::TTL;
     }
+    if (val == "--struct") {
+        return StartupTokens::STRUCT;
+    }
 
     return StartupTokens::INVALID;
 }
