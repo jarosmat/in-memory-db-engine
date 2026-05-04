@@ -3,6 +3,9 @@
 
 #include "OperationsParser.hpp"
 
+void readThread(const std::stop_token &stoken, std::istream &stream, std::mutex &queueMutex,
+                       std::queue<std::string> &dataQueue);
+
 template<typename T>
 void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, Object &referenceObject,
            object_reference &reference) {
@@ -14,7 +17,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
     std::queue<std::string> dataQueue;
     std::mutex queueMutex;
 
-    std::jthread reader([&instream, &dataQueue, &queueMutex](const std::stop_token &stoken) {
+    std::jthread reader([&instream, &dataQueue, &queueMutex](std::stop_token stoken) {
         readThread(stoken, instream, queueMutex, dataQueue);
     });
 

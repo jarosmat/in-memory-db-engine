@@ -37,5 +37,6 @@ add_library(Parser "${PARSER_DIR}/OperationsParser.cpp")
 target_include_directories(Parser PUBLIC "${PARSER_DIR}")
 target_link_libraries(Parser PUBLIC OperationType)
 
-add_library(Runner INTERFACE "${RUNNER_DIR}/Runner.hpp")
-target_link_libraries(Runner INTERFACE Parser)
+add_library(Runner "${RUNNER_DIR}/Runner.cpp")
+target_include_directories(Runner PUBLIC "${RUNNER_DIR}")
+target_link_libraries(Runner PUBLIC Parser)
