@@ -7,6 +7,8 @@ public:
     virtual T Execute() = 0;
 };
 
+template<typename T>
+using NodePtr = std::unique_ptr<Node<T> >;
 using StringNode = Node<String>;
 using StringPtr = std::unique_ptr<StringNode>;
 template<typename T>

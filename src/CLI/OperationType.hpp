@@ -91,9 +91,6 @@ using args_parsed = std::pair<ArgsType, std::string>;
 
 args_parsed ParseArg(view_t &args);
 
-template<typename T>
-using NodePtr = std::unique_ptr<Node<T> >;
-
 enum class GetArgsReturnTypes {
     VALID,
     INVALID
