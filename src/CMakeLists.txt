@@ -20,5 +20,5 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/DBCore")
 
 add_subdirectory("${TEST_DIRECTORY}")
 
-add_executable(main main.cpp)
-target_link_libraries(main Entries SwissTable)
+add_executable(database main.cpp)
+target_link_libraries(database Entries SwissTable Runner)
