@@ -113,5 +113,17 @@ enum class SplitFieldRes {
 
 std::pair<SplitFieldRes, std::vector<std::string> > SplitToFields(std::string_view view);
 
+enum class ObjectParseRes {
+    VALID,
+    INVALID_TYPE,
+    INVALID_FIELD,
+    INVALID_STRUCTURE,
+};
+
+
+using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
+
+std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(std::string_view view);
+
 
 #endif //PROJECT_DBTYPE_HPP

@@ -251,3 +251,43 @@ std::pair<SplitFieldRes, std::vector<std::string>> SplitToFields(std::string_vie
     return {SplitFieldRes::VALID, std::move(res)};
 }
 
+std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(const std::string_view view) {
+    auto [msg, res] = SplitToFields(view);
+
+    if (msg == SplitFieldRes::INVALID_PARENTHESIS || msg == SplitFieldRes::EMPTY_STRING) {
+        return {ObjectParseRes::INVALID_STRUCTURE, {}, {}};
+    }
+
+    Object refObject;
+    object_reference reference;
+
+    for (auto &&a: res) {
+        const std::string_view fieldView(a.begin(), a.end());
+
+        auto [name, fieldMsg, optional] = ParseFieldStartup(fieldView);
+
+        if (fieldMsg == ObjectFieldTypes::FLOAT) {
+            if (optional) {
+                refObject.set_value(name, Null());
+            }
+            reference.insert({std::move(name), ObjectFieldTypes::FLOAT});
+        } else if (fieldMsg == ObjectFieldTypes::INTEGER) {
+            if (optional) {
+                refObject.set_value(name, Null());
+            }
+            reference.insert({std::move(name), ObjectFieldTypes::INTEGER});
+        } else if (fieldMsg == ObjectFieldTypes::STRING) {
+            if (optional) {
+                refObject.set_value(name, Null());
+            }
+            reference.insert({std::move(name), ObjectFieldTypes::STRING});
+        } else if (fieldMsg == ObjectFieldTypes::INVALID_TYPE) {
+            return {ObjectParseRes::INVALID_TYPE, std::move(refObject), std::move(reference)};
+        } else {
+            return {ObjectParseRes::INVALID_FIELD, std::move(refObject), std::move(reference)};
+        }
+    }
+
+    return {ObjectParseRes::VALID, std::move(refObject), std::move(reference)};
+}
+

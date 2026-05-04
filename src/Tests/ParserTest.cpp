@@ -1120,3 +1120,87 @@ TEST_CASE("SplitToFields handles invalid inputs") {
         REQUIRE(result.second.empty());
     }
 }
+
+TEST_CASE("Parse default object") {
+    SECTION("Valid input with multiple fields") {
+        std::string_view input = "{f1: int, f2: string, f3: float-O}";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+
+        REQUIRE(msg == ObjectParseRes::VALID);
+        REQUIRE(obj.MemberCount() == 1);
+        REQUIRE(obj.has_member("f3"));
+
+        REQUIRE(ref.size() == 3);
+        REQUIRE(ref.find("f1")->second == ObjectFieldTypes::INTEGER);
+        REQUIRE(ref.find("f2")->second == ObjectFieldTypes::STRING);
+        REQUIRE(ref.find("f3")->second == ObjectFieldTypes::FLOAT);
+    }
+
+    SECTION("Valid input with single field") {
+        std::string_view input = "{Age: int}";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+
+        REQUIRE(msg == ObjectParseRes::VALID);
+        REQUIRE(obj.MemberCount() == 0);
+
+        REQUIRE(ref.size() == 1);
+        REQUIRE(ref.find("Age")->second == ObjectFieldTypes::INTEGER);
+    }
+
+    SECTION("Valid input with spaces") {
+        std::string_view input = "{ Age: int , Name: string , College: string-O }";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+
+        REQUIRE(msg == ObjectParseRes::VALID);
+        REQUIRE(obj.MemberCount() == 1);
+        REQUIRE(obj.has_member("College"));
+
+        REQUIRE(ref.size() == 3);
+        REQUIRE(ref.find("Age")->second == ObjectFieldTypes::INTEGER);
+        REQUIRE(ref.find("Name")->second == ObjectFieldTypes::STRING);
+        REQUIRE(ref.find("College")->second == ObjectFieldTypes::STRING);
+    }
+
+    SECTION("Empty object") {
+        std::string_view input = "{   }";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+
+        REQUIRE(msg == ObjectParseRes::VALID);
+        REQUIRE(obj.MemberCount() == 0);
+        REQUIRE(ref.size() == 0);
+    }
+
+    SECTION("Empty string") {
+        std::string_view input = "";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+        REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
+    }
+
+    SECTION("String with only spaces") {
+        std::string_view input = "   ";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+
+        REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
+    }
+
+    SECTION("Invalid parentheses - missing opening brace") {
+        std::string_view input = "Age: int, Name: string}";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+
+        REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
+    }
+
+    SECTION("Invalid parentheses - missing closing brace") {
+        std::string_view input = "{Age: int, Name: string";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+
+        REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
+    }
+
+    SECTION("Invalid parentheses - both braces missing") {
+        std::string_view input = "Age: int, Name: string";
+        auto [msg, obj, ref] = ParseObjectStructure(input);
+
+        REQUIRE(msg == ObjectParseRes::INVALID_STRUCTURE);
+    }
+}
