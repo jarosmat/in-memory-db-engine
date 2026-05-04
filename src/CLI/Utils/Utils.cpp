@@ -13,7 +13,7 @@ void SkipSpaces(std::string_view &view) {
 }
 
 void RemoveTrailingSpaces(std::string_view &view) {
-    while (std::isspace(view.back()) && !view.empty()) {
+    while (!view.empty() && std::isspace(view.back())) {
         view.remove_suffix(1);
     }
 }
