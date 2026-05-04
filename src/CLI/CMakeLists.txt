@@ -8,7 +8,7 @@ set(PARSER_DIR "${PROJECT_SOURCE_DIR}")
 set(TTL_QUEUE_ENTRY_DIR "${PROJECT_SOURCE_DIR}")
 set(ERROR_DIR "${PROJECT_SOURCE_DIR}")
 set(UTILS_DIR "${PROJECT_SOURCE_DIR}")
-
+set(RUNNER_DIR "${PROJECT_SOURCE_DIR}")
 
 add_library(TTL_QueueEntry QueueEntry.cpp)
 target_include_directories(TTL_QueueEntry PUBLIC "${TTL_QUEUE_ENTRY_DIR}")
@@ -32,3 +32,5 @@ add_library(Parser "${PARSER_DIR}/OperationType.cpp" "${PARSER_DIR}/OperationTyp
 target_include_directories(Parser PUBLIC "${PARSER_DIR}" "${VALUE_TYPES_DIR}" "${VECTOR_DIR}" "${SWISS_TABLE_DIR}" "${DBENTRY_DIR}")
 target_link_libraries(Parser PUBLIC Entries SwissTable DBEntry HashFunc DBType TTL_QueueEntry Error Utils)
 
+add_library(Runner INTERFACE "${RUNNER_DIR}/Runner.hpp")
+target_link_libraries(Runner INTERFACE Parser)
