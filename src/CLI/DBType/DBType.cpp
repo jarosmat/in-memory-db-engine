@@ -142,7 +142,7 @@ auto GetType(view_t &view) -> DBTypes {
     return DBTypes::INVALID;
 }
 
-std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::string_view view) {
+std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_view view) {
     RemoveTrailingSpaces(view);
     SkipSpaces(view);
     auto nameIt = view.begin();
@@ -152,7 +152,7 @@ std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::stri
     }
 
     if (nameIt == view.end()) {
-        return {{}, ObjectFieldTypesParse::INVALID_FIELD, false};
+        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
     }
 
     std::string name(view.begin(), nameIt);
@@ -164,7 +164,7 @@ std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::stri
     SkipSpaces(view);
 
     if (view.front() != ':') {
-        return {{}, ObjectFieldTypesParse::INVALID_FIELD, false};
+        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
     }
     view.remove_prefix(1);
 
@@ -182,16 +182,16 @@ std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::stri
         view.remove_prefix(1);
     }
 
-    ObjectFieldTypesParse resType;
+    ObjectFieldTypes resType;
 
     if (typeVal == "int") {
-        resType = ObjectFieldTypesParse::INTEGER;
+        resType = ObjectFieldTypes::INTEGER;
     } else if (typeVal == "float") {
-        resType = ObjectFieldTypesParse::FLOAT;
+        resType = ObjectFieldTypes::FLOAT;
     } else if (typeVal == "string") {
-        resType = ObjectFieldTypesParse::STRING;
+        resType = ObjectFieldTypes::STRING;
     } else {
-        return {{}, ObjectFieldTypesParse::INVALID_TYPE, false};
+        return {{}, ObjectFieldTypes::INVALID_TYPE, false};
     }
 
     if (view.empty()) {
@@ -202,7 +202,7 @@ std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::stri
         return {std::move(name), resType, true};
     }
 
-    return {{}, ObjectFieldTypesParse::INVALID_TYPE, false};
+    return {{}, ObjectFieldTypes::INVALID_TYPE, false};
 }
 
 std::pair<SplitFieldRes, std::vector<std::string>> SplitToFields(std::string_view view) {

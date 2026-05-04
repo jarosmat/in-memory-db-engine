@@ -94,7 +94,7 @@ auto ParseSignedTTL(std::string &val) -> ttl_t;
 auto ParseUnsignedTTL(std::string &val) -> ttl_t;
 
 
-enum class ObjectFieldTypesParse {
+enum class ObjectFieldTypes {
     INTEGER,
     FLOAT,
     STRING,
@@ -103,7 +103,7 @@ enum class ObjectFieldTypesParse {
     VALID
 };
 
-std::tuple<std::string, ObjectFieldTypesParse, bool> ParseFieldStartup(std::string_view view);
+std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_view view);
 
 enum class SplitFieldRes {
     VALID,

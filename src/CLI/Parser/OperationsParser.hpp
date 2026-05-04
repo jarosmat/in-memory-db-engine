@@ -28,17 +28,6 @@ using get_arg_res = std::pair<GetArgsReturnTypes, NodePtr<T> >;
 template<typename T>
 using parse_res = std::pair<bool, T>;
 
-enum class ObjectFieldTypes {
-    INTEGER,
-    FLOAT,
-    STRING,
-    INVALID_TYPE,
-    INVALID_FIELD,
-    VALID
-};
-
-using object_reference = std::unordered_map<std::string, ObjectFieldTypes>;
-
 
 
 std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_view view);
