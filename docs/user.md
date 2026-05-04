@@ -22,8 +22,13 @@ Use command `database` for starting the database. Following options are availabl
   - `<num>` is a number
   - Is used to specify default time to live for entries, when the option is omitted, there won't be default value of time
     to live and entries that won't have time to live explicitly specified won't be deleted until user does so
-
-When the value of database entries is object a last thing must be specification of entries, in a format:
+- `--struct <value>`
+  - value must be of format specified below, this flag may only be present when `--value` is set to `object`, if this
+  option is present, it is implicitly assumed that `--value` will be set to `object`, so the option `--value` does not 
+  have to be present.
+  - this option is used to specify the database entry object structure
+  - If there is option `--value` present with value other than `object` it is considered as wrong input.
+  - specification of `<value>` is as follows:
 
 `{[FIELD1]:[TYPE1], [FIELD2]: [TYPE2], [FIELD3]:[TYPE3]}`
 
