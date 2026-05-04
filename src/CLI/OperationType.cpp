@@ -56,36 +56,6 @@ std::size_t GetArgCount(const OPType op) {
     }
 }
 
-
-read_from_file_r readFileBytes(const std::string &filePath) {
-    std::ifstream file(filePath, std::ios::binary | std::ios::ate);
-
-    if (!file.is_open()) {
-        return {BytesFromFileRes::COULD_NOT_OPEN, {}};
-    }
-
-    std::streamsize size = file.tellg();
-
-    if (size <= 0) {
-        return {BytesFromFileRes::VALID, {}};
-    }
-
-    file.seekg(0, std::ios::beg);
-
-    std::vector<uint8_t> buffer(size);
-
-    if (file.read(reinterpret_cast<char *>(buffer.data()), size)) {
-        return {BytesFromFileRes::VALID, buffer};
-    }
-
-    return {BytesFromFileRes::COULD_NOT_READ, {}};
-}
-
-std::vector<uint8_t> stringBytes(std::string &&str) {
-    std::vector<uint8_t> vec(str.begin(), str.end());
-    return vec;
-}
-
 OPType GetOPType(view_t &args) {
     if (args.empty()) {
         return OPType::INVALID;
@@ -461,7 +431,7 @@ parse_res<Object> ParseObject(std::string_view input, Object referenceObject, co
     auto cr = reference.size();
 
     if (referenceObject.MemberCount() != reference.size()) {
-        return {false , {}};
+        return {false, {}};
     }
 
     return {true, std::move(referenceObject)};
@@ -513,20 +483,13 @@ ttl_t ParseTTL(view_t &view, ttl_t defaultTTL) {
     return GetTTL(view);
 }
 
-parse_op_r<DBopsNode<Object>> ParseInsert(view_t &view, DBType<Object> &db, ttl_t ttl, ttlQueueType &queue,
-    const object_reference &reference, const Object &referenceObject) {
+parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, ttl_t ttl, ttlQueueType &queue,
+                                           const object_reference &reference, const Object &referenceObject) {
     return ParseInsertWithParser<Object>(
         view, db, [&reference, &referenceObject](DBType<Object> &dbRef, args_parsed &&args) {
             return getObject(dbRef, std::move(args), referenceObject, reference);
         }, ttl, queue);
 }
-
-std::pair<uint64_t, uint64_t> sampleKey(const uint64_t seed) {
-    std::mt19937_64 gen(seed);
-    std::uniform_int_distribution<uint64_t> dis;
-    return {dis(gen), dis(gen)};
-}
-
 
 std::unique_ptr<ErrorNode> GetError(const ParseOperationRes res, const std::size_t expected, const std::size_t actual,
                                     std::ostream &outstream, const std::string &file) {
@@ -545,68 +508,6 @@ std::unique_ptr<ErrorNode> GetError(const ParseOperationRes res, const std::size
         auto node = std::make_unique<ErrorNode>(outstream, std::move(CouldNotReadFileErr(file)));
     }
     return {};
-}
-
-std::pair<bool, std::string> parseQuote(std::string_view &view) {
-    std::string res;
-    while (!view.empty() && view.front() != '"') {
-        res.push_back(view.front());
-        view.remove_prefix(1);
-    }
-
-    if (view.empty()) {
-        return {false, {}};
-    }
-
-
-    view.remove_prefix(1);
-
-    return {true, std::move(res)};
-}
-
-std::string parseUnquote(std::string_view &view) {
-    std::string res;
-    while (!view.empty() && !std::isspace(view.front())) {
-        res.push_back(view.front());
-        view.remove_prefix(1);
-    }
-
-    return res;
-}
-
-void SkipSpaces(std::string_view &view) {
-    while (!view.empty() && std::isspace(view.front())) {
-        view.remove_prefix(1);
-    }
-}
-
-void RemoveTrailingSpaces(std::string_view &view) {
-    while (std::isspace(view.back())) {
-        view.remove_suffix(1);
-    }
-}
-
-std::pair<bool, std::vector<std::string> > parseLine(const std::string &line) {
-    std::vector<std::string> tokens;
-    std::string_view view(line.begin(), line.end());
-
-    SkipSpaces(view);
-    while (!view.empty()) {
-        auto ch = view.front();
-        if (ch == '"') {
-            view.remove_prefix(1);
-            auto [res,val] = parseQuote(view);
-            if (!res) {
-                return {false, {}};
-            }
-            tokens.push_back(std::move(val));
-        } else {
-            tokens.push_back(std::move(parseUnquote(view)));
-        }
-        SkipSpaces(view);
-    }
-
-    return {true, tokens};
 }
 
 void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueMutex,

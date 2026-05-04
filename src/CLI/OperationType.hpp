@@ -16,11 +16,8 @@
 #include "QueueEntry.hpp"
 #include "DBEntry.hpp"
 #include "Error.hpp"
+#include "Utils.hpp"
 
-
-void SkipSpaces(std::string_view &view);
-
-void RemoveTrailingSpaces(std::string_view &view);
 
 using ttlQueueType = std::priority_queue<std::unique_ptr<QueueEntry>, std::vector<std::unique_ptr<QueueEntry> >,
     CompareQueueEntry>;
@@ -72,20 +69,7 @@ enum class ArgsType {
     EMPTY
 };
 
-enum class BytesFromFileRes {
-    VALID,
-    COULD_NOT_OPEN,
-    COULD_NOT_READ
-};
-
 std::size_t GetArgCount(OPType op);
-
-
-using read_from_file_r = std::pair<BytesFromFileRes, std::vector<uint8_t> >;
-
-read_from_file_r readFileBytes(const std::string &filePath);
-
-std::vector<uint8_t> stringBytes(std::string &&str);
 
 using view_t = std::ranges::subrange<std::vector<std::string>::iterator>;
 
@@ -981,18 +965,8 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl,
 parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, ttl_t ttl, ttlQueueType &queue,
                                            const object_reference &reference, const Object &referenceObject);
 
-std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed);
-
-
 std::unique_ptr<ErrorNode> GetError(ParseOperationRes res, std::size_t expected, std::size_t actual,
                                     std::ostream &outstream, const std::string &file);
-
-std::pair<bool, std::string> parseQuote(std::string_view &view);
-
-std::string parseUnquote(std::string_view &view);
-
-
-std::pair<bool, std::vector<std::string> > parseLine(const std::string &line);
 
 void readThread(std::stop_token stoken, std::istream &stream, std::mutex &queueMutex,
                 std::queue<std::string> &dataQueue);
