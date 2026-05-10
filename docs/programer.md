@@ -2,15 +2,15 @@
 
 ## `src/DBCore`
 
-This folder contains the core components of the engine. It is structured into two folders:
+This folder contains the core components of the engine. It is structured into three folders:
 
 - `BDEntry`
 - `SwissTable`
+- `Hashfunction`
 
 ### `DBEntry`
 
-This folder contains classes used to represent specific entries to database. Only String entries are supported in current
-version.
+This folder contains classes used to represent specific entries to database.
 
 - `class String`
   - uses `std::string` for internal value representation
@@ -78,3 +78,6 @@ explained for example [here](https://go.dev/blog/swisstable).
     keys h2 hash, returns `std::pair<bool, size_t>` where `bool` specifies whether key was actually found and `size_t`
     specifies the index in backing array where the key actually is
 
+### HashFunction
+
+Contains implementation of a Sip hash hashing function
