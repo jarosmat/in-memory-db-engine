@@ -25,6 +25,28 @@ This folder contains classes used to represent specific entries to database.
   - `operator==` compares internal values of `std::string`
   - `Size` returns number of characters in String
   - `operator<<` dumps the internal `std::string` into specified stream
+- `class Object`
+  - Is a class used to represent database value type `object`
+  - For avoiding circular dependency, the declaration of class interface is in file `src/DBCore/DBEntry/ValueTypes.hpp`, 
+    this file is then included in `Object.hpp`
+  - In `src/DBCore/DBEntry/ValueTypes.hpp` an alias `PrimitiveValuePack` is defined, this alias holds all value types, that
+    are available for fields of object to hold, in a `std::tuple`.
+  - In `src/DBCore/DBEntry/ValueTypes.hpp`, there is a struct `ValueType`, that is used to infer type of actual type of
+    field value representation, it takes a `std::tuple` template and defines struct alias `ValueType<Args ...>::type`,
+    that is a type `std::variant<Args ...>`
+  - For representation of fields of an object, instance of `std::unordered_map<Key, Value>` is used
+    - `Key` is an alias for `std::string`
+    - `Value = ValueType<PrimitoveValuePack>::type`, which is a `std::variant` with all value types, that are possible
+  - class can be constructed with an iterator pair into `std::vector<std::pair<Key, Value>>`, this constructs an instance
+    with fields, that are in the vector between specified iterators, where the pair specifies field name and the value of
+    that field
+  - `get_member` function template, that takes a key and returns a value, that is stored under only argument of type `Key`,
+    argument of function template is the value type, that is expected to be stored under specified field name
+  - `set_value` function template, that stores `value` under `name` field name, template of the function is the value type
+    of `value`, function has two overloads, for `value` being passed as an r-value of l-value reference
+  - `has_member` function, that returns `true`, if the instance contains a field under a `name`, otherwise returns `false`
+  - `MemberCount` function, that return number of fields currently stored in the instance
+  - `operator<<` overload, that dumps the object into specified stream in format: `{field1: value1, field2: value2, ...}`
 
 
 ### `SwissTable`
