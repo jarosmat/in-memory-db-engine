@@ -47,6 +47,18 @@ This folder contains classes used to represent specific entries to database.
   - `has_member` function, that returns `true`, if the instance contains a field under a `name`, otherwise returns `false`
   - `MemberCount` function, that return number of fields currently stored in the instance
   - `operator<<` overload, that dumps the object into specified stream in format: `{field1: value1, field2: value2, ...}`
+- `class Timepoint`
+  - class used to measure time elapsed from some timepoint
+  - at construction uses `std::chrono::steady_clock` for getting a timepoint and later compares it to current timepoint,
+    taken using the same clock
+    - `std::chrono::steady_clock` is used, because timepoints of this clock cannot decrease as time goes on
+  - `Timepoint()` constructs an instance, takes a timepoint
+  - `Elapsed` function template, that takes value `val` of type `T`, function template `T` must be specialization
+    of `std::chrono::duration` (it must be possible to cast duration values to this type). Function returns `true` if time
+    specified as value `val` has elapsed since creation of this object, otherwise returns `false`.
+  - `RemainingTime` function template, that takes value `val` of type `T` with same traits as parameter of function
+    `Elapsed`. This function returns remaining time before the time `val` elapses since the construction of this object.
+    Return value if of type `T`, if time `val` has already elapsed the function returns `T(0)`.
 
 
 ### `SwissTable`
