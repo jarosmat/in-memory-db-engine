@@ -1,5 +1,20 @@
 # Programmer documentation
 
+At first the options from CLI are parsed (see [user documentation](user.md)), then if the option are correct an instantiation
+of function `RunDB` found in `src/CLI/Runner.hpp` is called and the database is running. Database runs in two threads:
+1. reader thread
+   - this thread just reads input stream specified when calling `RunDB` (currently `std::cin`) and pushes
+     lines that are read into `std::queue` shared with main thread
+2. main thread
+   - this thread does all the important work
+   - thread works in cycles:
+     1. It checks `std::priority_queue<QueueEntry>`, that holds information about expiration of database entries. On top
+        of the priority queue is entry, that will expire first. If the entry on top of the queue is expired it pops it 
+        from the queue and removes associated entry from database
+     2. It checks if there is a new line (operation od database) in `std::queue` shared with reader thread, if there is,
+        it pops it from the queue and executes the operation
+     3. repeat
+
 ## `src/DBCore`
 
 This folder contains the core components of the engine. It is structured into three folders:
