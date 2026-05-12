@@ -175,6 +175,7 @@ explained for example [here](https://go.dev/blog/swisstable).
     keys h2 hash, returns `std::pair<bool, size_t>` where `bool` specifies whether key was actually found and `size_t`
     specifies the index in backing array where the key actually is
 
-### HashFunction
+### `HashFunction`
 
-Contains implementation of a Sip hash hashing function
+Contains implementation of a Sip hash hashing function. Information about SipHash can be found [here](https://eprint.iacr.org/2012/351.pdf).
+Key is chosen randomly on database startup
