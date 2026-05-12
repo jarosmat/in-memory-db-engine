@@ -72,8 +72,29 @@ This folder contains classes used to represent specific entries to database.
   - `T RemainingTime(T &&val)` function template, that takes value `val` of type `T` with same traits as parameter of function
     `Elapsed`. This function returns remaining time before the time `val` elapses since the construction of this object.
     Return value if of type `T`, if time `val` has already elapsed the function returns `T(0)`.
-- `class DBEntry_t`
-- `class DBEntry`
+- `class DBEntry_t<typename E, typename T>`
+  - class template used to store entries into database, `E` specifies the type of entry that is to be stored in the
+    database and `T` specifies a type used for specifying time to live, `T` must be specialization of `std::chrono::duration`
+  - instance of instantiation of this class template holds: 
+    - `E payload` - actual value stored in this entry
+    - `Timepoint timepoint_` - used for measuring if entry is already expired
+    - `T ttl` - time for the instance to live - used for comparing against `timepoint_`
+    - `QueueEntry *entryPointer` - pointer to entry of priority queue used for tracking expired entries. This pointer is
+      used to invalidate the entry in priority queue, so the entry won't be removed more than once
+  - `DBEntry_t(EC &&payload, TC &&ttl, QueueEntry *pointer)` - only constructor, `payload` is the value to be stored,
+    `ttl` is time to live of the entry, `pointer` is pointer to priority queue
+  - `E GetRef()` - returns reference to payload
+  - `SetVal(ES &&val)` - function template used for setting the value of entry, template uses forwarding reference
+  - `bool Expired()` - function to evaluate if entry is expired
+  - `T RemainingTime()` - function used for getting remaining time of entry
+  - `void Invalidate()` - invalidates entry in priority queue used for time to live using `entryPointer`
+  - class template has partial specialization `DBEntry_t<E, ImmortalSentinel>`
+    - this specialization is used for entries, that do not have set a time to live, where `ImmortalSentinel` is empty class
+    - function `Expired` always returns `false`
+    - function `RemainingTime` always returns `std::chrono::milliseconds::max()`
+- `class DBEntry<E>`
+  - class template used for type erasure of `T` template parameter of `DBEntry_t`. This class exists so that entries
+    with multiple different types of time to live can be stored in one database instance
 - `class Null`
 - `ValueTypes.hpp`
 
