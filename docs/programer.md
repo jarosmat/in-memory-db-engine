@@ -100,6 +100,13 @@ This folder contains classes used to represent specific entries to database.
   - `bool operator==` - always returns `true`A
   - `operator<<` - dumps string `null` into stream
 - `ValueTypes.hpp`
+  - header used for including all possible database entries
+    - `String`
+    - `Integer`
+    - `Float`
+    - `Object`
+    - `Vector<T>`
+  - header also contains declaration of class `Object`
 
 
 ### `SwissTable`
