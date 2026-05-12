@@ -96,6 +96,9 @@ This folder contains classes used to represent specific entries to database.
   - class template used for type erasure of `T` template parameter of `DBEntry_t`. This class exists so that entries
     with multiple different types of time to live can be stored in one database instance
 - `class Null`
+  - class used as a value of optional fields of `object` entries, that are not set
+  - `bool operator==` - always returns `true`A
+  - `operator<<` - dumps string `null` into stream
 - `ValueTypes.hpp`
 
 
