@@ -49,13 +49,16 @@ This folder contains classes used to represent specific entries to database.
     - `Value = ValueType<PrimitoveValuePack>::type`, which is a `std::variant` with all value types, that are possible
   - class can be constructed with an iterator pair into `std::vector<std::pair<Key, Value>>`, this constructs an instance
     with fields, that are in the vector between specified iterators, where the pair specifies field name and the value of
-    that field
-  - `get_member` function template, that takes a key and returns a value, that is stored under only argument of type `Key`,
+    that field:
+    - `Object(std::vector<std::pair<Key, Value>>::iterator first, std::vector<std::pair<Key, Value>>::iterator last)`
+    - `Object()`
+      - constructs object with empty instance of `std::unordered_map<Key, Value>`
+  - `T get_member(const Key &name)` function template, that takes a key and returns a value, that is stored under only argument of type `Key`,
     argument of function template is the value type, that is expected to be stored under specified field name
-  - `set_value` function template, that stores `value` under `name` field name, template of the function is the value type
+  - `void set_value(const Key &name, const T &value)` function template, that stores `value` under `name` field name, template of the function is the value type
     of `value`, function has two overloads, for `value` being passed as an r-value of l-value reference
-  - `has_member` function, that returns `true`, if the instance contains a field under a `name`, otherwise returns `false`
-  - `MemberCount` function, that return number of fields currently stored in the instance
+  - `bool has_member(const Key &name)` function, that returns `true`, if the instance contains a field under a `name`, otherwise returns `false`
+  - `std::size_t MemberCount()` function, that return number of fields currently stored in the instance
   - `operator<<` overload, that dumps the object into specified stream in format: `{field1: value1, field2: value2, ...}`
 - `class Timepoint`
   - class used to measure time elapsed from some timepoint
