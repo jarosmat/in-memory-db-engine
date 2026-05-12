@@ -15,16 +15,26 @@ This folder contains classes used to represent specific entries to database.
 - `class String`
   - uses `std::string` for internal value representation
   - `class PrefixAut` is class used for searching for occurrences of substring using the Knuth-Morris-Pratt algorithm
-  - constructor accepts either R-value reference or const L-value reference to `std::string`, default constructor is also
-    available
-  - static function `Concatenate` takes two arguments: `String valLeft` and `String valRight` and returns new `String` 
+  - constructor accepts either R-value reference or const L-value reference to `std::string` or `char` value for
+    construction of `String` consisting of one character, default constructor is also available:
+    - `String(const std::string &val)`
+    - `String(std::string &&val)`
+    - `String(char ch)`
+    - `String()`
+      - constructs instance with empty value of internal `std::string`
+  - static function `String Concatenate` takes two arguments: `String valLeft` and `String valRight` and returns new `String` 
     instance, whose value is the concatenation of `valLeft + valRight`
-    - this function accepts eith both L-value reference arguments or both R-value arguments
-  - `operator[]` - operator for accessing i-th character in String
-  - `Find` method finds all occurrences of its argument `valToFind` in `this`
-  - `operator==` compares internal values of `std::string`
-  - `Size` returns number of characters in String
+    - this function accepts eith both L-value reference arguments or both R-value arguments:
+      - `String Concatenate(const std::string &valLeft, const std::string &valRight)`
+      - `String Concatenate(std::string &&valLeft, std::string &&valRight)`
+      - `String Concatenate(String &&valLeft, String &&valRight)`
+  - `char operator[](std::size_t i)` - operator for accessing i-th character in String
+  - `Find(const String &valToFind)` method finds all occurrences of its argument `valToFind` in `this`
+  - `bool operator==` compares internal values of `std::string`
+  - `std::size_t Size()` returns number of characters in String
   - `operator<<` dumps the internal `std::string` into specified stream
+  - `void RemovePrefix(size_t n)` - removes first `n` characters of `this`
+  - `void RemoveSuffix(size_t n)` - removes last `n` characters of `this`
 - `class Object`
   - Is a class used to represent database value type `object`
   - For avoiding circular dependency, the declaration of class interface is in file `src/DBCore/DBEntry/ValueTypes.hpp`, 
@@ -59,6 +69,10 @@ This folder contains classes used to represent specific entries to database.
   - `RemainingTime` function template, that takes value `val` of type `T` with same traits as parameter of function
     `Elapsed`. This function returns remaining time before the time `val` elapses since the construction of this object.
     Return value if of type `T`, if time `val` has already elapsed the function returns `T(0)`.
+- `class DBEntry_t`
+- `class DBEntry`
+- `class Null`
+- `ValueTypes.hpp`
 
 
 ### `SwissTable`
