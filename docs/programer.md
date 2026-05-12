@@ -179,3 +179,14 @@ explained for example [here](https://go.dev/blog/swisstable).
 
 Contains implementation of a Sip hash hashing function. Information about SipHash can be found [here](https://eprint.iacr.org/2012/351.pdf).
 Key is chosen randomly on database startup
+
+## `src/CLI`
+
+### `DBType`
+### `Error`
+### `Nodes`
+### `OperationType`
+### `Parser`
+### `QueueEntry`
+### `Utils`
+### `Runner.hpp`
