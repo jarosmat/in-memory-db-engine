@@ -189,4 +189,28 @@ Key is chosen randomly on database startup
 ### `Parser`
 ### `QueueEntry`
 ### `Utils`
+
+Contains utility functions.
+
+- `void SkipSpaces(std::string_view &view)`
+  - moves begin iterator forward until `view` is empty, or it starts on character, that does not satisfy `std::isspace`
+- `void RemoveTrailingSpaces(std::string_view &view)` 
+  - moves end iterator backwards until `view` is empty or last character does not satisfy `std::isspace`
+- `enum class BytesFromFileRes` 
+  - enum class representing result of reading bytes from a file
+    - `VALID` - reading of bytes was successful
+    - `COULD_NOT_OPEN` - file could not be opened
+    - `COULD_NOT_READ` - file could not be read
+- `std::pair<BytesFromFileRes, std::vector<uint8_t> > readFileBytes(const std::string &filePath)`
+  - reads bytes of file under path `filePath`
+  - first of returned pair is result of reading
+  - second of returned pair is vector of bytes representing file under `filePath`
+- `std::vector<uint8_t> stringBytes(std::string &&str)` 
+  - returns vector of bytes of string `str`
+- `std::pair<uint64_t, uint64_t> sampleKey(uint64_t seed)`
+  - samples a pair of 64-bit numbers to be used as a key for hash function
+- `std::pair<bool, std::vector<std::string> > parseLine(const std::string &line)`
+  - parses string `line` into vector of strings, string values are delimited by characters, that satisfy `std::isspace`,
+    only values enclosed in quotes are parsed as one value regardless if these values contains characters, that satisfy
+    `std::isspace`
 ### `Runner.hpp`
