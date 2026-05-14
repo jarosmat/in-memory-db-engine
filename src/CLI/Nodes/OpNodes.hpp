@@ -128,15 +128,15 @@ class FindNode : public Node<Vector<Integer> > {
 
 public:
     Vector<Integer> Execute() override {
-        const auto where = val.get()->Execute();
-        const auto what = toFind.get()->Execute();
+        const auto where = val->Execute();
+        const auto what = toFind->Execute();
 
         const auto res = where.Find(what);
 
         auto resV = Vector<Integer>(res.size());
 
         for (auto &&a: res) {
-            resV.Append(a);
+            resV.Append(static_cast<Integer>(a));
         }
 
         return resV;
@@ -161,7 +161,7 @@ public:
 };
 
 template<typename T>
-struct AddOp : public BinaryOp<T> {
+struct AddOp : BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override {
@@ -170,7 +170,7 @@ struct AddOp : public BinaryOp<T> {
 };
 
 template<typename T>
-struct SubtractOp : public BinaryOp<T> {
+struct SubtractOp : BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override {
@@ -179,7 +179,7 @@ struct SubtractOp : public BinaryOp<T> {
 };
 
 template<typename T>
-struct DivideOp : public BinaryOp<T> {
+struct DivideOp : BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override {
@@ -188,7 +188,7 @@ struct DivideOp : public BinaryOp<T> {
 };
 
 template<typename T>
-struct MultiplyOp : public BinaryOp<T> {
+struct MultiplyOp : BinaryOp<T> {
     using BinaryOp<T>::BinaryOp;
 
     T Execute() override {
@@ -290,8 +290,8 @@ class VgetNode : public Node<T> {
 
 public:
     T Execute() override {
-        auto index = i.get()->Execute();
-        auto vectVal = vect.get()->Execute();
+        auto index = i->Execute();
+        auto vectVal = vect->Execute();
         return vectVal[index];
     }
 
@@ -329,19 +329,19 @@ public:
 
 template<typename T>
 class ObjectSetNode : public Node<Object> {
-    std::unique_ptr<Node<Object> > obj;
+    std::unique_ptr<Node > obj;
     Key key;
     std::unique_ptr<Node<T> > value;
 
 public:
     Object Execute() override {
         auto res = obj->Execute();
-        res.set_value<T>(key, std::move(value.get()->Execute()));
+        res.set_value<T>(key, std::move(value->Execute()));
 
         return res;
     }
 
-    ObjectSetNode(std::unique_ptr<Node<Object> > &&obj, Key key,
+    ObjectSetNode(std::unique_ptr<Node > &&obj, Key key,
                   std::unique_ptr<Node<T> > &&value) : obj(std::move(obj)), key(std::move(key)),
                                                        value(std::move(value)) {
     }
