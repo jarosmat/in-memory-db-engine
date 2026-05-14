@@ -311,6 +311,21 @@ Contains nodes, that execute operations on instances of types, that can be datab
 
 
 ### `OperationType`
+
+Contains functions for parsing operations
+
+- struct `vector_t`
+  - used for inferring type of values stored in a vector
+- enum class `OPType`
+  - used for representing operations at runtime
+- `std::size_t GetArgCount(OPType op)`
+  - returns number of expected arguments for specified operation
+- alias `view_t = std::ranges::subrange<std::vector<std::string>::iterator>`
+- `OPType GetOPType(view_t &args)`
+  - returns what operation to parse, based on first value in `args`
+- `bool ValidateOPType(OPType op, DBTypes dbType)`
+  - returns `true`, if `op` is valid operation on database of type `dbType`
+
 ### `Parser`
 ### `QueueEntry`
 ### `Utils`
