@@ -183,6 +183,37 @@ Key is chosen randomly on database startup
 ## `src/CLI`
 
 ### `DBType`
+
+Contains definitions of enums, functions associated with parsing of startup arguments and inferring type of database at
+compile time.
+
+- enum class `DBTypes`
+  - enum, that is used to specify what is types of entries in a database
+- struct `get_db_type`
+  - `DBTypes` type tag used to infer type of database based on template argument
+- enum class `StartupTokens`
+  - used when parsing startup options to know what to parse
+- enum class `TTLTypes`
+  - used for specifying what unit of time is used for time to live
+- enum class `ObjectFieldTypes`
+  - used for specifying what type is field of object
+- enum class `SplitFieldRes`
+  - used for specifying result of splitting string representation of object into vector of strings, containing individual
+    fields
+- `using view_t = std::ranges::subrange<std::vector<std::string>::iterator>`
+- enum class `ObjectParseRes`
+  - used for specifying result of parsing of string representation of object
+- `StartupTokens GetOptionToken(view_t &args)`
+  - function used for parsing next token in startup arguments
+- `std::pair<variant_t, TTLTypes> GetTTL`
+  - used for parsing representation of time to live after parsing its option
+- `DBTypes GetType(viev_t &args)`
+  - used for parsing type of database entries after parsing its option
+- `std::tuple<DBTypes, ttl_t, Object, object_reference> GetDBType(view_t &args)`
+  - function used for parsing database entry type and time to live for entries
+- `std::tuple<ObjectParseRes, Object, object_reference> ParseObjectStructure(view_t &viewIn)`
+  - function used for parsing object structure on database startup, when type of entries is object
+
 ### `Error`
 ### `Nodes`
 ### `OperationType`
