@@ -215,6 +215,31 @@ compile time.
   - function used for parsing object structure on database startup, when type of entries is object
 
 ### `Error`
+
+Contains functions, that return strings of errors, that may occur while executing database operations
+
+- `err_t = std::vector<std::string>`
+  - alias for setting tye of errors
+  - it is a vector of strings, because it makes it easier for creation of parametrized errors
+- `err_t CouldNotOpenFileErr(const std::string &file)`
+  - returns error, when some file could not be opened
+  - returns: `{"Could not open file: ", file}`
+- `err_t CouldNotReadFileErr(const std::string &file)`
+  - returns error, when some file could not be read
+  - returns `{"Could not read file: ", file}`
+- `err_t InvalidArgs()`
+  - returns error, when invalid arguments were passed to database operation
+  - returns `{"Invalid arguments"}`
+- `err_t InvalidArgsCount(const std::size_t expected, const std::size_t actual)`
+  - returns error, when invalid number of arguments was passed to database operation
+  - return `{"Invalid number of arguments, expected: ", std::to_string(expected), ", got: ", std::to_string(actual)}`
+- `err_t InvalidOperation()`
+  - returns error, when invalid operation was run on database instance, f.e. object operation was run on integer database
+  - returns `{"Invalid operation"}`
+- `err_t InvalidField(const std::string &field)`
+  - returns error, when field of an object is invalid 
+  - returns `{"Invalid field: ", field}`
+
 ### `Nodes`
 ### `OperationType`
 ### `Parser`
