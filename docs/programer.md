@@ -241,6 +241,75 @@ Contains functions, that return strings of errors, that may occur while executin
   - returns `{"Invalid field: ", field}`
 
 ### `Nodes`
+
+Contains definition of classes used as a nodes, that are being used when executing database operations
+
+#### `BaseNode.hpp`
+
+Contains abstract class `BaseNode`
+
+#### `DBNodes.hpp`
+
+Contains nodes, that execute operations on database
+
+- alias template `DBType<T>` 
+  - specifies exact type of database, with `T` being the type od database entry
+- abstract class `DBopsNodeBase`
+  - this abstract class inherits from `BaseNode`
+  - `virtual void Execute()` - executes database operation
+- class template `DBopsNode<T>`
+  - inherits from `DBopsNodeBase`
+  - adds protected reference to database of type `DBType<T>`
+  - `DBopsNode(DBType<T> &db)` - constructor
+    - `db` is stored as a reference
+- class templates for all operations on database
+  - `InsertNode` - inserts result of operation into database
+  - `GetNode` - retrieves entry from database
+  - `DeleteNode` - deletes entry from database
+  - `ErrorNode` - prints out any error, that may have happened during the evaluation of operation
+- class template `ToStreamNode`
+  - used for dumping result of an operation into outstream
+
+#### `Nodes.hpp`
+
+Header file that includes all necessary headers with node classes for simpler including
+
+#### `OpNodes`
+
+Contains nodes, that execute operations on instances of types, that can be database entries
+
+- abstract class template `Node<T>`
+  - inherits from `BaseNode`
+  - `virtual T Execute()`
+    - executes the operation and returns result
+- class template `ConstandtNode<T> : Node<T>`
+  - used, when constant values are used in operations
+- classes for all operations on String values:
+  - `ConcatStrings : Node<String>` - used for concatenating strings
+  - `SuffixNode : Node<String>` - used for getting suffix of a string
+  - `PrefixNode : Node<String>` - used for getting prefix of a string
+  - `AtNode : Node<String>` - used for getting character at specified position
+  - `FindNode : Node<Vector<Integer>>` - used for finding all occurrences of a substring
+    - this node returns vector of integers
+- class template `BinaryOp<T> : Node<T>` - used for all operations on number values
+  - class templates inherit from this class template, where `T` is `Integer` or `Float`:
+    - `AddOp<T> : BinaryOp<T>` - add two numbers
+    - `SubtractOp<T> : BinaryOp<T>` - subtracts two numbers
+    - `DivideOp<T> : BinaryOp<T>` - divides one number by other
+    - `MultiplyOp<T> : BinaryOp<T>` - multiplies two numbers
+- class templates for operations on vectors:
+  - `AppendNode<T> : Node<Vector<T>>` - appends value to a copy of a vector
+  - `PopNode<T> : Node<Vector<T>>` - removes last value from a copy of vector
+  - `VInsertNode<T> : Node<Vector<T>>` - inserts value at a specified position in a copy of vector
+  - `RemoveNode<T> : Node<Vector<T>>` - removes value from specified position in a copy of vector
+  - `SetNode<T> : Node<Vector<T>>` - sets a value at a specified position of a copy of vector to a specified value
+  - `VgetNode<T> : Node<T>` - returns value at a specified position in a vector
+  - `SizeNode : Node<Integer>` - returns the size of a vector
+- class templates for operations on objects
+  - `ObjectGetNode<T> : Node<T>` - returns value stored in a field of vector
+  - `ObjectSetNode<T> : Node<Object>` - sets a value to a specified field in a copy of vector
+
+
 ### `OperationType`
 ### `Parser`
 ### `QueueEntry`
