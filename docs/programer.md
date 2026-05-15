@@ -328,6 +328,26 @@ Contains functions for parsing operations
 
 ### `Parser`
 ### `QueueEntry`
+
+Instances of class `QueueEntry` are stored in priority queue used for time to live, they manage time left to live and
+own a key for accessing value, that it is invalidating. Entries in database of type `DBEntry` hold pointer to these entries
+for invalidating them. This is a reason why there are `std::unique_ptr<QueueEntry>` stored in the priority queue rather
+than objects
+
+- class `QueueEntry`
+  - constructor `QueueEntry(std::chrono::milliseconds ttl, const std::vector<uint8_t> &key)`
+    - constructs new object with time to live as `ttl` and key into database as `key`
+  - function `bool Expired() const`
+    - returns `true` if time to live of this entry has passed, otherwise returns `false`
+  - function `std::chrono::milliseconds RemainingTime() const`
+    - returns remaining time, until time to live of this entry has passed
+    - if remaining time has already passed returns `std::chrono::milliseconds(0)`
+  - function `bool Invalid() const`
+    - returns `true` if associated entry into database has been deleted, otherwise returns `false`
+- struct `CompareQueueEntry`
+  - functor used for comparing, which instance of `QueueEntry` will expire first
+  - function `bool operator()(const std::unique_ptr<QueueEntry> &a, const std::unique_ptr<QueueEntry> &b)`  
+    - returns `true`, if `b` will expire first
 ### `Utils`
 
 Contains utility functions.
