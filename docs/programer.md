@@ -327,6 +327,158 @@ Contains functions for parsing operations
   - returns `true`, if `op` is valid operation on database of type `dbType`
 
 ### `Parser`
+
+Contains functions used for parsing database operations.
+
+- enum class `ArgsType`
+  - used to represent what type of argument has been parsed
+- alias `args_parsed = std::pair<ArgsType, std::string>`
+- function `args_parsed ParseArg(view_t &args)`
+  - parses an argument in `args`
+- enum class `GetArgsReturnTypes`
+  - used to represent if the parsed argument has valid type based on desired type and type, that will be received from
+    `args_parsed`
+- function `std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_view view)`
+  - tries to parse one field of string representation of object
+  - returns tuple, where:
+    - first is name of the field
+    - second is type of the field
+    - third is string representation of actual value
+  - when valid field has been parsed, second must equal `ObjectFieldTypes::VALID`
+- alias `parse_res<T> = std::pair<bool, T>`
+- function `parse_res<String> ParseString(std::string_view input)`
+  - tries to parse constant value of String value in a format of: `'[Actual Value]'`
+  - when successful returns `true` and value
+  - otherwise returns `false` and something
+- function template `std::pair<GetArgsReturnTypes, StringPtr> getString<DB>(DB &db, args_parsed &&args)`
+  - tries to parse node returning String, based on `args` and type of database as a template argument `DB`
+  - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
+  - otherwise returns `GetArgsReturnTypes::VALID` and valid pointer
+- function `parse_res<Integer> ParseInt(std::string_view input)`
+  - tries to parse constant value of Integer value
+  - when successful returns `true` and value
+  - otherwise returns `false` and something
+- function template `std::pair<GetArgsReturnTypes, NumberPtr<Integer>> getInteger<DB>(DB &db, args_parsed &&args)`
+  - tries to parse node returning Integer, based on `args` and type of database as a template argument `DB`
+  - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
+  - otherwise returns `GetArgsReturnTypes::VALID` and valid pointer 
+- function `parse_res<Float> ParseFloat(std::string_view input)`
+  - tries to parse constant value of Float value
+  - when successful returns `true` and value
+  - otherwise returns `false` and something
+- function template `std::pair<GetArgsReturnTypes, NumberPtr<Float>> getFloat<DB>(DB &db, args_parsed &&args)`
+  - tries to parse node returning Float, based on `args` and type of database as a template argument `DB`
+  - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
+  - otherwise returns `GetArgsReturnTypes::VALID` and valid pointer
+- enum class `VectorParsingRes`
+  - used to represent result of parsing string representation of vector
+- function `std::pair<VectorParsingRes, Vector<T>> ParseVect(std::string_view input, std::function<std::pair<bool, typename vector_t<T>::type>(std::string_view)> converter)`
+  - tries to parse constant value of Vector containing values of type `T`, with `converter` used as a function, that parses
+    string representation of values of type `T`
+  - when successful returns `VectorParsingRes::VALID` and value
+  - returns `VectorParsingRes::INVALID_VECT` for invalid syntax
+  - returns `VectorParsingRes::INVALID_ITEM` for invalid item
+- function template `std::pair<GetArgsReturnTypes, VectPtr<T>> getVector<T, DB>(DB &db, args_parsed &&args, std::function<std::pair<bool, typename vector_t<T>::type>(std::string_view)> converter)`
+  - tries to parse node returning Vector<T>, based on `args` and type of database as a template argument `DB`
+  - `converter` is used to parse values in constant value of vector
+  - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
+  - otherwise returns `GetArgsReturnTypes::VALID` and valid pointer
+- function template `std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB<T, DB>(DB &db, args_parsed &&args)`
+  - does the same thing as `getVector`, only difference is that only returns valid value, when argument parsed is
+    key into database and type of database is correct
+- function `parse_res<Object> ParseObject(std::string_view input, Object referenceObject, const object_reference &reference))`
+  - tries to parse constant value of Object
+  - builds the new object using `referenceObject`, where are already set optional fields to `null` and `reference` to check
+    correct types of fields
+  - when successful returns `true` and value
+  - otherwise returns `false` and something
+- function template `std::pair<GetArgsReturnTypes, NodePtr<Object> > getObject<DB>(DB &db, args_parsed &&args, const Object &referenceObject, const object_reference &reference)`
+  - tries to parse node returning Object, based on `args` and type of database as a template argument `DB`
+  - `referenceObject` and `reference` are used for building object from constant
+  - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
+  - otherwise returns `GetArgsReturnTypes::VALID` and valid pointer
+- function template `std::pair<GetArgsReturnTypes, NodePtr<Object> > getObjectFromDB<DB>(DB &db, args_parsed &&args)`
+  - does the same thing as `getObject`, only difference is that only returns valid value, when argument parsed is
+    key into database and type of database is correct
+- enum class `ParseOperationRes`
+  - used to represent result of a parsing of database operation
+- alias `parse_op_r<N> = std::pair<ParseOperationRes, std::unique_ptr<N> >`
+- function template `parse_op_r<N> ParseIntNode<DB, N>(view_t &view, DB &db)`
+  - parses operation of type `N` on integer values with provided database of type `DB`
+  - `N` is node class used to represent desired operation
+  - `N` must be operation with 2 operands of type `Integer`
+- function template `parse_op_r<N> ParseFloatNode<DB, N>(view_t &view, DB &db)`
+  - parses operation of type `N` on float values with provided database of type `DB`
+  - `N` is node class used to represent desired operation
+  - `N` must be operation with 2 operands of type `Float`
+- function template `parse_op_r<N> ParseStringOpStringNum<DB, N>(view_t &view, DB &db)`
+  - used for parsing operation on string values of type `N` with provided database of type `DB`
+  - `N` is node class used to represent desired operation
+  - `N` must be operation with 2 operands of types `String` `Num` in this order
+- function template `parse_op_r<N> ParseStringOpStringString<DB, N>(view_t &view, DB &db)`
+  - used for parsing operation on string values of type `N` with provided database of type `DB`
+  - `N` is node class used to represent desired operation
+  - `N` must be operation with 2 operands of types `String` `String` in this order
+- function template `parse_op_r<OP> ParseVectOpVectVal<DB, OP, T>(view_t &view, DB &db)`
+  - used for parsing operation on vector values with items of type `T` of type `OP` with provided database of type `DB`
+  - `OP` is node class used to represent desired operation
+  - `OP` must be operation with 2 operands of types `Vector<T>` `T` in this order
+- function template `parse_op_r<OP> ParseVectOpVect<DB, OP, T>(view_t &view, DB &db)`
+  - used for parsing operation on vector values with items of type `T` of type `OP` with provided database of type `DB`
+  - `OP` is node class used to represent desired operation
+  - `OP` must be operation with 1 operand of type `Vector<T>`
+- function template `parse_op_r<OP> ParseVectOpVectNumVal<DB, OP, T>(view_t &view, DB &db)`
+  - used for parsing operation on vector values with items of type `T` of type `OP` with provided database of type `DB`
+  - `OP` is node class used to represent desired operation
+  - `OP` must be operation with 3 operands of types `Vector<T>` `Integer` `T` in this order
+- function template `parse_op_r<OP> ParseVectOpVectNum<DB, OP, T>(view_t &view, DB &db)`
+  - used for parsing operation on vector values with items of type `T` of type `OP` with provided database of type `DB`
+  - `OP` is node class used to represent desired operation
+  - `OP` must be operation with 2 operands of types `Vector<T>` `Integer` in this order
+- function template `std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet<DB>(view_t &view, DB &db, object_reference &reference, std::ostream &outstream)` 
+  - used for parsing operation `OGET` on object values with provided database of type `DB`
+  - `reference` is used for checking if accessed field exists
+  - `outstream` is where the result of get should be dumped
+- function template `std::tuple<ParseOperationRes, NodePtr<Object>, ObjectFieldTypes, std::string> ParseObjectSet<DB>(view_t &view, DB &db, object_reference &reference)` 
+  - used for parsing operation `OSET` on object values with provided database of type `DB`
+  - `reference` is used for checking if the field that is to be set exists
+  - function returns:
+    + result of parsing
+    + pointer to node, that returns copy of the object
+    + type of field, that is accessed 
+    + name of field, that is accessed
+- enum class `KeyType`
+  - used for representing what type of key has beem specified
+- function `std::pair<KeyType, std::string> ParseKey(view_t &view)`
+  - used for parsing of operand, that is key into database
+- function `std::pair<TargetType, std::string> ParseTarget(view_t &view)`
+  - used for parsing a target of operation, target is one of following
+    - key into database
+    - file where to store the result
+- function `ttl_t ParseTTL(view_t &view, ttl_t defaultTTL)`
+  - used for parsing time to live of results of operations
+  - tries to find option `--ttl` in `view`, if it finds it, returns specified time to live, otherwise returns `defaultTTL`
+- function template `parse_op_r<DBopsNode<T> > ParseOneKeyOP<T, N>(view_t &view, std::ostream &stream, DBType<T> &db)` 
+  - parses operation `N` with one operand representing key into database `db`
+  - `N` is node class used to represent desired operation
+- function template `parse_op_r<DBopsNode<T> > ParseDelete<T>(view_t &view, DBType<T> &db)`
+  - used for parsing of delete operation on database of type `DBType<T>`
+- function template `parse_op_r<DBopsNode<T> > ParseInsert<T>(view_t &view, DBType<T> &db, ttl_t ttl, ttlQueueType &queue)`
+  - used for parsing insert operation on database of type `DBType<T>`
+- function `parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, ttl_t ttl, ttlQueueType &queue, const object_reference &reference, const Object &referenceObject)`
+  - used for parsing insert operation on database of type `DBType<Object>`
+  - `reference` is used for parsing the string representation and checking if the values represent correct types
+  - `referenceObject` is used for building object, that is to be inserted into database
+    - all optional fields are set to `null` in `referenceObject`
+- function `std::unique_ptr<ErrorNode> GetError(ParseOperationRes res, std::size_t expected, std::size_t actual, std::ostream &outstream, const std::string &file)`
+  - returns pointer to `ErrorNode`, that returns error based on `res`
+  - used for receiving correct error based on result of parsing, that is not valid
+  - `expected` and `actual` are used only whe `res` is `ParseOperationRes::INVALID_ARG_C`
+  - `oustream` is stream, where the error should be dumped
+  - `file` is name of file, that could not be opened or read
+- function `bool HasTarget(OPType op)`
+  - returns `true`, if `op` represents operation, that needs target, where the result should be stored, otherwise returns
+    `false`
 ### `QueueEntry`
 
 Instances of class `QueueEntry` are stored in priority queue used for time to live, they manage time left to live and
