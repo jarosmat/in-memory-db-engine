@@ -15,6 +15,12 @@ To build the project, run
 
 ```./build.sh```
 
+To build project for testing, run
+
+```./build_test.sh```
+
 to run the main executable, run
 
 ```./run.sh```
+
+Any cli arguments to be passed to main executable, add to script `run.sh`
