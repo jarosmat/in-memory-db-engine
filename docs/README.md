@@ -1,8 +1,12 @@
-## Project Specification and Documentation
+## Proposal
 
-Put your project proposal in this folder and create a link from this [README](README.md).
+Proposal of this project can be seen [here](Proposal.md)
 
-Do the same with project documentation later.
+## Documentation
+
+- [Programmer documentation](programer.md)
+- [User documentation](user.md)
+- [Examples of usage](example_usage.md)
 
 ## Build
 
