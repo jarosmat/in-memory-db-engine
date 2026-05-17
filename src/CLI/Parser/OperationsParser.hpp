@@ -39,8 +39,8 @@ template<typename DB>
     requires (!std::is_reference_v<DB>)
 std::pair<GetArgsReturnTypes, StringPtr> getString(DB &db, args_parsed &&args) {
     auto [type, val] = std::move(args);
-    auto stringVal = String(std::move(val));
     if (type == ArgsType::CONSTANT) {
+        auto stringVal = String(std::move(val));
         auto res = std::make_unique<ConstantNode<String> >(std::move(stringVal));
         return {GetArgsReturnTypes::VALID, std::move(res)};
     }
