@@ -672,6 +672,108 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                                 continue;
                             }
                         }
+                    } else if (fieldT == ObjectFieldTypes::FLOAT) {
+                        auto [valMsg, valPtr] = getFloat(db, std::move(parseValue));
+
+                        if (valMsg != GetArgsReturnTypes::VALID) {
+                            resMsg = ParseOperationRes::INVALID_ARGS;
+                        } else if (targetType == TargetType::KEY) {
+                            auto keyBytes = stringBytes(std::move(targetValue));
+                            auto ptrEval = std::make_unique<ObjectSetNode<Float> >(
+                                std::move(ptrObject), fieldN, std::move(valPtr));
+                            if (ttl.second == TTLTypes::IMMORTAL) {
+                                ptrOp = std::make_unique<InsertNode<T, ImmortalSentinel, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval), std::move(ImmortalSentinel()),
+                                    ttlQueue);
+                                ptrOp->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::MILLISECONDS) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::milliseconds, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::milliseconds>(ttl.first)), ttlQueue);
+                                ptrOp->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::SECONDS) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::seconds, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::seconds>(ttl.first)), ttlQueue);
+                                ptrOp->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::MINUTES) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::minutes, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::minutes>(ttl.first)), ttlQueue);
+                                ptrOp->Execute();
+                                continue;
+                            }
+                        } else if (targetType == TargetType::FILE) {
+                            if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                                resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                            } else {
+                                auto ptrEval = std::make_unique<ObjectSetNode<Float> >(
+                                    std::move(ptrObject), fieldN, std::move(valPtr));
+
+                                ptrOp = std::make_unique<ToStreamNode<Object> >(
+                                    outFile, std::move(ptrEval));
+
+                                ptrOp->Execute();
+                                continue;
+                            }
+                        }
+                    } else if (fieldT == ObjectFieldTypes::STRING) {
+                        auto [valMsg, valPtr] = getString(db, std::move(parseValue));
+
+                        if (valMsg != GetArgsReturnTypes::VALID) {
+                            resMsg = ParseOperationRes::INVALID_ARGS;
+                        } else if (targetType == TargetType::KEY) {
+                            auto keyBytes = stringBytes(std::move(targetValue));
+                            auto ptrEval = std::make_unique<ObjectSetNode<String> >(
+                                std::move(ptrObject), fieldN, std::move(valPtr));
+                            if (ttl.second == TTLTypes::IMMORTAL) {
+                                ptrOp = std::make_unique<InsertNode<T, ImmortalSentinel, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval), std::move(ImmortalSentinel()),
+                                    ttlQueue);
+                                ptrOp->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::MILLISECONDS) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::milliseconds, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::milliseconds>(ttl.first)), ttlQueue);
+                                ptrOp->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::SECONDS) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::seconds, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::seconds>(ttl.first)), ttlQueue);
+                                ptrOp->Execute();
+                                continue;
+                            }
+                            if (ttl.second == TTLTypes::MINUTES) {
+                                ptrOp = std::make_unique<InsertNode<T, std::chrono::minutes, ttlQueueType> >(
+                                    db, std::move(keyBytes), std::move(ptrEval),
+                                    std::move(std::get<std::chrono::minutes>(ttl.first)), ttlQueue);
+                                ptrOp->Execute();
+                                continue;
+                            }
+                        } else if (targetType == TargetType::FILE) {
+                            if (std::ofstream outFile(targetValue); !outFile.is_open()) {
+                                resMsg = ParseOperationRes::COULD_NOT_OPEN_FILE;
+                            } else {
+                                auto ptrEval = std::make_unique<ObjectSetNode<String> >(
+                                    std::move(ptrObject), fieldN, std::move(valPtr));
+
+                                ptrOp = std::make_unique<ToStreamNode<Object> >(
+                                    outFile, std::move(ptrEval));
+
+                                ptrOp->Execute();
+                                continue;
+                            }
+                        }
                     }
                 } else {
                     resMsg = ParseOperationRes::INVALID_ARGS;
