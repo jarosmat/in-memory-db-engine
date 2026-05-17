@@ -370,6 +370,18 @@ parse_op_r<N> ParseIntNode(view_t &view, DB &db) {
     auto parse2 = ParseArg(view);
     auto [type2, ptr2] = getInteger<DB>(db, std::move(parse2));
 
+    if constexpr (std::is_same_v<N,DivideOp<Integer>>) {
+        if (type2 == GetArgsReturnTypes::VALID) {
+            auto resdiv = ptr2.get()->Execute();
+            if (resdiv == 0) {
+                return {ParseOperationRes::INVALID_ARGS, {}};
+            }
+            auto new_ptr2 = std::make_unique<ConstantNode<Integer>>(resdiv);
+            auto res = std::make_unique<N>(std::move(ptr1), std::move(new_ptr2));
+            return {ParseOperationRes::VALID, std::move(res)};
+        }
+    }
+
 
     if (GetArgsReturnTypes::INVALID == type1 || GetArgsReturnTypes::INVALID == type2) {
         return {ParseOperationRes::INVALID_ARGS, {}};
