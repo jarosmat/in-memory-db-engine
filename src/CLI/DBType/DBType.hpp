@@ -114,8 +114,6 @@ auto GetTTL(view_t &args) -> ttl_t;
 
 auto GetType(view_t &view) -> DBTypes;
 
-auto ParseSignedTTL(std::string &val) -> ttl_t;
-
 auto ParseUnsignedTTL(std::string &val) -> ttl_t;
 
 std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_view view);

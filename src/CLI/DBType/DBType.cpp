@@ -149,9 +149,6 @@ auto GetTTL(view_t &args) -> ttl_t {
         return {variant_t{}, TTLTypes::INVALID};
     }
 
-    if (val.at(0) == '-') {
-        return ParseSignedTTL(val);
-    }
     return ParseUnsignedTTL(val);
 }
 
