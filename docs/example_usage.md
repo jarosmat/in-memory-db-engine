@@ -75,7 +75,7 @@ CONCAT keyc $key " right"
 SUFFIX keys $keyc 4
 PREFIX keyp $keyc 4
 AT keya $keyc 0
-FIND @keyfind ababababab
+FIND @keyfind ababababab ab
 GET key
 GET keyc
 GET keys
