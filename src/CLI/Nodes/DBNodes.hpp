@@ -136,4 +136,18 @@ public:
     }
 };
 
+class ObjectGetNodeToStream : public DBopsNodeBase {
+    std::unique_ptr<Node<Object> > obj;
+    Key key;
+    std::ostream &stream;
+
+public:
+    void Execute() override {
+        obj.get()->Execute().dump_to_stream(stream, key);
+    }
+
+    ObjectGetNodeToStream(std::unique_ptr<Node<Object> > &&obj, Key key, std::ostream& stream) : obj(std::move(obj)), key(std::move(key)), stream(stream) {
+    }
+};
+
 #endif //PROJECT_DBNODES_HPP

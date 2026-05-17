@@ -661,29 +661,8 @@ std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
         return {ParseOperationRes::INVALID_ARGS, std::move(errorPtr)};
     }
 
-    if (findRes->second == ObjectFieldTypes::INTEGER) {
-        auto ptrEval = std::make_unique<ObjectGetNode<Integer> >(std::move(ptr), fieldName);
-        auto ptrOp = std::make_unique<ToStreamNode<Integer> >(
-            outstream, std::move(ptrEval));
-        return {ParseOperationRes::VALID, std::move(ptrOp)};
-    }
-
-
-    if (findRes->second == ObjectFieldTypes::FLOAT) {
-        auto ptrEval = std::make_unique<ObjectGetNode<Float> >(std::move(ptr), fieldName);
-        auto ptrOp = std::make_unique<ToStreamNode<Float> >(
-            outstream, std::move(ptrEval));
-        return {ParseOperationRes::VALID, std::move(ptrOp)};
-    }
-
-    if (findRes->second == ObjectFieldTypes::STRING) {
-        auto ptrEval = std::make_unique<ObjectGetNode<String> >(std::move(ptr), fieldName);
-        auto ptrOp = std::make_unique<ToStreamNode<String> >(
-            outstream, std::move(ptrEval));
-        return {ParseOperationRes::VALID, std::move(ptrOp)};
-    }
-
-    return {ParseOperationRes::INVALID_ARGS, {}};
+    auto ptrEval = std::make_unique<ObjectGetNodeToStream>(std::move(ptr), fieldName, outstream);
+    return {ParseOperationRes::VALID, std::move(ptrEval)};
 }
 
 template<typename DB>

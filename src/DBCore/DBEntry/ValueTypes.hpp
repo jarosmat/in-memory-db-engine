@@ -42,6 +42,10 @@ public:
         return std::get<T>(members.at(name));
     }
 
+    void dump_to_stream(std::ostream& stream, const Key &key) const {
+        std::visit([&stream](auto&&arg){stream << arg;}, members.at(key));
+    }
+
     template<typename T>
     void set_value(const Key &name, const T &value) {
         members[name] = value;
