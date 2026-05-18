@@ -231,8 +231,22 @@ TEST_CASE("Node Generation Functions", "[OperationType]") {
             CHECK(node->Execute() == String("test_val"));
         }
 
+        SECTION("Key from constant (Database Lookup) with invalid key") {
+            args_parsed args = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
+            auto [status, node] = getString(dbS, std::move(args));
+            CHECK(status == GetArgsReturnTypes::INVALID);
+            CHECK(node == nullptr);
+
+            args_parsed args2 = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
+            auto [status2, node2] = getString(dbI, std::move(args2));
+            CHECK(status2 == GetArgsReturnTypes::INVALID);
+        }
+
         SECTION("Key from constant (Database Lookup)") {
             args_parsed args = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
+            auto key = args.second;
+            auto entry = dbS.LookUp(stringBytes(std::move(key)));
+            entry.SetValue(GetEntry(String(), ImmortalSentinel(), nullptr));
             auto [status, node] = getString(dbS, std::move(args));
             CHECK(status == GetArgsReturnTypes::VALID);
             CHECK(node != nullptr);

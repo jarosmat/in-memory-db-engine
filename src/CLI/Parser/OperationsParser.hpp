@@ -36,6 +36,12 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
 parse_res<String> ParseString(std::string_view input);
 
 template<typename DB>
+bool ValidKey(DB &db, const std::vector<uint8_t>& key) {
+    auto entry = db.LookUp(std::move(key));
+    return entry.GetResult() == USED;
+}
+
+template<typename DB>
     requires (!std::is_reference_v<DB>)
 std::pair<GetArgsReturnTypes, StringPtr> getString(DB &db, args_parsed &&args) {
     auto [type, val] = std::move(args);
@@ -46,12 +52,14 @@ std::pair<GetArgsReturnTypes, StringPtr> getString(DB &db, args_parsed &&args) {
     }
     if constexpr (get_db_type<DB>::value == DBTypes::STRING) {
         if (type == ArgsType::KEY_FROM_CONSTANT) {
-            auto key = stringBytes(std::move(val));
-            auto res = std::make_unique<FromDB<String> >(db, std::move(key));
-            return {GetArgsReturnTypes::VALID, std::move(res)};
+            if (auto key = stringBytes(std::move(val)); ValidKey(db, key)) {
+                auto res = std::make_unique<FromDB<String> >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(res)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
         }
         if (type == ArgsType::KEY_FROM_FILE) {
-            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID && ValidKey(db, key)) {
                 auto resPtr = std::make_unique<FromDB<String> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -79,12 +87,15 @@ std::pair<GetArgsReturnTypes, NumberPtr<Integer> > getInteger(DB &db, args_parse
     }
     if constexpr (get_db_type<DB>::value == DBTypes::INTEGER) {
         if (type == ArgsType::KEY_FROM_CONSTANT) {
-            auto key = stringBytes(std::move(val));
-            auto res = std::make_unique<FromDB<Integer> >(db, std::move(key));
-            return {GetArgsReturnTypes::VALID, std::move(res)};
+            if (auto key = stringBytes(std::move(val)); ValidKey(db, key)) {
+                auto res = std::make_unique<FromDB<Integer> >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(res)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
+
         }
         if (type == ArgsType::KEY_FROM_FILE) {
-            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID && ValidKey(db, key)) {
                 auto resPtr = std::make_unique<FromDB<Integer> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -113,12 +124,14 @@ std::pair<GetArgsReturnTypes, NumberPtr<Float> > getFloat(DB &db, args_parsed &&
     }
     if constexpr (get_db_type<DB>::value == DBTypes::FLOAT) {
         if (type == ArgsType::KEY_FROM_CONSTANT) {
-            auto key = stringBytes(std::move(val));
-            auto res = std::make_unique<FromDB<Float> >(db, std::move(key));
-            return {GetArgsReturnTypes::VALID, std::move(res)};
+            if (auto key = stringBytes(std::move(val)); ValidKey(db, key)) {
+                auto res = std::make_unique<FromDB<Float> >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(res)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
         }
         if (type == ArgsType::KEY_FROM_FILE) {
-            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID && ValidKey(db, key)) {
                 auto resPtr = std::make_unique<FromDB<Float> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -235,12 +248,15 @@ std::pair<GetArgsReturnTypes, VectPtr<typename vector_t<T>::type> > getVector(
 
     if constexpr (get_db_type<DB>::value == get_db_type<Vector<T> >::value) {
         if (type == ArgsType::KEY_FROM_CONSTANT) {
-            auto key = stringBytes(std::move(val));
-            auto res = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
+            if (auto key = stringBytes(std::move(val)); ValidKey(db, key)) {
+                auto res = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(res)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
         }
 
         if (type == ArgsType::KEY_FROM_FILE) {
-            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID && ValidKey(db, key)) {
                 auto resPtr = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -264,13 +280,15 @@ std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB(DB &db, args_parsed &
 
     if constexpr (get_db_type<DB>::value == get_db_type<Vector<T> >::value) {
         if (type == ArgsType::KEY_FROM_CONSTANT) {
-            auto key = stringBytes(std::move(val));
-            auto res = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
-            return {GetArgsReturnTypes::VALID, std::move(res)};
+            if (auto key = stringBytes(std::move(val)); ValidKey(db, key)) {
+                auto res = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(res)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
         }
 
         if (type == ArgsType::KEY_FROM_FILE) {
-            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID && ValidKey(db, key)) {
                 auto resPtr = std::make_unique<FromDB<Vector<T> > >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -302,12 +320,15 @@ std::pair<GetArgsReturnTypes, NodePtr<Object> > getObject(DB &db, args_parsed &&
 
     if constexpr (get_db_type<DB>::value == DBTypes::OBJECT) {
         if (type == ArgsType::KEY_FROM_CONSTANT) {
-            auto key = stringBytes(std::move(val));
-            auto res = std::make_unique<FromDB<Object> >(db, std::move(key));
+            if (auto key = stringBytes(std::move(val)); ValidKey(db, key)) {
+                auto res = std::make_unique<FromDB<Object> >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(res)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
         }
 
         if (type == ArgsType::KEY_FROM_FILE) {
-            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID && ValidKey(db, key)) {
                 auto resPtr = std::make_unique<FromDB<Object> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -331,13 +352,15 @@ std::pair<GetArgsReturnTypes, NodePtr<Object> > getObjectFromDB(DB &db, args_par
 
     if constexpr (get_db_type<DB>::value == DBTypes::OBJECT) {
         if (type == ArgsType::KEY_FROM_CONSTANT) {
-            auto key = stringBytes(std::move(val));
-            auto res = std::make_unique<FromDB<Object> >(db, std::move(key));
-            return {GetArgsReturnTypes::VALID, std::move(res)};
+            if (auto key = stringBytes(std::move(val)); ValidKey(db, key)) {
+                auto res = std::make_unique<FromDB<Object> >(db, std::move(key));
+                return {GetArgsReturnTypes::VALID, std::move(res)};
+            }
+            return {GetArgsReturnTypes::INVALID, {}};
         }
 
         if (type == ArgsType::KEY_FROM_FILE) {
-            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID) {
+            if (auto [res, key] = readFileBytes(val); res == BytesFromFileRes::VALID && ValidKey(db, key)) {
                 auto resPtr = std::make_unique<FromDB<Object> >(db, std::move(key));
                 return {GetArgsReturnTypes::VALID, std::move(resPtr)};
             }
@@ -674,6 +697,9 @@ std::tuple<ParseOperationRes, NodePtr<Object>, ObjectFieldTypes, std::string> Pa
     }
     auto parse = ParseArg(view);
     auto [type, ptr] = getObjectFromDB(db, std::move(parse));
+    if (type == GetArgsReturnTypes::INVALID) {
+        return {ParseOperationRes::INVALID_ARGS, std::move(ptr), ObjectFieldTypes::INVALID_FIELD, std::string()};
+    }
     auto parseField = ParseArg(view);
     auto [typeField, ptrField] = getString(db, std::move(parseField));
     const auto fieldName = static_cast<std::string>(ptrField.get()->Execute());
