@@ -84,6 +84,9 @@ This folder contains classes used to represent specific entries to database.
     - `T get_member(const Key &name)` function template, that takes a key and returns a value, that is stored under only
       argument of type `Key`,
       argument of function template is the value type, that is expected to be stored under specified field name
+    - `void dump_to_stream(std::ostream& stream, const Key &key)`
+      - dumps the field named `key` into `stream`
+      - assumes, that field named `key` exists
     - `void set_value(const Key &name, const T &value)` function template, that stores `value` under `name` field name,
       template of the function is the value type
       of `value`, function has two overloads, for `value` being passed as an r-value of l-value reference
@@ -306,6 +309,9 @@ Contains nodes, that execute operations on database
     - `ErrorNode` - prints out any error, that may have happened during the evaluation of operation
 - class template `ToStreamNode`
     - used for dumping result of an operation into outstream
+- class `ObjectGetNodeToStream`
+  - inherits from `DBopsNodeBase`
+  - used for dumping fields of entries of type `object` into output stream
 
 #### `Nodes.hpp`
 
@@ -386,6 +392,8 @@ Contains functions used for parsing database operations.
     - tries to parse constant value of String value in a format of: `'[Actual Value]'`
     - when successful returns `true` and value
     - otherwise returns `false` and something
+- function template `bool ValidKey<DB>(DB &db, const std::vector<uint8_t>& key)`
+  - returns `true`, if entry with `key` exists in database `db`
 - function template `std::pair<GetArgsReturnTypes, StringPtr> getString<DB>(DB &db, args_parsed &&args)`
     - tries to parse node returning String, based on `args` and type of database as a template argument `DB`
     - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
