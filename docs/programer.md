@@ -1,8 +1,10 @@
 # Programmer documentation
 
-At first the options from CLI are parsed (see [user documentation](user.md)), then if the option are correct an
-instantiation
-of function `RunDB` found in `src/CLI/Runner.hpp` is called and the database is running. Database runs in two threads:
+## Application design
+
+At first the options from CLI are parsed (see [user documentation](user.md)), then if the options are correct an
+instantiation of function template `RunDB` found in `src/CLI/Runner.hpp` is called and the database is running. Database
+runs in two threads:
 
 1. reader thread
     - this thread just reads input stream specified when calling `RunDB` (currently `std::cin`) and pushes
@@ -45,7 +47,7 @@ This folder contains classes used to represent specific entries to database.
     - static function `String Concatenate` takes two arguments: `String valLeft` and `String valRight` and returns new
       `String`
       instance, whose value is the concatenation of `valLeft + valRight`
-        - this function accepts eith both L-value reference arguments or both R-value arguments:
+        - this function accepts either both L-value reference arguments or both R-value arguments:
             - `String Concatenate(const std::string &valLeft, const std::string &valRight)`
             - `String Concatenate(std::string &&valLeft, std::string &&valRight)`
             - `String Concatenate(String &&valLeft, String &&valRight)`
@@ -85,8 +87,8 @@ This folder contains classes used to represent specific entries to database.
       argument of type `Key`,
       argument of function template is the value type, that is expected to be stored under specified field name
     - `void dump_to_stream(std::ostream& stream, const Key &key)`
-      - dumps the field named `key` into `stream`
-      - assumes, that field named `key` exists
+        - dumps the field named `key` into `stream`
+        - assumes, that field named `key` exists
     - `void set_value(const Key &name, const T &value)` function template, that stores `value` under `name` field name,
       template of the function is the value type
       of `value`, function has two overloads, for `value` being passed as an r-value of l-value reference
@@ -98,8 +100,7 @@ This folder contains classes used to represent specific entries to database.
 - `class Timepoint`
     - class used to measure time elapsed from some timepoint
     - at construction uses `std::chrono::steady_clock` for getting a timepoint and later compares it to current
-      timepoint,
-      taken using the same clock
+      timepoint taken using the same clock
         - `std::chrono::steady_clock` is used, because timepoints of this clock cannot decrease as time goes on
     - `Timepoint()` constructs an instance, takes a timepoint
     - `bool Elapsed(T &&val)` function template, that takes value `val` of type `T`, function template `T` must be
@@ -216,7 +217,7 @@ explained for example [here](https://go.dev/blog/swisstable).
 
 Contains implementation of a Sip hash hashing function. Information about SipHash can be
 found [here](https://eprint.iacr.org/2012/351.pdf).
-Key is chosen randomly on database startup
+Key is chosen randomly on database startup.
 
 ## `src/CLI`
 
@@ -226,7 +227,7 @@ Contains definitions of enums, functions associated with parsing of startup argu
 compile time.
 
 - enum class `DBTypes`
-    - enum, that is used to specify what is types of entries in a database
+    - enum, that is used to specify what types of entries will be stored in a database
 - struct `get_db_type`
     - `DBTypes` type tag used to infer type of database based on template argument
 - enum class `StartupTokens`
@@ -237,11 +238,10 @@ compile time.
     - used for specifying what type is field of object
 - enum class `SplitFieldRes`
     - used for specifying result of splitting string representation of object into vector of strings, containing
-      individual
-      fields
+      individual fields
 - `using view_t = std::ranges::subrange<std::vector<std::string>::iterator>`
 - enum class `ObjectParseRes`
-    - used for specifying result of parsing of string representation of object
+    - used for specifying result of parsing of a string representation of an object
 - `StartupTokens GetOptionToken(view_t &args)`
     - function used for parsing next token in startup arguments
 - `std::pair<variant_t, TTLTypes> GetTTL`
@@ -282,7 +282,7 @@ Contains functions, that return strings of errors, that may occur while executin
 
 ### `Nodes`
 
-Contains definition of classes used as a nodes, that are being used when executing database operations
+Contains definition of classes used as a nodes of a syntax tree, that are being used when executing database operations
 
 #### `BaseNode.hpp`
 
@@ -310,8 +310,8 @@ Contains nodes, that execute operations on database
 - class template `ToStreamNode`
     - used for dumping result of an operation into outstream
 - class `ObjectGetNodeToStream`
-  - inherits from `DBopsNodeBase`
-  - used for dumping fields of entries of type `object` into output stream
+    - inherits from `DBopsNodeBase`
+    - used for dumping fields of entries of type `object` into output stream
 
 #### `Nodes.hpp`
 
@@ -336,7 +336,7 @@ Contains nodes, that execute operations on instances of types, that can be datab
         - this node returns vector of integers
 - class template `BinaryOp<T> : Node<T>` - used for all operations on number values
     - class templates inherit from this class template, where `T` is `Integer` or `Float`:
-        - `AddOp<T> : BinaryOp<T>` - add two numbers
+        - `AddOp<T> : BinaryOp<T>` - adds two numbers
         - `SubtractOp<T> : BinaryOp<T>` - subtracts two numbers
         - `DivideOp<T> : BinaryOp<T>` - divides one number by other
         - `MultiplyOp<T> : BinaryOp<T>` - multiplies two numbers
@@ -393,7 +393,7 @@ Contains functions used for parsing database operations.
     - when successful returns `true` and value
     - otherwise returns `false` and something
 - function template `bool ValidKey<DB>(DB &db, const std::vector<uint8_t>& key)`
-  - returns `true`, if entry with `key` exists in database `db`
+    - returns `true`, if entry with `key` exists in database `db`
 - function template `std::pair<GetArgsReturnTypes, StringPtr> getString<DB>(DB &db, args_parsed &&args)`
     - tries to parse node returning String, based on `args` and type of database as a template argument `DB`
     - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
@@ -436,9 +436,8 @@ Contains functions used for parsing database operations.
 - function
   `parse_res<Object> ParseObject(std::string_view input, Object referenceObject, const object_reference &reference))`
     - tries to parse constant value of Object
-    - builds the new object using `referenceObject`, where are already set optional fields to `null` and `reference` to
-      check
-      correct types of fields
+    - builds the new object using `referenceObject`, where optional fields are already set to `null` and `reference` to
+      check correct types of fields
     - when successful returns `true` and value
     - otherwise returns `false` and something
 - function template
@@ -499,12 +498,12 @@ Contains functions used for parsing database operations.
     - used for parsing operation `OSET` on object values with provided database of type `DB`
     - `reference` is used for checking if the field that is to be set exists
     - function returns:
-        + result of parsing
-        + pointer to node, that returns copy of the object
-        + type of field, that is accessed
-        + name of field, that is accessed
+        1. result of parsing
+        2. pointer to node, that returns copy of the object
+        3. type of field, that is accessed
+        4. name of field, that is accessed
 - enum class `KeyType`
-    - used for representing what type of key has beem specified
+    - used for representing what type of key has been specified
 - function `std::pair<KeyType, std::string> ParseKey(view_t &view)`
     - used for parsing of operand, that is key into database
 - function `std::pair<TargetType, std::string> ParseTarget(view_t &view)`
@@ -538,16 +537,14 @@ Contains functions used for parsing database operations.
     - `file` is name of file, that could not be opened or read
 - function `bool HasTarget(OPType op)`
     - returns `true`, if `op` represents operation, that needs target, where the result should be stored, otherwise
-      returns
-      `false`
+      returns `false`
 
 ### `QueueEntry`
 
 Instances of class `QueueEntry` are stored in priority queue used for time to live, they manage time left to live and
 own a key for accessing value, that it is invalidating. Entries in database of type `DBEntry` hold pointer to these
-entries
-for invalidating them. This is a reason why there are `std::unique_ptr<QueueEntry>` stored in the priority queue rather
-than objects
+entries for invalidating them. This is a reason why there are `std::unique_ptr<QueueEntry>` stored in the priority queue
+rather than objects.
 
 - class `QueueEntry`
     - constructor `QueueEntry(std::chrono::milliseconds ttl, const std::vector<uint8_t> &key)`
@@ -588,10 +585,8 @@ Contains utility functions.
     - samples a pair of 64-bit numbers to be used as a key for hash function
 - `std::pair<bool, std::vector<std::string> > parseLine(const std::string &line)`
     - parses string `line` into vector of strings, string values are delimited by characters, that satisfy
-      `std::isspace`,
-      only values enclosed in quotes are parsed as one value regardless if these values contains characters, that
-      satisfy
-      `std::isspace`
+      `std::isspace`, only values enclosed in quotes are parsed as one value regardless if these values contains
+      characters, that satisfy `std::isspace`
 
 ### `Runner.hpp`
 
