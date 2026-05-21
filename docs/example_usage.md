@@ -157,7 +157,7 @@ Value is: {Name: tom, Age: 24, College: null}
 Value is: {Name: tom, Age: 24, College: UK}
 ```
 
-also file with name `keygeg` is created with content: `null`
+also file with name `keyget` is created with content: `null`
 
 ## Time to live
 
