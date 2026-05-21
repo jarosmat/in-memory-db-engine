@@ -1,6 +1,7 @@
 #ifndef PROJECT_ARRAY_HPP
 #define PROJECT_ARRAY_HPP
 #include <memory>
+#include <iostream>
 
 template<typename T>
 class Vector {

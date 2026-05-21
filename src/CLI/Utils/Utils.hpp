@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string_view>
 #include <vector>
+#include <string>
 
 void SkipSpaces(std::string_view &view);
 

@@ -2,6 +2,7 @@
 #define PROJECT_RUNNER_HPP
 
 #include "OperationsParser.hpp"
+#include <mutex>
 
 void readThread(const std::stop_token &stoken, std::istream &stream, std::mutex &queueMutex,
                        std::queue<std::string> &dataQueue);

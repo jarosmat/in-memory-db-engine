@@ -2,6 +2,7 @@
 #define STRINGCLASS_HPP
 #include <set>
 #include <string>
+#include <iostream>
 
 
 class String {

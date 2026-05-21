@@ -2,6 +2,7 @@
 #define PROJECT_GROUPCLASS_HPP
 #include "Vector.hpp"
 #include <vector>
+#include <string>
 
 enum LookupRes {
     USED,
