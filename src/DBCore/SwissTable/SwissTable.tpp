@@ -20,7 +20,7 @@ void SwissTable<F, D, K>::Rehash() {
     for (size_t group = 0; group < oldMetadata.Count(); group++) {
         for (size_t i = 0; i < groupSize; i++, dataIndex++) {
             if (oldMetadata[group].Used(dataIndex)) {
-                auto res = LookUp(oldKeys[dataIndex]);
+                auto res = LookUp(std::move(oldKeys[dataIndex]));
                 res.SetValue(std::move(oldData[dataIndex]));
             }
         }
@@ -138,7 +138,9 @@ SwissTable<F, D, K>::SwissTable(F hash_func) : dataCount(0), metadata(initialGro
 
 template<typename F, typename D, typename K>
 SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
-    const hash hKey = hashFunc(std::move(key));
+    EnsureNotMaxload();
+    K key_copy = key;
+    const hash hKey = hashFunc(std::move(key_copy));
     const hash h1 = hKey >> h1ShiftCoef;
     const hash h2 = hKey & h2Mask;
 

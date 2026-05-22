@@ -37,7 +37,7 @@ parse_res<String> ParseString(std::string_view input);
 
 template<typename DB>
 bool ValidKey(DB &db, const std::vector<uint8_t>& key) {
-    auto entry = db.LookUp(std::move(key));
+    auto entry = db.LookUp(key);
     return entry.GetResult() == USED;
 }
 

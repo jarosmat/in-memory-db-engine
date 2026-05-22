@@ -1,6 +1,7 @@
 #ifndef PROJECT_VALUETYPES_HPP
 #define PROJECT_VALUETYPES_HPP
 
+#include <cstdint>
 #include <variant>
 #include "Null.hpp"
 #include "String/String.hpp"
