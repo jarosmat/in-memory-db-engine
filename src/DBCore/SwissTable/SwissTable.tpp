@@ -14,8 +14,8 @@ void SwissTable<F, D, K>::Rehash() {
     metadata = Vector<Group>(oldMetadata.Count() * resizeCoef);
     dataCount = 0;
     InitializeFields(oldMetadata.Count() * resizeCoef);
-
-
+    
+    
     size_t dataIndex = 0;
     for (size_t group = 0; group < oldMetadata.Count(); group++) {
         for (size_t i = 0; i < groupSize; i++, dataIndex++) {
@@ -52,7 +52,6 @@ void SwissTable<F, D, K>::Delete(const size_t pos) {
 template<typename F, typename D, typename K>
 template<typename DS, typename KS>
 void SwissTable<F, D, K>::SetValue(size_t pos, DS &&val, size_t hash, KS &&key) {
-    EnsureNotMaxload();
     const auto group = pos / groupSize;
 
     if (!metadata[group].Used(pos)) {
@@ -62,6 +61,7 @@ void SwissTable<F, D, K>::SetValue(size_t pos, DS &&val, size_t hash, KS &&key) 
     keys[pos] = std::forward<KS>(key);
     data[pos] = std::forward<DS>(val);
     metadata[group].SetVal(hash, pos);
+    EnsureNotMaxload();
 }
 
 // template<typename F, typename D, typename K>
@@ -145,7 +145,7 @@ SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
     const size_t groupCount = metadata.Count();
     size_t lookUpGroup = h1 % groupCount;
 
-
+    
     auto lookUpRes = metadata[lookUpGroup].LookUp(h2);
     while (lookUpRes.first != EMPTY) {
         if (lookUpRes.first == USED) {
@@ -156,7 +156,7 @@ SwissTable<F, D, K>::Entry SwissTable<F, D, K>::LookUp(K key) {
 
         lookUpGroup = GetNextGroup(lookUpGroup);
         lookUpRes = metadata[lookUpGroup].LookUp(h2);
-    }
+    } 
 
     return Entry(*this, lookUpRes.first, lookUpRes.second[0], key, h2);
 }
