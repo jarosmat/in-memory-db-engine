@@ -188,19 +188,25 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
     SkipSpaces(view);
     auto nameIt = view.begin();
 
-    while (*nameIt != ':' && !std::isspace(*nameIt) && nameIt != view.end()) {
+    while (nameIt != view.end() && *nameIt != ':' && !std::isspace(*nameIt)) {
         ++nameIt;
     }
 
     if (nameIt == view.end()) {
-        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
+        return { {}, ObjectFieldTypes::INVALID_FIELD, false };
     }
 
     std::string name(view.begin(), nameIt);
 
-    while (nameIt != view.begin()) {
-        view.remove_prefix(1);
+    std::size_t mv = 0;
+    auto beg = view.begin();
+    while (nameIt != beg) {
+        ++mv;
+        ++beg;
     }
+
+    view.remove_prefix(mv);
+
 
     SkipSpaces(view);
 
@@ -213,15 +219,22 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
 
     auto typeIt = view.begin();
 
-    while (*typeIt != '-' && !std::isspace(*typeIt) && typeIt != view.end()) {
+    while (typeIt != view.end() && *typeIt != '-' && !std::isspace(*typeIt)) {
         ++typeIt;
     }
 
     const std::string typeVal(view.begin(), typeIt);
 
-    while (view.begin() != typeIt) {
-        view.remove_prefix(1);
+
+    std::size_t mvTp = 0;
+    auto begTp = view.begin();
+    auto endTp = view.end();
+    while (endTp != begTp && begTp != typeIt) {
+        ++mvTp;
+        ++begTp;
     }
+    view.remove_prefix(mvTp);
+
 
     ObjectFieldTypes resType;
 

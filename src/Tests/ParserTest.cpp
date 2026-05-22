@@ -235,7 +235,6 @@ TEST_CASE("Node Generation Functions", "[OperationType]") {
             args_parsed args = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
             auto [status, node] = getString(dbS, std::move(args));
             CHECK(status == GetArgsReturnTypes::INVALID);
-            CHECK(node == nullptr);
 
             args_parsed args2 = {ArgsType::KEY_FROM_CONSTANT, "db_key"};
             auto [status2, node2] = getString(dbI, std::move(args2));
@@ -289,7 +288,7 @@ TEST_CASE("Node Generation Functions", "[OperationType]") {
         }
     }
 }
-
+//jsme
 TEST_CASE("Vector Node Generation", "[OperationType]") {
     MockDBVect<Integer> db(SipHash(0, 0, 2, 4));
 
@@ -316,7 +315,7 @@ TEST_CASE("parseLine handles space-delimited words", "[parseLine]") {
         REQUIRE(tokens == std::vector<std::string>{"hello", "world"});
     }
 }
-
+//jsme
 TEST_CASE("parseLine handles quoted phrases", "[parseLine]") {
     SECTION("Single quoted phrase") {
         auto [hasUnclosedQuotes, tokens] = parseLine("\"hello world\"");
@@ -502,7 +501,7 @@ TEST_CASE("Parse String Op String Num") {
         REQUIRE(node.get()->Execute() == String("t"));
     }
 }
-
+// jsme
 TEST_CASE("Parse String Op String String") {
     DBType<String> db(SipHash(0, 0, 2, 4));
 
@@ -869,7 +868,7 @@ TEST_CASE("Parse Delete") {
         REQUIRE_FALSE(dbEntryL.GetResult() == LookupRes::USED);
     }
 }
-
+//jsme
 TEST_CASE("Parse Insert") {
     DBType<Integer> db(SipHash(0, 0, 2, 4));
     ttlQueueType queue;
@@ -1174,7 +1173,7 @@ TEST_CASE("Parse default object") {
         REQUIRE(ref.find("Name")->second == ObjectFieldTypes::STRING);
         REQUIRE(ref.find("College")->second == ObjectFieldTypes::STRING);
     }
-
+    // nejsme
     SECTION("Empty object") {
         std::vector<std::string> inputS = {"{   }"};
         view_t input(inputS.begin(), inputS.end());

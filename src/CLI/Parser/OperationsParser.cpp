@@ -33,7 +33,7 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
     SkipSpaces(view);
     auto nameIt = view.begin();
 
-    while (*nameIt != ':' && !std::isspace(*nameIt) && nameIt != view.end()) {
+    while (nameIt != view.end() && *nameIt != ':' && !std::isspace(*nameIt)) {
         ++nameIt;
     }
 
@@ -43,9 +43,15 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
 
     std::string name(view.begin(), nameIt);
 
-    while (nameIt != view.begin()) {
-        view.remove_prefix(1);
+    std::size_t mv = 0;
+    auto beg = view.begin();
+    auto end = view.end();
+    while (beg != end && nameIt != beg) {
+        ++mv;
+        ++beg;
     }
+    view.remove_prefix(mv);
+
 
     SkipSpaces(view);
 
@@ -58,15 +64,21 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
 
     auto valIt = view.begin();
 
-    while (!std::isspace(*valIt) && valIt != view.end()) {
+    while (valIt != view.end() && !std::isspace(*valIt)) {
         ++valIt;
     }
 
     const std::string value(view.begin(), valIt);
 
-    while (view.begin() != valIt) {
-        view.remove_prefix(1);
+
+    std::size_t mvVal = 0;
+    auto begVal = view.begin();
+    auto endVal = view.end();
+    while (endVal != begVal && begVal != valIt) {
+        ++mvVal;
+        ++begVal;
     }
+    view.remove_prefix(mvVal);
 
     if (view.empty()) {
         return {std::move(name), ObjectFieldTypes::VALID, std::move(value)};
@@ -127,7 +139,7 @@ parse_res<Object> ParseObject(std::string_view input, Object referenceObject, co
 
     while (!input.empty()) {
         auto itNext = input.begin();
-        while (*itNext != ',' && itNext != input.end()) {
+        while (itNext != input.end() && *itNext != ',') {
             ++itNext;
         }
 
@@ -170,9 +182,15 @@ parse_res<Object> ParseObject(std::string_view input, Object referenceObject, co
             referenceObject.set_value(name, valueParsed);
         }
 
-        while (itNext != input.begin()) {
-            input.remove_prefix(1);
+        std::size_t mv = 0;
+        auto beg = input.begin();
+        auto end = input.end();
+        while (beg != end && itNext != beg) {
+            ++mv;
+            ++beg;
         }
+        input.remove_prefix(mv);
+
 
         if (!input.empty()) {
             input.remove_prefix(1);
