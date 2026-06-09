@@ -16,9 +16,11 @@ FetchContent_MakeAvailable(Catch2)
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/CLI")
 add_subdirectory("${PROJECT_SOURCE_DIR}/DBCore")
+add_subdirectory("${PROJECT_SOURCE_DIR}/Utils")
 
 
 add_subdirectory("${TEST_DIRECTORY}")
 
-add_executable(database main.cpp)
+add_executable(database main.cpp
+        Utils/Constants.hpp)
 target_link_libraries(database Entries SwissTable Runner)
