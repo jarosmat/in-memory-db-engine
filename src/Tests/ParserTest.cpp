@@ -149,7 +149,10 @@ TEST_CASE("readFileToBytes handles various file scenarios", "[file]") {
     std::string testPath = "test_data.bin";
 
     SECTION("Read an existing file correctly") {
-        std::string expectedContent = "BinaryData\0\1\2";
+        std::string expectedContent = "BinaryData   ";
+        expectedContent[expectedContent.size() - 3] = 0;
+        expectedContent[expectedContent.size() - 2] = 1;
+        expectedContent[expectedContent.size() - 1] = 2;
         createTestFile(testPath, expectedContent);
 
         auto [type, result] = readFileBytes(testPath);
