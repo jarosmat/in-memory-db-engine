@@ -609,3 +609,11 @@ File contains functions, that run in threads running the database
       entries
     - `reference` is only used if `T` is equal to `Object`, it is used to check if new entries have correct structure (
       correct fields and its types and that new entry contains all the necessary fields)
+
+## `src/Utils`
+
+Contains utilities used by all parts of the application
+
+### `Constants`
+- files `Constants.hpp` and `Constants.cpp` contain various constants used in the application
+- struct `API_CONSTANTS` contains string and char values, that represent API keywords
