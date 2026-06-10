@@ -31,7 +31,7 @@ target_link_libraries(DBType PUBLIC DBEntry SwissTable HashFunc Timepoint Utils)
 
 add_library(OperationType "${OPERATION_TYPE_DIR}/OperationType.cpp")
 target_include_directories(OperationType PUBLIC "${OPERATION_TYPE_DIR}" "${NODE_DIR}" "${DBTYPE_DIR}")
-target_link_libraries(OperationType PUBLIC Nodes DBType Error)
+target_link_libraries(OperationType PUBLIC Nodes DBType Error GlobalUtils)
 
 add_library(Parser "${PARSER_DIR}/OperationsParser.cpp")
 target_include_directories(Parser PUBLIC "${PARSER_DIR}")

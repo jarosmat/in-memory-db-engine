@@ -1,5 +1,5 @@
 #include "OperationType.hpp"
-
+#include "Constants.hpp"
 
 std::size_t GetArgCount(const OPType op) {
     switch (op) {
@@ -48,7 +48,7 @@ std::size_t GetArgCount(const OPType op) {
         case OPType::SET:
             return 3;
         case OPType::VGET:
-            2;
+            return 2;
         case OPType::SIZE:
             return 1;
         default:
@@ -64,82 +64,82 @@ OPType GetOPType(view_t &args) {
     auto val = args[0];
     args.advance(1);
 
-    if (val == "INSERT") {
+    if (val == API_CONSTANTS::INSERT) {
         return OPType::INSERT;
     }
-    if (val == "GET") {
+    if (val == API_CONSTANTS::GET) {
         return OPType::GET;
     }
-    if (val == "DELETE") {
+    if (val == API_CONSTANTS::DELETE) {
         return OPType::DELETE;
     }
-    if (val == "TERMINATE") {
+    if (val == API_CONSTANTS::TERMINATE) {
         return OPType::TERMINATE;
     }
-    if (val == "ADD") {
+    if (val == API_CONSTANTS::ADD) {
         return OPType::ADD;
     }
-    if (val == "SUBTRACT") {
+    if (val == API_CONSTANTS::SUBTRACT) {
         return OPType::SUBTRACT;
     }
-    if (val == "DIVIDE") {
+    if (val == API_CONSTANTS::DIVIDE) {
         return OPType::DIVIDE;
     }
-    if (val == "MULTIPLY") {
+    if (val == API_CONSTANTS::MULTIPLY) {
         return OPType::MULTIPLY;
     }
-    if (val == "FADD") {
+    if (val == API_CONSTANTS::FADD) {
         return OPType::FADD;
     }
-    if (val == "FSUBTRACT") {
+    if (val == API_CONSTANTS::FSUBTRACT) {
         return OPType::FSUBTRACT;
     }
-    if (val == "FDIVIDE") {
+    if (val == API_CONSTANTS::FDIVIDE) {
         return OPType::FDIVIDE;
     }
-    if (val == "FMULTIPLY") {
+    if (val == API_CONSTANTS::FMULTIPLY) {
         return OPType::FMULTIPLY;
     }
-    if (val == "CONCAT") {
+    if (val == API_CONSTANTS::CONCAT) {
         return OPType::CONCAT;
     }
-    if (val == "SUFFIX") {
+    if (val == API_CONSTANTS::SUFFIX) {
         return OPType::SUFFIX;
     }
-    if (val == "PREFIX") {
+    if (val == API_CONSTANTS::PREFIX) {
         return OPType::PREFIX;
     }
-    if (val == "AT") {
+    if (val == API_CONSTANTS::AT) {
         return OPType::AT;
     }
-    if (val == "FIND") {
+    if (val == API_CONSTANTS::FIND) {
         return OPType::FIND;
     }
-    if (val == "APPEND") {
+    if (val == API_CONSTANTS::APPEND) {
         return OPType::APPEND;
     }
-    if (val == "POP") {
+    if (val == API_CONSTANTS::POP) {
         return OPType::POP;
     }
-    if (val == "VINSERT") {
+    if (val == API_CONSTANTS::VINSERT) {
         return OPType::VINSERT;
     }
-    if (val == "REMOVE") {
+    if (val == API_CONSTANTS::REMOVE) {
         return OPType::REMOVE;
     }
-    if (val == "SET") {
+    if (val == API_CONSTANTS::SET) {
         return OPType::SET;
     }
-    if (val == "VGET") {
+    if (val == API_CONSTANTS::VGET) {
         return OPType::VGET;
     }
-    if (val == "SIZE") {
+    if (val == API_CONSTANTS::SIZE) {
         return OPType::SIZE;
     }
-    if (val == "OGET") {
+    if (val == API_CONSTANTS::OGET) {
         return OPType::OGET;
     }
-    if (val == "OSET") {
+    if (val == API_CONSTANTS::OSET) {
         return OPType::OSET;
     }
 
