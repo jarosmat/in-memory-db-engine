@@ -39,4 +39,4 @@ target_link_libraries(Parser PUBLIC OperationType)
 
 add_library(Runner "${RUNNER_DIR}/Runner.cpp")
 target_include_directories(Runner PUBLIC "${RUNNER_DIR}")
-target_link_libraries(Runner PUBLIC Parser)
+target_link_libraries(Runner PUBLIC Parser GlobalUtils)

@@ -3,6 +3,7 @@
 
 #include "OperationsParser.hpp"
 #include <mutex>
+#include "Constants.hpp"
 
 void readThread(const std::stop_token &stoken, std::istream &stream, std::mutex &queueMutex,
                        std::queue<std::string> &dataQueue);
