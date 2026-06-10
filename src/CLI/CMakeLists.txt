@@ -27,7 +27,7 @@ target_include_directories(Error PUBLIC "${ERROR_DIR}")
 
 add_library(DBType "${DBTYPE_DIR}/DBType.cpp")
 target_include_directories(DBType PUBLIC "${SWISS_TABLE_DIR}" "${HASH_FUNCTION_DIR}" "${DBENTRY_DIR}" "${TIMEPOINT_DIR}")
-target_link_libraries(DBType PUBLIC DBEntry SwissTable HashFunc Timepoint Utils)
+target_link_libraries(DBType PUBLIC DBEntry SwissTable HashFunc Timepoint Utils GlobalUtils)
 
 add_library(OperationType "${OPERATION_TYPE_DIR}/OperationType.cpp")
 target_include_directories(OperationType PUBLIC "${OPERATION_TYPE_DIR}" "${NODE_DIR}" "${DBTYPE_DIR}")

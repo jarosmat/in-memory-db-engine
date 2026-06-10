@@ -16,11 +16,11 @@ args_parsed ParseArg(view_t &args) {
         return {ArgsType::CONSTANT, std::string(val.begin() + 1, val.end())};
     }
 
-    if (val[0] == '$') {
+    if (val[0] == API_CONSTANTS::FROM_DB_ID) {
         return {ArgsType::KEY_FROM_CONSTANT, std::string(val.begin() + 1, val.end())};
     }
 
-    if (val[0] == '@') {
+    if (val[0] == API_CONSTANTS::FILE_ID) {
         return {ArgsType::KEY_FROM_FILE, std::string(val.begin() + 1, val.end())};
     }
 
@@ -214,7 +214,7 @@ key_parse ParseKey(view_t &view) {
     auto val = view.front();
     view.advance(1);
 
-    if (!val.empty() && val[0] == '@') {
+    if (!val.empty() && val[0] == API_CONSTANTS::FILE_ID) {
         return {KeyType::FILE_PATH, std::string(val.begin() + 1, val.end())};
     }
 
@@ -229,7 +229,7 @@ target_parse ParseTarget(view_t &view) {
     auto val = view.front();
     view.advance(1);
 
-    if (!val.empty() && val[0] == '@') {
+    if (!val.empty() && val[0] == API_CONSTANTS::FILE_ID) {
         return {TargetType::FILE, std::string(val.begin() + 1, val.end())};
     }
 
@@ -243,7 +243,7 @@ ttl_t ParseTTL(view_t &view, ttl_t defaultTTL) {
 
     auto val = view.front();
 
-    if (val != "--ttl") {
+    if (val != API_CONSTANTS::TTL_O) {
         return defaultTTL;
     }
 

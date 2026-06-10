@@ -18,6 +18,10 @@ const std::string API_CONSTANTS::MINUTES = "m";
 const std::string API_CONSTANTS::STRUCT_O = "--struct";
 const std::string API_CONSTANTS::OPTIONAL_IS = "-O";
 
+const std::string API_CONSTANTS::FILE_ID_S = "@";
+const std::string API_CONSTANTS::FROM_DB_ID_S = "$";
+
+
 const std::string API_CONSTANTS::INSERT = "INSERT";
 const std::string API_CONSTANTS::GET = "GET";
 const std::string API_CONSTANTS::DELETE = "DELETE";

@@ -15,17 +15,18 @@ auto ParseUnsignedTTL(std::string &val) -> ttl_t {
         ++digLen;
     }
 
-    if (digLen == size - 2 && val.at(digLen) == 'm' && val.at(digLen + 1) == 's') {
+    if (digLen == size - 2 && val.at(digLen) == API_CONSTANTS::MILLISECONDS[0] && val.at(digLen + 1) ==
+        API_CONSTANTS::MILLISECONDS[1]) {
         val.pop_back();
         val.pop_back();
         return {variant_t{std::chrono::milliseconds(std::stoll(val))}, TTLTypes::MILLISECONDS};
     }
 
-    if (digLen == size - 1 && val.at(digLen) == 'm') {
+    if (digLen == size - 1 && val.at(digLen) == API_CONSTANTS::MINUTES_CH) {
         return {variant_t{std::chrono::minutes(std::stoll(val))}, TTLTypes::MINUTES};
     }
 
-    if (digLen == size - 1 && val.at(digLen) == 's') {
+    if (digLen == size - 1 && val.at(digLen) == API_CONSTANTS::SECONDS_CH) {
         return {variant_t{std::chrono::seconds(std::stoll(val))}, TTLTypes::SECONDS};
     }
 
@@ -44,17 +45,18 @@ auto ParseSignedTTL(std::string &val) -> ttl_t {
         ++digLen;
     }
 
-    if (digLen == size - 2 && val.at(digLen) == 'm' && val.at(digLen + 1) == 's') {
+    if (digLen == size - 2 && val.at(digLen) == API_CONSTANTS::MILLISECONDS[0] && val.at(digLen + 1) ==
+        API_CONSTANTS::MILLISECONDS[1]) {
         val.pop_back();
         val.pop_back();
         return {variant_t{std::chrono::milliseconds(std::stoll(val))}, TTLTypes::MILLISECONDS};
     }
 
-    if (digLen == size - 1 && val.at(digLen) == 'm') {
+    if (digLen == size - 1 && val.at(digLen) == API_CONSTANTS::MINUTES_CH) {
         return {variant_t{std::chrono::minutes(std::stoll(val))}, TTLTypes::MINUTES};
     }
 
-    if (digLen == size - 1 && val.at(digLen) == 's') {
+    if (digLen == size - 1 && val.at(digLen) == API_CONSTANTS::SECONDS_CH) {
         return {variant_t{std::chrono::seconds(std::stoll(val))}, TTLTypes::SECONDS};
     }
 
@@ -64,13 +66,13 @@ auto ParseSignedTTL(std::string &val) -> ttl_t {
 auto GetOptionToken(view_t &args) -> StartupTokens {
     const auto val = args.front();
     args.advance(1);
-    if (val == "--value") {
+    if (val == API_CONSTANTS::VALUE_O) {
         return StartupTokens::VALUE;
     }
-    if (val == "--ttl") {
+    if (val == API_CONSTANTS::TTL_O) {
         return StartupTokens::TTL;
     }
-    if (val == "--struct") {
+    if (val == API_CONSTANTS::STRUCT_O) {
         return StartupTokens::STRUCT;
     }
 
@@ -159,25 +161,25 @@ auto GetType(view_t &view) -> DBTypes {
 
     const auto val = view.front();
     view.advance(1);
-    if (val == "int") {
+    if (val == API_CONSTANTS::INT) {
         return DBTypes::INTEGER;
     }
-    if (val == "float") {
+    if (val == API_CONSTANTS::FLOAT) {
         return DBTypes::FLOAT;
     }
-    if (val == "string") {
+    if (val == API_CONSTANTS::STRING) {
         return DBTypes::STRING;
     }
-    if (val == "object") {
+    if (val == API_CONSTANTS::OBJECT) {
         return DBTypes::OBJECT;
     }
-    if (val == "vect-int") {
+    if (val == API_CONSTANTS::VECT_INT) {
         return DBTypes::VECTOR_INT;
     }
-    if (val == "vect-float") {
+    if (val == API_CONSTANTS::VECT_FLOAT) {
         return DBTypes::VECTOR_FLOAT;
     }
-    if (val == "vect-string") {
+    if (val == API_CONSTANTS::VECT_STRING) {
         return DBTypes::VECTOR_STRING;
     }
     return DBTypes::INVALID;
@@ -193,7 +195,7 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
     }
 
     if (nameIt == view.end()) {
-        return { {}, ObjectFieldTypes::INVALID_FIELD, false };
+        return {{}, ObjectFieldTypes::INVALID_FIELD, false};
     }
 
     std::string name(view.begin(), nameIt);
@@ -238,11 +240,11 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
 
     ObjectFieldTypes resType;
 
-    if (typeVal == "int") {
+    if (typeVal == API_CONSTANTS::INT) {
         resType = ObjectFieldTypes::INTEGER;
-    } else if (typeVal == "float") {
+    } else if (typeVal == API_CONSTANTS::FLOAT) {
         resType = ObjectFieldTypes::FLOAT;
-    } else if (typeVal == "string") {
+    } else if (typeVal == API_CONSTANTS::STRING) {
         resType = ObjectFieldTypes::STRING;
     } else {
         return {{}, ObjectFieldTypes::INVALID_TYPE, false};
@@ -252,7 +254,7 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
         return {std::move(name), resType, false};
     }
 
-    if (view.size() == 2 && view.front() == '-' && view.back() == 'O') {
+    if (view.size() == 2 && view.front() == API_CONSTANTS::OPTIONAL_IS[0] && view.back() == API_CONSTANTS::OPTIONAL_IS[1]) {
         return {std::move(name), resType, true};
     }
 

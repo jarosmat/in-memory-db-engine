@@ -5,6 +5,7 @@
 #include "SipHash.hpp"
 #include "ValueTypes.hpp"
 #include "Utils.hpp"
+#include "Constants.hpp"
 
 enum class DBTypes {
     INTEGER,

@@ -17,12 +17,17 @@ struct API_CONSTANTS {
     static const std::string MILLISECONDS;
     static const std::string SECONDS;
     static const std::string MINUTES;
+    static constexpr char SECONDS_CH = 's';
+    static constexpr char MINUTES_CH = 'm';
 
     static const std::string STRUCT_O;
     static const std::string OPTIONAL_IS;
 
     static constexpr char FILE_ID = '@';
     static constexpr char FROM_DB_ID = '$';
+
+    static const std::string FILE_ID_S;
+    static const std::string FROM_DB_ID_S;
 
     static const std::string INSERT;
     static const std::string GET;

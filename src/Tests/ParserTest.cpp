@@ -187,7 +187,7 @@ using MockDBVect = SwissTable<SipHash, DBEntry<Vector<T> >, std::vector<uint8_t>
 
 TEST_CASE("Operation Type Parsing", "[OperationType]") {
     SECTION("GetOPType correctly identifies operations") {
-        std::vector<std::string> rawArgs = {"INSERT", "GET", "INVALID_OP"};
+        std::vector<std::string> rawArgs = {API_CONSTANTS::INSERT, API_CONSTANTS::GET, "INVALID_OP"};
         view_t view(rawArgs.begin(), rawArgs.end());
 
 
@@ -199,7 +199,9 @@ TEST_CASE("Operation Type Parsing", "[OperationType]") {
     }
 
     SECTION("ParseArg identifies argument types and values") {
-        std::vector<std::string> rawArgs = {"hello", "@data.bin", "$mykey"};
+        std::vector<std::string> rawArgs = {
+            "hello", API_CONSTANTS::FILE_ID_S + "data.bin", API_CONSTANTS::FROM_DB_ID_S + "mykey"
+        };
         view_t view(rawArgs.begin(), rawArgs.end());
 
         auto [type1, val1] = ParseArg(view);
@@ -288,7 +290,7 @@ TEST_CASE("Node Generation Functions", "[OperationType]") {
         }
     }
 }
-//jsme
+
 TEST_CASE("Vector Node Generation", "[OperationType]") {
     MockDBVect<Integer> db(SipHash(0, 0, 2, 4));
 
@@ -315,7 +317,7 @@ TEST_CASE("parseLine handles space-delimited words", "[parseLine]") {
         REQUIRE(tokens == std::vector<std::string>{"hello", "world"});
     }
 }
-//jsme
+
 TEST_CASE("parseLine handles quoted phrases", "[parseLine]") {
     SECTION("Single quoted phrase") {
         auto [hasUnclosedQuotes, tokens] = parseLine("\"hello world\"");
@@ -501,7 +503,7 @@ TEST_CASE("Parse String Op String Num") {
         REQUIRE(node.get()->Execute() == String("t"));
     }
 }
-// jsme
+
 TEST_CASE("Parse String Op String String") {
     DBType<String> db(SipHash(0, 0, 2, 4));
 
@@ -556,14 +558,14 @@ TEST_CASE("Parse Vector operation Vector value") {
 
 
         SECTION("Invalid args count") {
-            std::vector<std::string> val = {"$key"};
+            std::vector val = {API_CONSTANTS::FROM_DB_ID_S + "key"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<
                 Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
         }
         SECTION("Valid args count") {
-            std::vector<std::string> val = {"$key", "xd"};
+            std::vector<std::string> val = {API_CONSTANTS::FROM_DB_ID_S + "key", "xd"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<
                 Integer> >(view, db);
@@ -571,7 +573,7 @@ TEST_CASE("Parse Vector operation Vector value") {
         }
 
         SECTION("Valid args Append") {
-            std::vector<std::string> val = {"$key", "1"};
+            std::vector<std::string> val = {API_CONSTANTS::FROM_DB_ID_S + "key", "1"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectVal<DBType<Vector<Integer> >, AppendNode<Integer>, Vector<
                 Integer> >(view, db);
@@ -598,7 +600,7 @@ TEST_CASE("Parse Vector operation Vector") {
         dbEntry.SetValue(std::move(inEntry));
 
         SECTION("Invalid args count") {
-            std::vector<std::string> val = {"$key", "8"};
+            std::vector<std::string> val = {API_CONSTANTS::FROM_DB_ID_S + "key", "8"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, PopNode<Integer>, Vector<Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
@@ -611,7 +613,7 @@ TEST_CASE("Parse Vector operation Vector") {
         }
 
         SECTION("Valid args Pop") {
-            std::vector<std::string> val = {"$key"};
+            std::vector val = {API_CONSTANTS::FROM_DB_ID_S + "key"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, PopNode<Integer>, Vector<Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
@@ -621,7 +623,7 @@ TEST_CASE("Parse Vector operation Vector") {
 
 
         SECTION("Valid args Size") {
-            std::vector<std::string> val = {"$key"};
+            std::vector val = {API_CONSTANTS::FROM_DB_ID_S + "key"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVect<DBType<Vector<Integer> >, SizeNode<Integer>, Vector<Integer> >(view, db);
             REQUIRE(msg == ParseOperationRes::VALID);
@@ -647,7 +649,7 @@ TEST_CASE("Parse Vector operation Vector Num Val") {
         dbEntry.SetValue(std::move(inEntry));
 
         SECTION("Invalid args count") {
-            std::vector<std::string> val = {"$key", "8"};
+            std::vector<std::string> val = {API_CONSTANTS::FROM_DB_ID_S + "key", "8"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, VInsertNode<Integer>, Vector<
                 Integer> >(view, db);
@@ -662,7 +664,7 @@ TEST_CASE("Parse Vector operation Vector Num Val") {
         }
 
         SECTION("Valid args VInsert") {
-            std::vector<std::string> val = {"$key", "0", "1"};
+            std::vector<std::string> val = {API_CONSTANTS::FROM_DB_ID_S + "key", "0", "1"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, VInsertNode<Integer>, Vector<
                 Integer> >(view, db);
@@ -676,7 +678,7 @@ TEST_CASE("Parse Vector operation Vector Num Val") {
 
 
         SECTION("Valid args Set") {
-            std::vector<std::string> val = {"$key", "0", "1"};
+            std::vector<std::string> val = {API_CONSTANTS::FROM_DB_ID_S + "key", "0", "1"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectNumVal<DBType<Vector<Integer> >, SetNode<Integer>, Vector<
                 Integer> >(view, db);
@@ -706,7 +708,7 @@ TEST_CASE("Parse Vector operation Vector Num") {
         dbEntry.SetValue(std::move(inEntry));
 
         SECTION("Invalid args count") {
-            std::vector<std::string> val = {"$key"};
+            std::vector val = {API_CONSTANTS::FROM_DB_ID_S + "key"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, RemoveNode<Integer>, Vector<
                 Integer> >(view, db);
@@ -721,7 +723,7 @@ TEST_CASE("Parse Vector operation Vector Num") {
         }
 
         SECTION("Valid args Remove") {
-            std::vector<std::string> val = {"$key", "0"};
+            std::vector<std::string> val = {API_CONSTANTS::FROM_DB_ID_S + "key", "0"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, RemoveNode<Integer>, Vector<
                 Integer> >(view, db);
@@ -734,7 +736,7 @@ TEST_CASE("Parse Vector operation Vector Num") {
 
 
         SECTION("Valid args VGet") {
-            std::vector<std::string> val = {"$key", "0"};
+            std::vector<std::string> val = {API_CONSTANTS::FROM_DB_ID_S + "key", "0"};
             auto view = view_t(val.begin(), val.end());
             auto [msg, res] = ParseVectOpVectNum<DBType<Vector<Integer> >, VgetNode<Integer>, Vector<
                 Integer> >(view, db);
@@ -765,7 +767,7 @@ TEST_CASE("Parse Key") {
     }
 
     SECTION("File path") {
-        std::vector<std::string> val = {"@key"};
+        std::vector val = {API_CONSTANTS::FILE_ID_S + "key"};
         auto view = view_t(val.begin(), val.end());
         auto [res, valKey] = ParseKey(view);
         REQUIRE(res == KeyType::FILE_PATH);
@@ -790,7 +792,7 @@ TEST_CASE("Parse Target") {
     }
 
     SECTION("File path") {
-        std::vector<std::string> val = {"@key"};
+        std::vector val = {API_CONSTANTS::FILE_ID_S + "key"};
         auto view = view_t(val.begin(), val.end());
         auto [res, valKey] = ParseTarget(view);
         REQUIRE(res == TargetType::FILE);
@@ -868,13 +870,13 @@ TEST_CASE("Parse Delete") {
         REQUIRE_FALSE(dbEntryL.GetResult() == LookupRes::USED);
     }
 }
-//jsme
+
 TEST_CASE("Parse Insert") {
     DBType<Integer> db(SipHash(0, 0, 2, 4));
     ttlQueueType queue;
 
     SECTION("Invalid args count") {
-        std::vector<std::string> val = {"$key"};
+        std::vector val = {API_CONSTANTS::FROM_DB_ID_S + "key"};
         auto view = view_t(val.begin(), val.end());
         auto [msg, res] = ParseInsert<Integer>(view, db, {ImmortalSentinel(), TTLTypes::IMMORTAL}, queue);
         REQUIRE(msg == ParseOperationRes::INVALID_ARG_C);
@@ -897,7 +899,7 @@ TEST_CASE("Parse Insert") {
 
 TEST_CASE("Parse Field Startup") {
     SECTION("Valid Int") {
-        std::string val = " name : int ";
+        std::string val = " name : " + API_CONSTANTS::INT + " ";
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
@@ -908,7 +910,7 @@ TEST_CASE("Parse Field Startup") {
     }
 
     SECTION("Valid Float") {
-        std::string val = " name : float ";
+        std::string val = " name : " + API_CONSTANTS::FLOAT + " ";
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
@@ -919,7 +921,7 @@ TEST_CASE("Parse Field Startup") {
     }
 
     SECTION("Valid String") {
-        std::string val = " name : string ";
+        std::string val = " name : " + API_CONSTANTS::STRING + " ";
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
@@ -931,7 +933,7 @@ TEST_CASE("Parse Field Startup") {
 
 
     SECTION("Valid Int optional") {
-        std::string val = " name : int-O ";
+        std::string val = " name : " + API_CONSTANTS::INT + API_CONSTANTS::OPTIONAL_IS + " ";
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
@@ -942,7 +944,7 @@ TEST_CASE("Parse Field Startup") {
     }
 
     SECTION("Valid Float optional") {
-        std::string val = " name : float-O ";
+        std::string val = " name : " + API_CONSTANTS::FLOAT + API_CONSTANTS::OPTIONAL_IS + " ";
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
@@ -953,7 +955,7 @@ TEST_CASE("Parse Field Startup") {
     }
 
     SECTION("Valid String optional") {
-        std::string val = " name : string-O ";
+        std::string val = " name : " + API_CONSTANTS::STRING + API_CONSTANTS::OPTIONAL_IS + " ";
         std::string_view view(val.begin(), val.end());
 
         auto [name, type, optional] = ParseFieldStartup(view);
@@ -1027,7 +1029,7 @@ TEST_CASE("Parse Object") {
         reference.insert({"f2", ObjectFieldTypes::STRING});
         reference.insert({"f3", ObjectFieldTypes::FLOAT});
 
-        std::string val = " {f1: \'xd\', f2: \'xd\', f3 : 1.8} ";
+        std::string val = R"( {f1: 'xd', f2: 'xd', f3 : 1.8} )";
         std::string_view view(val.begin(), val.end());
 
         auto [res, obj] = ParseObject(view, {}, reference);
@@ -1059,7 +1061,9 @@ TEST_CASE("Parse Object") {
 
 TEST_CASE("SplitToFields handles valid inputs") {
     SECTION("Valid input with multiple fields") {
-        std::string_view input = "{Age: int, Name: string, College: string-O}";
+        const std::string inputS = "{ Age: " + API_CONSTANTS::INT + ", Name: " + API_CONSTANTS::STRING + ", College: " +
+                                   API_CONSTANTS::STRING + API_CONSTANTS::OPTIONAL_IS + "}";
+        std::string_view input{inputS.begin(), inputS.end()};
         auto [msg, val] = SplitToFields(input);
         REQUIRE(msg == SplitFieldRes::VALID);
         REQUIRE(val.size() == 3);
@@ -1069,7 +1073,8 @@ TEST_CASE("SplitToFields handles valid inputs") {
     }
 
     SECTION("Valid input with single field") {
-        std::string_view input = "{Age: int}";
+        std::string inputS = "{Age: " + API_CONSTANTS::INT + "}";
+        std::string_view input{inputS.begin(), inputS.end()};
         auto [msg, val] = SplitToFields(input);
         REQUIRE(msg == SplitFieldRes::VALID);
         REQUIRE(val.size() == 1);
@@ -1077,7 +1082,9 @@ TEST_CASE("SplitToFields handles valid inputs") {
     }
 
     SECTION("Valid input with spaces") {
-        std::string_view input = "{ Age: int , Name: string , College: string-O }";
+        const std::string inputS = "{ Age: " + API_CONSTANTS::INT + " , Name: " + API_CONSTANTS::STRING + " , College: "
+                                   + API_CONSTANTS::STRING + API_CONSTANTS::OPTIONAL_IS + " }";
+        std::string_view input{inputS.begin(), inputS.end()};
         auto [msg, val] = SplitToFields(input);
         REQUIRE(msg == SplitFieldRes::VALID);
         REQUIRE(val.size() == 3);
@@ -1090,13 +1097,13 @@ TEST_CASE("SplitToFields handles valid inputs") {
         std::string_view input = "{   }";
         auto [msg, val] = SplitToFields(input);
         REQUIRE(msg == SplitFieldRes::VALID);
-        REQUIRE(val.size() == 0);
+        REQUIRE(val.empty());
     }
 }
 
 TEST_CASE("SplitToFields handles invalid inputs") {
     SECTION("Empty string") {
-        std::string_view input = "";
+        std::string_view input;
         auto [msg, val] = SplitToFields(input);
         REQUIRE(msg == SplitFieldRes::EMPTY_STRING);
         REQUIRE(val.empty());
@@ -1133,7 +1140,9 @@ TEST_CASE("SplitToFields handles invalid inputs") {
 
 TEST_CASE("Parse default object") {
     SECTION("Valid input with multiple fields") {
-        std::vector<std::string> inputS = {"{f1: int, f2: string, f3: float-O}"};
+        const std::string STRUCT = "{f1: " + API_CONSTANTS::INT + ", f2: " + API_CONSTANTS::STRING + ", f3: " +
+                                   API_CONSTANTS::FLOAT + API_CONSTANTS::OPTIONAL_IS + "}";
+        std::vector inputS = {STRUCT};
         view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
@@ -1148,7 +1157,7 @@ TEST_CASE("Parse default object") {
     }
 
     SECTION("Valid input with single field") {
-        std::vector<std::string> inputS = {"{Age: int}"};
+        std::vector inputS = {"{Age: " + API_CONSTANTS::INT + "}"};
         view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
@@ -1160,7 +1169,10 @@ TEST_CASE("Parse default object") {
     }
 
     SECTION("Valid input with spaces") {
-        std::vector<std::string> inputS = {"{ Age: int , Name: string , College: string-O }"};
+        std::vector inputS = {
+            "{ Age: " + API_CONSTANTS::INT + " , Name: " + API_CONSTANTS::STRING + " , College: " +
+            API_CONSTANTS::STRING + API_CONSTANTS::OPTIONAL_IS + " }"
+        };
         view_t input(inputS.begin(), inputS.end());
         auto [msg, obj, ref] = ParseObjectStructure(input);
 
@@ -1173,7 +1185,7 @@ TEST_CASE("Parse default object") {
         REQUIRE(ref.find("Name")->second == ObjectFieldTypes::STRING);
         REQUIRE(ref.find("College")->second == ObjectFieldTypes::STRING);
     }
-    // nejsme
+
     SECTION("Empty object") {
         std::vector<std::string> inputS = {"{   }"};
         view_t input(inputS.begin(), inputS.end());
@@ -1181,7 +1193,7 @@ TEST_CASE("Parse default object") {
 
         REQUIRE(msg == ObjectParseRes::VALID);
         REQUIRE(obj.MemberCount() == 0);
-        REQUIRE(ref.size() == 0);
+        REQUIRE(ref.empty());
     }
 
     SECTION("Empty string") {
@@ -1226,7 +1238,9 @@ TEST_CASE("Parse default object") {
 
 TEST_CASE("get DB type test") {
     SECTION("Valid input int milliseconds") {
-        std::vector<std::string> args = {"--ttl", "20ms", "--value", "int"};
+        std::vector args = {
+            API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::MILLISECONDS, API_CONSTANTS::VALUE_O, API_CONSTANTS::INT
+        };
         view_t view(args.begin(), args.end());
 
         auto [msg, ttl, obj, ref] = GetDBType(view);
@@ -1237,7 +1251,9 @@ TEST_CASE("get DB type test") {
     }
 
     SECTION("Valid input string minutes") {
-        std::vector<std::string> args = {"--value", "string", "--ttl", "20m"};
+        std::vector args = {
+            API_CONSTANTS::VALUE_O, API_CONSTANTS::STRING, API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::MINUTES
+        };
         view_t view(args.begin(), args.end());
 
         auto [msg, ttl, obj, ref] = GetDBType(view);
@@ -1248,7 +1264,9 @@ TEST_CASE("get DB type test") {
     }
 
     SECTION("Valid input float seconds") {
-        std::vector<std::string> args = {"--value", "float", "--ttl", "20s"};
+        std::vector args = {
+            API_CONSTANTS::VALUE_O, API_CONSTANTS::FLOAT, API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::SECONDS
+        };
         view_t view(args.begin(), args.end());
 
         auto [msg, ttl, obj, ref] = GetDBType(view);
@@ -1259,8 +1277,11 @@ TEST_CASE("get DB type test") {
     }
 
     SECTION("Valid input object seconds") {
-        std::vector<std::string> args = {
-            "--value", "object", "--ttl", "20s", "--struct", "{f1:string, f2:float, f3:int-O}"
+        const std::string STRUCT = "{f1:" + API_CONSTANTS::STRING + ", f2:" + API_CONSTANTS::FLOAT + ", f3:" +
+                                   API_CONSTANTS::INT + API_CONSTANTS::OPTIONAL_IS + "}";
+        std::vector args = {
+            API_CONSTANTS::VALUE_O, API_CONSTANTS::OBJECT, API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::SECONDS,
+            API_CONSTANTS::STRUCT_O, STRUCT
         };
         view_t view(args.begin(), args.end());
 
@@ -1276,7 +1297,10 @@ TEST_CASE("get DB type test") {
     }
 
     SECTION("Invalid input multi value") {
-        std::vector<std::string> args = {"--value", "float", "--ttl", "20s", "--value", "int"};
+        std::vector args = {
+            API_CONSTANTS::VALUE_O, API_CONSTANTS::FLOAT, API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::SECONDS,
+            API_CONSTANTS::VALUE_O, API_CONSTANTS::INT
+        };
         view_t view(args.begin(), args.end());
 
         auto [msg, ttl, obj, ref] = GetDBType(view);
@@ -1285,7 +1309,10 @@ TEST_CASE("get DB type test") {
     }
 
     SECTION("Invalid input multi ttl") {
-        std::vector<std::string> args = {"--value", "float", "--ttl", "20s", "--ttl", "20ms"};
+        std::vector args = {
+            API_CONSTANTS::VALUE_O, API_CONSTANTS::FLOAT, API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::SECONDS,
+            API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::MILLISECONDS
+        };
         view_t view(args.begin(), args.end());
 
         auto [msg, ttl, obj, ref] = GetDBType(view);
@@ -1294,8 +1321,11 @@ TEST_CASE("get DB type test") {
     }
 
     SECTION("Invalid input multi struct") {
-        std::vector<std::string> args = {
-            "--struct", "{f1:string, f2:float, f3:int-O}", "--ttl", "20s", "--struct", "{f1:string, f2:float, f3:int-O}"
+        const std::string STRUCT = "{f1:" + API_CONSTANTS::STRING + ", f2:" + API_CONSTANTS::FLOAT + ", f3:" +
+                                   API_CONSTANTS::INT + API_CONSTANTS::OPTIONAL_IS + "}";
+        std::vector args = {
+            API_CONSTANTS::STRUCT_O, STRUCT, API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::SECONDS,
+            API_CONSTANTS::STRUCT_O, STRUCT
         };
         view_t view(args.begin(), args.end());
 
@@ -1305,8 +1335,11 @@ TEST_CASE("get DB type test") {
     }
 
     SECTION("Invalid input struct with non object type") {
-        std::vector<std::string> args = {
-            "--value", "int", "--ttl", "20s", "--struct", "{f1:string, f2:float, f3:int-O}"
+        const std::string STRUCT = "{f1:" + API_CONSTANTS::STRING + ", f2:" + API_CONSTANTS::FLOAT + ", f3:" +
+                                   API_CONSTANTS::INT + API_CONSTANTS::OPTIONAL_IS + "}";
+        std::vector args = {
+            API_CONSTANTS::VALUE_O, API_CONSTANTS::INT, API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::SECONDS,
+            API_CONSTANTS::STRUCT_O, STRUCT
         };
         view_t view(args.begin(), args.end());
 
@@ -1317,7 +1350,7 @@ TEST_CASE("get DB type test") {
 
     SECTION("Invalid tokens option") {
         std::vector<std::string> args = {
-            "--val", "int", "--ttl", "20s"
+            "--val", API_CONSTANTS::INT, API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::SECONDS
         };
         view_t view(args.begin(), args.end());
 
@@ -1329,7 +1362,7 @@ TEST_CASE("get DB type test") {
 
     SECTION("Invalid tokens type") {
         std::vector<std::string> args = {
-            "--value", "inttt", "--ttl", "20s"
+            API_CONSTANTS::VALUE_O, "inttt", API_CONSTANTS::TTL_O, "20" + API_CONSTANTS::SECONDS
         };
         view_t view(args.begin(), args.end());
 
