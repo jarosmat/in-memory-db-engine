@@ -80,6 +80,9 @@ void Vector<T>::Append(T &&val) {
 
 template<typename T>
 void Vector<T>::Remove(const size_t i) {
+    if (count <= i) {
+        return;
+    }
     count--;
     auto dataVal = data.get();
     for (size_t j = i; j < count; j++) {

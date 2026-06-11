@@ -220,6 +220,9 @@ class PopNode : public VectNode<T> {
 public:
     Vector<T> Execute() override {
         auto val = vect->Execute();
+        if (val.Count() == 0) {
+            return val;
+        }
         val.Remove(val.Count() - 1);
         return val;
     }
