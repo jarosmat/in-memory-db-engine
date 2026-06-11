@@ -93,9 +93,10 @@ class DeleteNode : public DBopsNode<T> {
 
 public:
     void Execute() override {
-        auto entry = this->db.LookUp(std::move(key));
-        entry.GetValue().Invalidate();
-        entry.DeleteEntry();
+        if (auto entry = this->db.LookUp(std::move(key)); entry.GetResult() == USED) {
+            entry.GetValue().Invalidate();
+            entry.DeleteEntry();
+        }
     }
 
     DeleteNode(DBType<T> &db, std::vector<uint8_t> &&key) : DBopsNode<T>(db), key(std::move(key)) {
