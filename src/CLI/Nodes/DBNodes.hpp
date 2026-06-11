@@ -74,8 +74,7 @@ class GetNode : public DBopsNode<T> {
 
 public:
     void Execute() override {
-        auto entry = this->db.LookUp(std::move(key));
-        if (entry.GetResult() == USED) {
+        if (auto entry = this->db.LookUp(std::move(key)); entry.GetResult() == USED) {
             stream << "Value is: " << entry.GetValue() << std::endl;
         } else {
             stream << "Invalid key" << std::endl;
@@ -144,7 +143,7 @@ class ObjectGetNodeToStream : public DBopsNodeBase {
 
 public:
     void Execute() override {
-        obj.get()->Execute().dump_to_stream(stream, key);
+        obj->Execute().dump_to_stream(stream, key);
     }
 
     ObjectGetNodeToStream(std::unique_ptr<Node<Object> > &&obj, Key key, std::ostream& stream) : obj(std::move(obj)), key(std::move(key)), stream(stream) {
