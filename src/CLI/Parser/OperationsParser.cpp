@@ -272,9 +272,11 @@ std::unique_ptr<ErrorNode> GetError(const ParseOperationRes res, const std::size
     }
     if (res == ParseOperationRes::COULD_NOT_OPEN_FILE) {
         auto node = std::make_unique<ErrorNode>(outstream, std::move(CouldNotOpenFileErr(file)));
+        return node;
     }
     if (res == ParseOperationRes::COULD_NOT_READ_FILE) {
         auto node = std::make_unique<ErrorNode>(outstream, std::move(CouldNotReadFileErr(file)));
+        return node;
     }
     return {};
 }
