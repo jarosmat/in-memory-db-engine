@@ -189,6 +189,8 @@ explained for example [here](https://go.dev/blog/swisstable).
 - `class Entry`
     - instance of this class is used for altering position in a hash map, that is associated with some key
     - `GetResult` return result of look up of some key
+      - when key has been found, returns `LookupRes::USED`
+      - when key has not been found, returns `LookupRes::EMPTY`
     - `DeleteEntry` deletes entry associated with looked up key
     - `SetValue` sets value associated with looked up key to value specified as argument, accepts both L-value and
       R-value
