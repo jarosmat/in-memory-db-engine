@@ -677,9 +677,7 @@ std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
     auto [typeField, ptrField] = getString(db, std::move(parseField));
     const auto fieldName = static_cast<std::string>(ptrField.get()->Execute());
 
-    const auto findRes = reference.find(fieldName);
-
-    if (findRes == reference.end()) {
+    if (const auto findRes = reference.find(fieldName); findRes == reference.end()) {
         auto errorPtr = std::make_unique<ErrorNode>(outstream, InvalidField(fieldName));
         return {ParseOperationRes::INVALID_ARGS, std::move(errorPtr)};
     }
@@ -889,7 +887,7 @@ parse_op_r<DBopsNode<T> > ParseInsert(view_t &view, DBType<T> &db, ttl_t ttl,
     }
 }
 
-parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, ttl_t ttl, ttlQueueType &queue,
+parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, const ttl_t &ttl, ttlQueueType &queue,
                                            const object_reference &reference, const Object &referenceObject);
 
 std::unique_ptr<ErrorNode> GetError(ParseOperationRes res, std::size_t expected, std::size_t actual,

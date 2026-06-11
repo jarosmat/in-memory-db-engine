@@ -45,7 +45,7 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
 
     std::size_t mv = 0;
     auto beg = view.begin();
-    auto end = view.end();
+    const auto end = view.end();
     while (beg != end && nameIt != beg) {
         ++mv;
         ++beg;
@@ -68,12 +68,12 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
         ++valIt;
     }
 
-    const std::string value(view.begin(), valIt);
+    std::string value(view.begin(), valIt);
 
 
     std::size_t mvVal = 0;
     auto begVal = view.begin();
-    auto endVal = view.end();
+    const auto endVal = view.end();
     while (endVal != begVal && begVal != valIt) {
         ++mvVal;
         ++begVal;
@@ -108,12 +108,12 @@ parse_res<Integer> ParseInt(const std::string_view input) {
 
     auto [ptr, ec] = std::from_chars(input.data(), input.data() + input.size(), result);
 
-    bool success = (ec == std::errc{}) && (ptr == input.data() + input.size());
+    bool success = ec == std::errc{} && ptr == input.data() + input.size();
 
     return {success, result};
 }
 
-parse_res<Float> ParseFloat(std::string_view input) {
+parse_res<Float> ParseFloat(const std::string_view input) {
     if (input.empty()) {
         return {false, 0.0};
     }
@@ -122,7 +122,7 @@ parse_res<Float> ParseFloat(std::string_view input) {
 
     auto [ptr, ec] = std::from_chars(input.data(), input.data() + input.size(), result);
 
-    bool success = (ec == std::errc{}) && (ptr == input.data() + input.size());
+    bool success = ec == std::errc{} && ptr == input.data() + input.size();
 
     return {success, result};
 }
@@ -143,7 +143,7 @@ parse_res<Object> ParseObject(std::string_view input, Object referenceObject, co
             ++itNext;
         }
 
-        std::string_view fieldView(input.begin(), itNext);
+        const std::string_view fieldView(input.begin(), itNext);
 
         auto [name, type, value] = ParseField(fieldView);
 
@@ -157,7 +157,7 @@ parse_res<Object> ParseObject(std::string_view input, Object referenceObject, co
             return {false, {}};
         }
 
-        std::string_view valView(value.begin(), value.end());
+        const std::string_view valView(value.begin(), value.end());
         if (lookUp->second == ObjectFieldTypes::INTEGER) {
             auto [resMsg, valueParsed] = ParseInt(valView);
             if (!resMsg) {
@@ -184,7 +184,7 @@ parse_res<Object> ParseObject(std::string_view input, Object referenceObject, co
 
         std::size_t mv = 0;
         auto beg = input.begin();
-        auto end = input.end();
+        const auto end = input.end();
         while (beg != end && itNext != beg) {
             ++mv;
             ++beg;
@@ -196,8 +196,6 @@ parse_res<Object> ParseObject(std::string_view input, Object referenceObject, co
             input.remove_prefix(1);
         }
     }
-    auto c = referenceObject.MemberCount();
-    auto cr = reference.size();
 
     if (referenceObject.MemberCount() != reference.size()) {
         return {false, {}};
@@ -241,9 +239,7 @@ ttl_t ParseTTL(view_t &view, ttl_t defaultTTL) {
         return defaultTTL;
     }
 
-    auto val = view.front();
-
-    if (val != API_CONSTANTS::TTL_O) {
+    if (const auto val = view.front(); val != API_CONSTANTS::TTL_O) {
         return defaultTTL;
     }
 
@@ -252,7 +248,7 @@ ttl_t ParseTTL(view_t &view, ttl_t defaultTTL) {
     return GetTTL(view);
 }
 
-parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, ttl_t ttl, ttlQueueType &queue,
+parse_op_r<DBopsNode<Object> > ParseInsert(view_t &view, DBType<Object> &db, const ttl_t &ttl, ttlQueueType &queue,
                                            const object_reference &reference, const Object &referenceObject) {
     return ParseInsertWithParser<Object>(
         view, db, [&reference, &referenceObject](DBType<Object> &dbRef, args_parsed &&args) {
@@ -284,6 +280,6 @@ std::unique_ptr<ErrorNode> GetError(const ParseOperationRes res, const std::size
 
 
 bool HasTarget(const OPType op) {
-    return (op != OPType::INVALID && op != OPType::INSERT && op != OPType::GET && op != OPType::TERMINATE && op !=
-            OPType::DELETE);
+    return op != OPType::INVALID && op != OPType::INSERT && op != OPType::GET && op != OPType::TERMINATE && op !=
+           OPType::DELETE;
 }
