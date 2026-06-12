@@ -81,6 +81,9 @@ public:
     String Execute() override {
         auto res = val->Execute();
         const auto c = n->Execute();
+        if (c < 0 || res.Size() <= c) {
+           throw "Index Out of Bounds";
+        }
         res.RemovePrefix(res.Size() - c);
         return res;
     }
@@ -98,6 +101,9 @@ public:
     String Execute() override {
         auto res = val->Execute();
         const auto c = n->Execute();
+        if (c < 0 || res.Size() <= c) {
+            throw "Index Out of Bounds";
+        }
         res.RemoveSuffix(res.Size() - c);
         return res;
     }
@@ -259,7 +265,11 @@ class RemoveNode : public VectNode<T> {
 public:
     Vector<T> Execute() override {
         auto val = vect->Execute();
-        val.Remove(i->Execute());
+        auto i_val = i->Execute();
+        if (i_val < 0 || val.Count() <= i_val) {
+            throw "Index Out of Bounds";
+        }
+        val.Remove(i_val);
         return val;
     }
 
@@ -277,7 +287,11 @@ class SetNode : public VectNode<T> {
 public:
     Vector<T> Execute() override {
         auto val = vect->Execute();
-        val[i->Execute()] = std::move(what->Execute());
+        auto val_i = i->Execute();
+        if (val_i < 0 || val.Count() <= val_i) {
+            throw "Index Out of Bounds";
+        }
+        val[val_i] = std::move(what->Execute());
         return val;
     }
 
@@ -295,6 +309,10 @@ public:
     T Execute() override {
         auto index = i->Execute();
         auto vectVal = vect->Execute();
+        auto val_i = i->Execute();
+        if (index < 0 || vectVal.Count() <= index) {
+            throw "Index Out of Bounds";
+        }
         return vectVal[index];
     }
 
