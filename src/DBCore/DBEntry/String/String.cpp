@@ -59,7 +59,19 @@ void String::RemoveSuffix(const size_t n) {
     }
 }
 
+set<size_t> get_num(const size_t num) {
+   set<size_t> res;
+    for (auto i{0uz}; i < num; ++i) {
+        res.insert(i);
+    }
+
+    return res;
+}
+
 set<size_t> String::Find(const String &valToFind) const {
+    if (valToFind.Size() == 0) {
+        return get_num(Size());
+    }
     set<size_t> result;
     auto &thisVal = this->val;
     const PrefixAut aut(valToFind);
