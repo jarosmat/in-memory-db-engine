@@ -673,8 +673,17 @@ std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
     }
     auto parse = ParseArg(view);
     auto [type, ptr] = getObjectFromDB(db, std::move(parse));
+    if (type == GetArgsReturnTypes::INVALID) {
+        auto err_ptr = std::make_unique<ErrorNode>(outstream, InvalidArgs());
+        return {ParseOperationRes::INVALID_ARGS, std::move(err_ptr)};
+    }
+
     auto parseField = ParseArg(view);
     auto [typeField, ptrField] = getString(db, std::move(parseField));
+    if (typeField == GetArgsReturnTypes::INVALID) {
+        auto err_ptr = std::make_unique<ErrorNode>(outstream, InvalidArgs());
+        return {ParseOperationRes::INVALID_ARGS, std::move(err_ptr)};
+    }
     const auto fieldName = static_cast<std::string>(ptrField.get()->Execute());
 
     if (const auto findRes = reference.find(fieldName); findRes == reference.end()) {
@@ -688,7 +697,7 @@ std::pair<ParseOperationRes, std::unique_ptr<DBopsNodeBase> > ParseObjectGet(
 
 template<typename DB>
 std::tuple<ParseOperationRes, NodePtr<Object>, ObjectFieldTypes, std::string> ParseObjectSet(
-    view_t &view, DB &db, object_reference &reference) {
+    view_t &view, DB &db, object_reference &reference, std::ostream& outstream) {
     if (view.size() != 3) {
         std::unique_ptr<Node<Object> > ptr;
         return {ParseOperationRes::INVALID_ARG_C, std::move(ptr), ObjectFieldTypes::INVALID_FIELD, std::string()};
@@ -700,6 +709,10 @@ std::tuple<ParseOperationRes, NodePtr<Object>, ObjectFieldTypes, std::string> Pa
     }
     auto parseField = ParseArg(view);
     auto [typeField, ptrField] = getString(db, std::move(parseField));
+    if (typeField == GetArgsReturnTypes::INVALID) {
+        std::unique_ptr<Node<Object> > res_ptr;
+        return {ParseOperationRes::INVALID_ARGS, std::move(res_ptr), ObjectFieldTypes::INVALID_FIELD, std::string{}};
+    }
     const auto fieldName = static_cast<std::string>(ptrField.get()->Execute());
 
     const auto findRes = reference.find(fieldName);

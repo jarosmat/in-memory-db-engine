@@ -618,7 +618,7 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
                             resMsg = msg;
                         }
                     } else if (type == OPType::OSET) {
-                        auto [resMsgParse, ptrObject, fieldT, fieldN] = ParseObjectSet(view, db, reference);
+                        auto [resMsgParse, ptrObject, fieldT, fieldN] = ParseObjectSet(view, db, reference, outstream);
                         auto parseValue = ParseArg(view);
                         std::unique_ptr<DBopsNodeBase> ptrOp;
 
