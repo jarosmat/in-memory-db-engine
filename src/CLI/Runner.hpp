@@ -823,6 +823,9 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
             catch (const char *e) {
                 outstream << e << std::endl;
             }
+            catch (std::out_of_range &e) {
+                outstream << e.what() << std::endl;
+            }
         }
     }
 }
