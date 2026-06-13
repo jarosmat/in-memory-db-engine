@@ -4,53 +4,53 @@
 std::size_t GetArgCount(const OPType op) {
     switch (op) {
         case OPType::INSERT:
-            return 2;
+            return ARG_COUNT_CONSTS::INSERT;
         case OPType::GET:
-            return 1;
+            return ARG_COUNT_CONSTS::GET;
         case OPType::DELETE:
-            return 1;
+            return ARG_COUNT_CONSTS::DELETE;
         case OPType::TERMINATE:
-            return 0;
+            return ARG_COUNT_CONSTS::TERMINATE;
         case OPType::ADD:
-            return 2;
+            return ARG_COUNT_CONSTS::ADD;
         case OPType::SUBTRACT:
-            return 2;
+            return ARG_COUNT_CONSTS::SUBTRACT;
         case OPType::DIVIDE:
-            return 2;
+            return ARG_COUNT_CONSTS::DIVIDE;
         case OPType::MULTIPLY:
-            return 2;
+            return ARG_COUNT_CONSTS::MULTIPLY;
         case OPType::FADD:
-            return 2;
+            return ARG_COUNT_CONSTS::FADD;
         case OPType::FSUBTRACT:
-            return 2;
+            return ARG_COUNT_CONSTS::FSUBTRACT;
         case OPType::FDIVIDE:
-            return 2;
+            return ARG_COUNT_CONSTS::FDIVIDE;
         case OPType::FMULTIPLY:
-            return 2;
+            return ARG_COUNT_CONSTS::FMULTIPLY;
         case OPType::CONCAT:
-            return 2;
+            return ARG_COUNT_CONSTS::CONCAT;
         case OPType::SUFFIX:
-            return 2;
+            return ARG_COUNT_CONSTS::SUFFIX;
         case OPType::PREFIX:
-            return 2;
+            return ARG_COUNT_CONSTS::PREFIX;
         case OPType::AT:
-            return 2;
+            return ARG_COUNT_CONSTS::AT;
         case OPType::FIND:
-            return 2;
+            return ARG_COUNT_CONSTS::FIND;
         case OPType::APPEND:
-            return 2;
+            return ARG_COUNT_CONSTS::APPEND;
         case OPType::POP:
-            return 1;
+            return ARG_COUNT_CONSTS::POP;
         case OPType::VINSERT:
-            return 3;
+            return ARG_COUNT_CONSTS::VINSERT;
         case OPType::REMOVE:
-            return 2;
+            return ARG_COUNT_CONSTS::REMOVE;
         case OPType::SET:
-            return 3;
+            return ARG_COUNT_CONSTS::SET;
         case OPType::VGET:
-            return 2;
+            return ARG_COUNT_CONSTS::VGET;
         case OPType::SIZE:
-            return 1;
+            return ARG_COUNT_CONSTS::SIZE;
         default:
             return 0;
     }

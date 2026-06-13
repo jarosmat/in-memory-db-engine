@@ -61,4 +61,31 @@ struct API_CONSTANTS {
     static const std::string OGET;
     static const std::string OSET;
 };
+
+struct ARG_COUNT_CONSTS {
+    static constexpr size_t INSERT = 2;
+    static constexpr size_t GET = 1;
+    static constexpr size_t DELETE = 1;
+    static constexpr size_t TERMINATE = 0;
+    static constexpr size_t ADD = 2;
+    static constexpr size_t SUBTRACT = 2;
+    static constexpr size_t DIVIDE = 2;
+    static constexpr size_t MULTIPLY = 2;
+    static constexpr size_t FADD = 2;
+    static constexpr size_t FSUBTRACT = 2;
+    static constexpr size_t FDIVIDE = 2;
+    static constexpr size_t FMULTIPLY = 2;
+    static constexpr size_t CONCAT = 2;
+    static constexpr size_t SUFFIX = 2;
+    static constexpr size_t PREFIX = 2;
+    static constexpr size_t AT = 2;
+    static constexpr size_t FIND = 2;
+    static constexpr size_t APPEND = 2;
+    static constexpr size_t POP = 1;
+    static constexpr size_t VINSERT = 3;
+    static constexpr size_t REMOVE = 2;
+    static constexpr size_t SET = 3;
+    static constexpr size_t VGET = 2;
+    static constexpr size_t SIZE = 1;
+};
 #endif // PROJECT_CONSTANTS_HPP
