@@ -6,7 +6,7 @@
 #include "Constants.hpp"
 
 void readThread(const std::stop_token &stoken, std::istream &stream, std::mutex &queueMutex,
-                       std::queue<std::string> &dataQueue);
+                       std::queue<std::string> &dataQueue, std::atomic<std::size_t>& dataQueueCount);
 
 template<typename T>
 void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, Object &referenceObject,
@@ -18,9 +18,10 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
     ttlQueueType ttlQueue;
     std::queue<std::string> dataQueue;
     std::mutex queueMutex;
+    std::atomic<std::size_t> dataQueueCount;
 
-    std::jthread reader([&instream, &dataQueue, &queueMutex](std::stop_token stoken) {
-        readThread(stoken, instream, queueMutex, dataQueue);
+    std::jthread reader([&instream, &dataQueue, &queueMutex, &dataQueueCount](std::stop_token stoken) {
+        readThread(stoken, instream, queueMutex, dataQueue, dataQueueCount);
     });
 
 
@@ -39,13 +40,14 @@ void RunDB(ttl_t &&defaultTTL, std::istream &instream, std::ostream &outstream, 
             }
         }
 
-        if (!dataQueue.empty()) {
+        if (dataQueueCount.load() > 0) {
             std::lock_guard lock(queueMutex);
-            if (dataQueue.empty()) {
+            if (dataQueueCount.load() == 0) {
                 continue;
             }
             std::string line = std::move(dataQueue.front());
             dataQueue.pop();
+            --dataQueueCount;
 
             auto [res, lineParsed] = parseLine(line);
             if (!res) {
