@@ -7,13 +7,13 @@
 
 
 void SkipSpaces(std::string_view &view) {
-    while (!view.empty() && std::isspace(view.front())) {
+    while (!view.empty() && std::isspace(static_cast<unsigned char>(view.front()))) {
         view.remove_prefix(1);
     }
 }
 
 void RemoveTrailingSpaces(std::string_view &view) {
-    while (!view.empty() && std::isspace(view.back())) {
+    while (!view.empty() && std::isspace(static_cast<unsigned char>(view.back()))) {
         view.remove_suffix(1);
     }
 }
@@ -72,7 +72,7 @@ std::pair<bool, std::string> parseQuote(std::string_view &view) {
 
 std::string parseUnquote(std::string_view &view) {
     std::string res;
-    while (!view.empty() && !std::isspace(view.front())) {
+    while (!view.empty() && !std::isspace(static_cast<unsigned char>(view.front()))) {
         res.push_back(view.front());
         view.remove_prefix(1);
     }

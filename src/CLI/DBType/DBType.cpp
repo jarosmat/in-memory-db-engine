@@ -6,12 +6,12 @@
 auto ParseUnsignedTTL(std::string &val) -> ttl_t {
     const auto size = val.size();
 
-    if (!std::isdigit(val.at(0))) {
+    if (!std::isdigit(static_cast<unsigned char>(val.at(0)))) {
         return {variant_t{}, TTLTypes::INVALID};
     }
 
     std::size_t digLen = 1;
-    for (std::size_t i = 1; i < size && std::isdigit(val.at(i)); ++i) {
+    for (std::size_t i = 1; i < size && std::isdigit(static_cast<unsigned char>(val.at(i))); ++i) {
         ++digLen;
     }
 
@@ -36,12 +36,12 @@ auto ParseUnsignedTTL(std::string &val) -> ttl_t {
 auto ParseSignedTTL(std::string &val) -> ttl_t {
     const auto size = val.size();
 
-    if (!std::isdigit(val.at(1))) {
+    if (!std::isdigit(static_cast<unsigned char>(val.at(1)))) {
         return {variant_t{}, TTLTypes::INVALID};
     }
 
     std::size_t digLen = 1;
-    for (std::size_t i = 1; i < size && std::isdigit(val.at(i)); ++i) {
+    for (std::size_t i = 1; i < size && std::isdigit(static_cast<unsigned char>(val.at(i))); ++i) {
         ++digLen;
     }
 
@@ -190,7 +190,7 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
     SkipSpaces(view);
     auto nameIt = view.begin();
 
-    while (nameIt != view.end() && *nameIt != ':' && !std::isspace(*nameIt)) {
+    while (nameIt != view.end() && *nameIt != ':' && !std::isspace(static_cast<unsigned char>(*nameIt))) {
         ++nameIt;
     }
 
@@ -221,7 +221,7 @@ std::tuple<std::string, ObjectFieldTypes, bool> ParseFieldStartup(std::string_vi
 
     auto typeIt = view.begin();
 
-    while (typeIt != view.end() && *typeIt != '-' && !std::isspace(*typeIt)) {
+    while (typeIt != view.end() && *typeIt != '-' && !std::isspace(static_cast<unsigned char>(*typeIt))) {
         ++typeIt;
     }
 

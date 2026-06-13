@@ -33,7 +33,7 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
     SkipSpaces(view);
     auto nameIt = view.begin();
 
-    while (nameIt != view.end() && *nameIt != ':' && !std::isspace(*nameIt)) {
+    while (nameIt != view.end() && *nameIt != ':' && !std::isspace(static_cast<unsigned char>(*nameIt))) {
         ++nameIt;
     }
 
@@ -64,7 +64,7 @@ std::tuple<std::string, ObjectFieldTypes, std::string> ParseField(std::string_vi
 
     auto valIt = view.begin();
 
-    while (valIt != view.end() && !std::isspace(*valIt)) {
+    while (valIt != view.end() && !std::isspace(static_cast<unsigned char>(*valIt))) {
         ++valIt;
     }
 
