@@ -5,31 +5,34 @@
 
 auto ParseUnsignedTTL(std::string &val) -> ttl_t {
     const auto size = val.size();
+    try {
+        if (!std::isdigit(static_cast<unsigned char>(val.at(0)))) {
+            return {variant_t{}, TTLTypes::INVALID};
+        }
 
-    if (!std::isdigit(static_cast<unsigned char>(val.at(0)))) {
+        std::size_t digLen = 1;
+        for (std::size_t i = 1; i < size && std::isdigit(static_cast<unsigned char>(val.at(i))); ++i) {
+            ++digLen;
+        }
+
+        if (digLen == size - 2 && val.at(digLen) == API_CONSTANTS::MILLISECONDS[0] && val.at(digLen + 1) ==
+            API_CONSTANTS::MILLISECONDS[1]) {
+            val.pop_back();
+            val.pop_back();
+            return {variant_t{std::chrono::milliseconds(std::stoll(val))}, TTLTypes::MILLISECONDS};
+            }
+
+        if (digLen == size - 1 && val.at(digLen) == API_CONSTANTS::MINUTES_CH) {
+            return {variant_t{std::chrono::minutes(std::stoll(val))}, TTLTypes::MINUTES};
+        }
+
+        if (digLen == size - 1 && val.at(digLen) == API_CONSTANTS::SECONDS_CH) {
+            return {variant_t{std::chrono::seconds(std::stoll(val))}, TTLTypes::SECONDS};
+        }
+    }
+    catch (std::out_of_range& e) {
         return {variant_t{}, TTLTypes::INVALID};
     }
-
-    std::size_t digLen = 1;
-    for (std::size_t i = 1; i < size && std::isdigit(static_cast<unsigned char>(val.at(i))); ++i) {
-        ++digLen;
-    }
-
-    if (digLen == size - 2 && val.at(digLen) == API_CONSTANTS::MILLISECONDS[0] && val.at(digLen + 1) ==
-        API_CONSTANTS::MILLISECONDS[1]) {
-        val.pop_back();
-        val.pop_back();
-        return {variant_t{std::chrono::milliseconds(std::stoll(val))}, TTLTypes::MILLISECONDS};
-    }
-
-    if (digLen == size - 1 && val.at(digLen) == API_CONSTANTS::MINUTES_CH) {
-        return {variant_t{std::chrono::minutes(std::stoll(val))}, TTLTypes::MINUTES};
-    }
-
-    if (digLen == size - 1 && val.at(digLen) == API_CONSTANTS::SECONDS_CH) {
-        return {variant_t{std::chrono::seconds(std::stoll(val))}, TTLTypes::SECONDS};
-    }
-
     return {variant_t{}, TTLTypes::INVALID};
 }
 
@@ -113,6 +116,9 @@ auto GetDBType(view_t &args) -> std::tuple<DBTypes, ttl_t, Object, object_refere
                 return {DBTypes::INVALID, ttl_t{}, {}, {}};
             }
             resTTL = GetTTL(args);
+            if (resTTL.second == TTLTypes::INVALID) {
+                return {DBTypes::INVALID, ttl_t{}, {}, {}};
+            }
             gotTTL = true;
         }
 
