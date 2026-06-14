@@ -1,5 +1,15 @@
 # User documentation
 
+## Minimum HW requirements
+- CPU with 2 or more cores
+- 4 GB of RAM
+- less than 1 GB of storage
+
+
+## Minimal SW requirements
+- Windows 11
+- Linux based operating system
+
 ## Startup
 
 Use command `database` for starting the database. Following options are available:
