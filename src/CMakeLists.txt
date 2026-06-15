@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 4.0)
 project(project)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(INCLUDE_DIR "${PROJECT_SOURCE_DIR}/IncludeDirectory")
 set(TEST_DIRECTORY "${PROJECT_SOURCE_DIR}/Tests")
 
