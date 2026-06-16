@@ -195,8 +195,8 @@ explained for example [here](https://go.dev/blog/swisstable).
 - `class Entry`
     - instance of this class is used for altering position in a hash map, that is associated with some key
     - `GetResult` return result of look up of some key
-      - when key has been found, returns `LookupRes::USED`
-      - when key has not been found, returns `LookupRes::EMPTY`
+        - when key has been found, returns `LookupRes::USED`
+        - when key has not been found, returns `LookupRes::EMPTY`
     - `DeleteEntry` deletes entry associated with looked up key
     - `SetValue` sets value associated with looked up key to value specified as argument, accepts both L-value and
       R-value
@@ -661,6 +661,14 @@ One must do the following to add new entry type:
 
 ## Challenges
 
-Most challenging part of the entire project was checking type compatibility of types at runtime, when parsing operations
-and their arguments. The entire system of parsing and validating the operations was the most difficult part of the
-entire project.
+One of the challenging parts was ensuring type compatibility of arguments of all operations at runtime. I had to ensure,
+that operation is compatible with current database type - for example we cant perform integer operations on vectors.
+Next it was needed to ensure we know where the result is to be saved and if the result could be saved there. For
+example, you cant save result of operation, that is trying to find occurrences of substring in a string, which is vector
+of integers, into string database. Lastly it was needed to parse the arguments of this operation, ensure they are of the
+right type and ensure there is correct amount of arguments.
+
+Another difficult part was ensuring, that the hash table was in a correct state. This includes things like rehashing at
+a correct time. Rehashing at a wrong time could cause issues such that we had an Entry to the table, that we received by 
+LookUp method, and we could then insert value into place, where it would not be found. This was caused by rehashing
+before inserts.
