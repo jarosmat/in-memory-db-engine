@@ -617,5 +617,44 @@ File contains functions, that run in threads running the database
 Contains utilities used by all parts of the application
 
 ### `Constants`
+
 - files `Constants.hpp` and `Constants.cpp` contain various constants used in the application
 - struct `API_CONSTANTS` contains string and char values, that represent API keywords
+
+## API
+
+For any API extensions one must do the following:
+
+### Adding CLI options/flags
+
+Parsing of those options/flags must be done in `src/main.cpp` and then any functionality associated with those options
+must be done in `RunDB` function inside file `src/CLI/Runner.hpp`.
+
+### Adding functionality during runtime
+
+This would mean adding new operation. This would be done in `src/CLI/Runner.hpp` and following steps must be done:
+
+1. Add the operation in function `GetOPType` in `src/CLI/OperationType/OperationType.cpp`.
+2. Then for all types of entries, this functionality will work on, inside corresponding `if constexpr` block, part for
+   this operation must be added. Here function, that parses this operation must be called.
+3. Node, that executes this value must be added to `src/CLI/Nodes/OpNodes.hpp`, this node must inherit from class `Node`
+4. Add entry for this operation into `GetArgCount` in `src/CLI/OperationType/OperationType.cpp`
+5. Add this operation into corresponding `ValidatOPType` in `src/CLI/OperationType/OperationType.cpp`
+
+#### Adding entry type
+
+One must do the following to add new entry type:
+
+1. Add new value to enum `DBTypes` in `src/CLI/DBType/DBType.hpp`
+2. Add handling of this new value to `GetType` function
+3. Add the option of this value into `main.cpp`
+4. Add `if constexpr` block in `RunDB` function in `src/CLI/Runner.hpp`
+5. Create class for this entry and add it as a alias into `src/DBCore/DBEntry/ValueTypes.hpp`
+6. Add handling the created class into `get_db_type` struct template in `src/CLI/DBType/DBType.hpp`
+7. Add operations as described above
+
+## Challenges
+
+Most challenging part of the entire project was checking type compatibility of types at runtime, when parsing operations
+and their arguments. The entire system of parsing and validating the operations was the most difficult part of the
+entire project.
