@@ -22,6 +22,12 @@ runs in two threads:
            it pops it from the queue and executes the operation
         3. repeat
 
+## UML diagram
+
+![UML diagram of the netire application](diagram_full.svg)
+
+The picture can be found in `docs/diagram_full.svg`
+
 ## `src/DBCore`
 
 This folder contains the core components of the engine. It is structured into three folders:
