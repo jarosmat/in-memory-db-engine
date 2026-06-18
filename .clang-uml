@@ -1,0 +1,27 @@
+# Change to directory where compile_commands.json is
+compilation_database_dir: ./src/build
+# Change to directory where diagram should be written
+output_directory: docs/diagrams
+diagrams:
+  full_class_diagram:
+    type: class
+    glob:
+      - src/*.cpp
+      - src/**/*.cpp
+      - src/**/*.hpp
+    include:
+        relationships:
+          - inheritance
+          - dependency
+    exclude:
+        paths:
+          - src/build/_deps
+          - src/build/_deps/**/*
+          - src/build_test/**/*
+          - src/cmake-build-debug/**/*
+          - src/Tests/**/*
+          - src/Tests
+        namespaces:
+          - std
+          - catch
+          - __gnu_cxx
