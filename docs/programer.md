@@ -7,19 +7,16 @@ instantiation of function template `RunDB` found in `src/CLI/Runner.hpp` is call
 runs in two threads:
 
 1. reader thread
-    - this thread just reads input stream specified when calling `RunDB` (currently `std::cin`) and pushes
-      lines that are read into `std::queue` shared with main thread
+    - this thread just reads input stream specified when calling `RunDB` (currently `std::cin`) and pushes lines that
+      are read into `std::queue` shared with main thread
 2. main thread
     - this thread does all the important work
     - thread works in cycles:
         1. It checks `std::priority_queue<QueueEntry>`, that holds information about expiration of database entries. On
-           top
-           of the priority queue is entry, that will expire first. If the entry on top of the queue is expired it pops
-           it
-           from the queue and removes associated entry from database
+           top of the priority queue is entry, that will expire first. If the entry on top of the queue is expired it
+           pops it from the queue and removes associated entry from database
         2. It checks if there is a new line (operation od database) in `std::queue` shared with reader thread, if there
-           is,
-           it pops it from the queue and executes the operation
+           is, it pops it from the queue and executes the operation
         3. repeat
 
 ## UML diagram
@@ -67,37 +64,32 @@ This folder contains classes used to represent specific entries to database.
 - `class Object`
     - Is a class used to represent database value type `object`
     - For avoiding circular dependency, the declaration of class interface is in file
-      `src/DBCore/DBEntry/ValueTypes.hpp`,
-      this file is then included in `Object.hpp`
+      `src/DBCore/DBEntry/ValueTypes.hpp`, this file is then included in `Object.hpp`
     - In `src/DBCore/DBEntry/ValueTypes.hpp` an alias `PrimitiveValuePack` is defined, this alias holds all value types,
-      that
-      are available for fields of object to hold, in a `std::tuple`.
+      that are available for fields of object to hold, in a `std::tuple`.
     - In `src/DBCore/DBEntry/ValueTypes.hpp`, there is a struct `ValueType`, that is used to infer type of actual type
-      of
-      field value representation, it takes a `std::tuple` template and defines struct alias `ValueType<Args ...>::type`,
-      that is a type `std::variant<Args ...>`
+      of field value representation, it takes a `std::tuple` template and defines struct alias
+      `ValueType<Args ...>::type`, that is a type `std::variant<Args ...>`
     - For representation of fields of an object, instance of `std::unordered_map<Key, Value>` is used
         - `Key` is an alias for `std::string`
         - `Value = ValueType<PrimitoveValuePack>::type`, which is a `std::variant` with all value types, that are
           possible
     - class can be constructed with an iterator pair into `std::vector<std::pair<Key, Value>>`, this constructs an
-      instance
-      with fields, that are in the vector between specified iterators, where the pair specifies field name and the value
-      of
-      that field:
+      instance with fields, that are in the vector between specified iterators, where the pair specifies field name and
+      the value of that field:
         -
       `Object(std::vector<std::pair<Key, Value>>::iterator first, std::vector<std::pair<Key, Value>>::iterator last)`
         - `Object()`
             - constructs object with empty instance of `std::unordered_map<Key, Value>`
     - `T get_member(const Key &name)` function template, that takes a key and returns a value, that is stored under only
-      argument of type `Key`,
-      argument of function template is the value type, that is expected to be stored under specified field name
+      argument of type `Key`, argument of function template is the value type, that is expected to be stored under
+      specified field name
     - `void dump_to_stream(std::ostream& stream, const Key &key)`
         - dumps the field named `key` into `stream`
         - assumes, that field named `key` exists
     - `void set_value(const Key &name, const T &value)` function template, that stores `value` under `name` field name,
-      template of the function is the value type
-      of `value`, function has two overloads, for `value` being passed as an r-value of l-value reference
+      template of the function is the value type of `value`, function has two overloads, for `value` being passed as an
+      r-value of l-value reference
     - `bool has_member(const Key &name)` function, that returns `true`, if the instance contains a field under a `name`,
       otherwise returns `false`
     - `std::size_t MemberCount()` function, that return number of fields currently stored in the instance
@@ -110,15 +102,13 @@ This folder contains classes used to represent specific entries to database.
         - `std::chrono::steady_clock` is used, because timepoints of this clock cannot decrease as time goes on
     - `Timepoint()` constructs an instance, takes a timepoint
     - `bool Elapsed(T &&val)` function template, that takes value `val` of type `T`, function template `T` must be
-      specialization
-      of `std::chrono::duration` (it must be possible to cast duration values to this type). Function returns `true` if
-      time
-      specified as value `val` has elapsed since creation of this object, otherwise returns `false`.
+      specialization of `std::chrono::duration` (it must be possible to cast duration values to this type). Function
+      returns `true` if time specified as value `val` has elapsed since creation of this object, otherwise returns
+      `false`.
     - `T RemainingTime(T &&val)` function template, that takes value `val` of type `T` with same traits as parameter of
       function
       `Elapsed`. This function returns remaining time before the time `val` elapses since the construction of this
-      object.
-      Return value if of type `T`, if time `val` has already elapsed the function returns `T(0)`.
+      object. Return value if of type `T`, if time `val` has already elapsed the function returns `T(0)`.
 - `class DBEntry_t<typename E, typename T>`
     - class template used to store entries into database, `E` specifies the type of entry that is to be stored in the
       database and `T` specifies a type used for specifying time to live, `T` must be specialization of
@@ -128,8 +118,7 @@ This folder contains classes used to represent specific entries to database.
         - `Timepoint timepoint_` - used for measuring if entry is already expired
         - `T ttl` - time for the instance to live - used for comparing against `timepoint_`
         - `QueueEntry *entryPointer` - pointer to entry of priority queue used for tracking expired entries. This
-          pointer is
-          used to invalidate the entry in priority queue, so the entry won't be removed more than once
+          pointer is used to invalidate the entry in priority queue, so the entry won't be removed more than once
     - `DBEntry_t(EC &&payload, TC &&ttl, QueueEntry *pointer)` - only constructor, `payload` is the value to be stored,
       `ttl` is time to live of the entry, `pointer` is pointer to priority queue
     - `E GetRef()` - returns reference to payload
@@ -161,33 +150,27 @@ This folder contains classes used to represent specific entries to database.
 ### `SwissTable`
 
 Contains classes used for declaration of `class SwissTable`, which serves as a hash table. Swiss Table is a hash map
-design,
-explained for example [here](https://go.dev/blog/swisstable).
+design, explained for example [here](https://go.dev/blog/swisstable).
 
 - `class Vector`
     - class creating object similar to `std::vector`
     - used for representation of backing-array
 - `class Group`
     - used for representation of groups in Swiss Tables
-    - all indexes in some inputs/outputs of this class, can be used to directly access data in
-      backing-array - these indexes point to positions in backing array
+    - all indexes in some inputs/outputs of this class, can be used to directly access data in backing-array - these
+      indexes point to positions in backing array
     - `std::vector<uint8_t>` is used internally to represent the control word of a group
     - `start` and `end` indicate where in backing array the group starts and where it ends, `end` points to value just
-      after
-      last value in this group
+      after last value in this group
     - `LookUp` method tries to find occurrence of specified h2 hash, if it does not find any it tries to find empty
       space,
         - when hash is found in group, pair `<LookupRes::USED, std::vector<size_t>>` is returned, where the vector
-          contains
-          all occurrences of specified h2 in this group
+          contains all occurrences of specified h2 in this group
         - when hash is not found and there is empty slot in this group - indicating, that value we are searching for is
-          not
-          in hash map yet, method returns pair `<LookupRes::EMPTY, std::vector<size_t>>`, where the vector contains all
-          empty
-          indexes in this group
+          not in hash map yet, method returns pair `<LookupRes::EMPTY, std::vector<size_t>>`, where the vector contains
+          all empty indexes in this group
         - when hash in found and the group is full, the pair `<LookupRes::FULL, std::vector<size_t>>` is returned, where
-          the
-          vector can be ignored since it does not contain any useful data
+          the vector can be ignored since it does not contain any useful data
     - `SetVal` sets specified hash as a value stored at a specified position in group
     - `Delete` deletes value at specified position in group
     - `Used` method return `true` if specified position in a group is in use, returns `false` otherwise
@@ -199,33 +182,29 @@ explained for example [here](https://go.dev/blog/swisstable).
         - when key has not been found, returns `LookupRes::EMPTY`
     - `DeleteEntry` deletes entry associated with looked up key
     - `SetValue` sets value associated with looked up key to value specified as argument, accepts both L-value and
-      R-value
-      references
+      R-value references
     - `GetValue` returns reference to value associated with looked up key
 
 - `class SwissTable`
     - contains `Vector` with instances of groups, `Vector` with keys and `Vector` with value, variable `dataCount`
-      contains
-      number of values actually inserted in hash map
+      contains number of values actually inserted in hash map
     - class has only default constructor
     - `LookUp` returns instance of `Entry` that can be used to access/delete/update value associated with specified key
     - `Rehash` method expands the backing array and inserts all value in the hash map
     - `Delete` method deletes value at specified position in backing array
     - `SetValue` method sets the value at specified position in backing array to specified value, h2 hash of the key
-      must
-      be specified, method accepts both L-value and R-value references to value that is to be inserted
+      must be specified, method accepts both L-value and R-value references to value that is to be inserted
     - `GetValue` method returns reference to value at specified position in backing array
     - `GetNextGroup` returns index of next group when sequentially iterating over groups
     - `CheckExistence` checks if key actually exists in certain group with specified lookup result from this group of
-      the
-      keys h2 hash, returns `std::pair<bool, size_t>` where `bool` specifies whether key was actually found and `size_t`
+      the keys h2 hash, returns `std::pair<bool, size_t>` where `bool` specifies whether key was actually found and
+      `size_t`
       specifies the index in backing array where the key actually is
 
 ### `HashFunction`
 
 Contains implementation of a Sip hash hashing function. Information about SipHash can be
-found [here](https://eprint.iacr.org/2012/351.pdf).
-Key is chosen randomly on database startup.
+found [here](https://eprint.iacr.org/2012/351.pdf). Key is chosen randomly on database startup. SipHash-2-4 is used.
 
 ## `src/CLI`
 
@@ -427,8 +406,7 @@ Contains functions used for parsing database operations.
 - function
   `std::pair<VectorParsingRes, Vector<T>> ParseVect(std::string_view input, std::function<std::pair<bool, typename vector_t<T>::type>(std::string_view)> converter)`
     - tries to parse constant value of Vector containing values of type `T`, with `converter` used as a function, that
-      parses
-      string representation of values of type `T`
+      parses string representation of values of type `T`
     - when successful returns `VectorParsingRes::VALID` and value
     - returns `VectorParsingRes::INVALID_VECT` for invalid syntax
     - returns `VectorParsingRes::INVALID_ITEM` for invalid item
@@ -439,8 +417,8 @@ Contains functions used for parsing database operations.
     - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
     - otherwise returns `GetArgsReturnTypes::VALID` and valid pointer
 - function template `std::pair<GetArgsReturnTypes, VectPtr<T> > getVectorFromDB<T, DB>(DB &db, args_parsed &&args)`
-    - does the same thing as `getVector`, only difference is that only returns valid value, when argument parsed is
-      key into database and type of database is correct
+    - does the same thing as `getVector`, only difference is that only returns valid value, when argument parsed is key
+      into database and type of database is correct
 - function
   `parse_res<Object> ParseObject(std::string_view input, Object referenceObject, const object_reference &reference))`
     - tries to parse constant value of Object
@@ -455,8 +433,8 @@ Contains functions used for parsing database operations.
     - if not successful, returns `GetArgsReturnTypes::INVALID` and invalid pointer
     - otherwise returns `GetArgsReturnTypes::VALID` and valid pointer
 - function template `std::pair<GetArgsReturnTypes, NodePtr<Object> > getObjectFromDB<DB>(DB &db, args_parsed &&args)`
-    - does the same thing as `getObject`, only difference is that only returns valid value, when argument parsed is
-      key into database and type of database is correct
+    - does the same thing as `getObject`, only difference is that only returns valid value, when argument parsed is key
+      into database and type of database is correct
 - enum class `ParseOperationRes`
     - used to represent result of a parsing of database operation
 - alias `parse_op_r<N> = std::pair<ParseOperationRes, std::unique_ptr<N> >`
@@ -615,8 +593,8 @@ File contains functions, that run in threads running the database
     - `outstream` is stream, where to dump results
     - `referenceObject` is only used if `T` is equal to `Object`, it is reference object, from which to build new
       entries
-    - `reference` is only used if `T` is equal to `Object`, it is used to check if new entries have correct structure (
-      correct fields and its types and that new entry contains all the necessary fields)
+    - `reference` is only used if `T` is equal to `Object`, it is used to check if new entries have correct structure
+      (correct fields and its types and that new entry contains all the necessary fields)
 
 ## `src/Utils`
 
@@ -669,6 +647,6 @@ of integers, into string database. Lastly it was needed to parse the arguments o
 right type and ensure there is correct amount of arguments.
 
 Another difficult part was ensuring, that the hash table was in a correct state. This includes things like rehashing at
-a correct time. Rehashing at a wrong time could cause issues such that we had an Entry to the table, that we received by 
+a correct time. Rehashing at a wrong time could cause issues such that we had an Entry to the table, that we received by
 LookUp method, and we could then insert value into place, where it would not be found. This was caused by rehashing
 before inserts.
