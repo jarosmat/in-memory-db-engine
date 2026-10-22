@@ -1,12 +1,17 @@
+## In-Memory Database Engine
+
+My implementation of in-memory database key-value store database engine using the Swiss Table hash table and SipHash-2-4
+as a hash function.
+
 ## Proposal
 
-Proposal of this project can be seen [here](Proposal.md)
+Proposal of this project can be seen [here](docs/Proposal.md)
 
 ## Documentation
 
-- [Programmer documentation](programer.md)
-- [User documentation](user.md)
-- [Examples of usage](example_usage.md)
+- [Programmer documentation](docs/programer.md#programmer-documentation)
+- [User documentation](docs/user.md#user-documentation)
+- [Examples of usage](docs/user.md#example-usage)
 
 ## Build
 
